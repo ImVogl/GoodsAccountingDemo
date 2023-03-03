@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Backend/packages
+/**/.vs
+/**/bin/**/*
+/**/obj/**/*
+API description.txt
