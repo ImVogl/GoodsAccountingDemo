@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using GoodsAccounting.Model.DTO;
+using System.Text.RegularExpressions;
 
 namespace GoodsAccounting.Services.Validator;
 
@@ -25,5 +26,12 @@ public class Validator : IPasswordValidator, IDtoValidator
                && regexWordLow.IsMatch(value) 
                && regexDigit.IsMatch(value) 
                && regexNotWord.IsMatch(value);
+    }
+
+    /// <inheritdoc />
+    public bool Validate(SignInDto dto)
+    {
+        var regexSpace = new Regex(@"\s");
+        return !string.IsNullOrWhiteSpace(dto.UserLogin) && !regexSpace.IsMatch(dto.UserLogin) && Validate(dto.Password);
     }
 }
