@@ -1,5 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 namespace GoodsAccounting
 {
+    using Model.Config;
+    using Services;
+    using GoodsAccounting.Services.SecurityKey;
+    using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
 
     /// <summary>
@@ -70,6 +77,7 @@ namespace GoodsAccounting
         /// <param name="serviceCollection">Instance of <see cref="IServiceCollection"/> for web application.</param>
         private static void ConfigureSwagger(IServiceCollection serviceCollection)
         {
+            var provider = serviceCollection.BuildServiceProvider();
             var contact = new OpenApiContact { Email = "knispel.kurt@gmail.com", Name = "Roman" };
             var apiInfo = new OpenApiInfo
             {
@@ -94,7 +102,44 @@ namespace GoodsAccounting
             });
 
             serviceCollection.AddSwaggerGenNewtonsoftSupport();
+            var section = provider.GetRequiredService<IOptions<JwtSection>>().Value;
+            if (string.IsNullOrWhiteSpace(section.ValidIssuer))
+                throw new NullReferenceException(nameof(section.ValidIssuer));
 
+            if (string.IsNullOrWhiteSpace(section.ValidAudience))
+                throw new NullReferenceException(nameof(section.ValidAudience));
+
+            var keyExtractor = provider.GetRequiredService<ISecurityKeyExtractor>();
+            serviceCollection.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options => options.TokenValidationParameters = GenerateValidationParameters(section.ValidIssuer, section.ValidAudience, keyExtractor));
+
+            serviceCollection.AddAuthentication();
+            serviceCollection.AddAuthorization();
+        }
+
+        /// <summary>
+        /// Create JWT token validation parameters
+        /// </summary>
+        /// <param name="issuer">Token issuer.</param>
+        /// <param name="audience">Token audience.</param>
+        /// <param name="extractor">Instance of <see cref="ISecurityKeyExtractor"/>.</param>
+        /// <returns>Validation parameters.</returns>
+        private static TokenValidationParameters GenerateValidationParameters(string issuer, string audience, ISecurityKeyExtractor extractor)
+        {
+            return new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = issuer,
+                ValidAudience = audience,
+                IssuerSigningKey = extractor.Extract()
+            };
         }
 
         /// <summary>
@@ -139,6 +184,10 @@ namespace GoodsAccounting
         /// Registration types.
         /// </summary>
         /// <param name="serviceCollection">Instance of <see cref="IServiceCollection"/> for web application.</param>
-        private static void RegisterDependencies(IServiceCollection serviceCollection){}
+        private static void RegisterDependencies(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddScoped<ConfigurationOptionSetup>();
+            serviceCollection.AddSingleton<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
+        }
     }
 }
