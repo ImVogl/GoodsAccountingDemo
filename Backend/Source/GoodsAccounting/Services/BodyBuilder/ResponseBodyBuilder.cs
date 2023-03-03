@@ -24,4 +24,16 @@ public class ResponseBodyBuilder : IResponseBodyBuilder
     {
         return new Dictionary<string, string> { { "token", token } };
     }
+
+    /// <inheritdoc />
+    public Dictionary<string, string> EntityExistsBuild()
+    {
+        return new Dictionary<string, string> { { "error", "resourceExists" } };
+    }
+
+    /// <inheritdoc />
+    public Dictionary<string, string> TokenNewUserBuild(string login, string password, string token)
+    {
+        return new Dictionary<string, string> { { "login", login }, { "password", password }, { "token", token } };
+    }
 }

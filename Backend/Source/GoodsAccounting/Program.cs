@@ -186,7 +186,7 @@ namespace GoodsAccounting
         /// <param name="serviceCollection">Instance of <see cref="IServiceCollection"/> for web application.</param>
         private static void RegisterDependencies(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<ConfigurationOptionSetup>();
+            serviceCollection.ConfigureOptions<ConfigurationOptionSetup>();
             serviceCollection.AddSingleton<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
         }
     }

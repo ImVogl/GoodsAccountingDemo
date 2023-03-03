@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="NLog" Version="5.1.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
@@ -18,9 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controlls\" />
-    <Folder Include="Model\DataBase\" />
     <Folder Include="Model\Exceptions\" />
+    <Folder Include="Model\Config\" />
+    <Folder Include="Services\DataBase\" />
     <Folder Include="Services\Password\" />
   </ItemGroup>
 

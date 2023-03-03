@@ -1,4 +1,6 @@
-﻿namespace GoodsAccounting.Services.BodyBuilder;
+﻿using GoodsAccounting.Model.DataBase;
+
+namespace GoodsAccounting.Services.BodyBuilder;
 
 /// <summary>
 /// Interface for request body builder service.
@@ -23,4 +25,19 @@ public interface IResponseBodyBuilder
     /// <param name="token">JSON web token.</param>
     /// <returns>Response body.</returns>
     Dictionary<string, string> TokenBuild(string token);
+
+    /// <summary>
+    /// Build body for entity exists already in storage response.
+    /// </summary>
+    /// <returns>Response body.</returns>
+    Dictionary<string, string> EntityExistsBuild();
+
+    /// <summary>
+    /// Build body for success response new user info.
+    /// </summary>
+    /// <param name="login">New user login.</param>
+    /// <param name="password">New user password.</param>
+    /// <param name="token">Token.</param>
+    /// <returns></returns>
+    Dictionary<string, string> TokenNewUserBuild(string login, string password, string token);
 }
