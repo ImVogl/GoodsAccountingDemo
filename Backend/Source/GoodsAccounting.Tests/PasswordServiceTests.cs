@@ -27,10 +27,12 @@ namespace GoodsAccounting.Tests
         [Description("Verify password function argument checking")]
         public void VerifyArgumentsTest()
         {
+#pragma warning disable CS8625
             const string validPassword = "Az!2.sssA";
             Assert.Throws<ArgumentNullException>(() => PasswordService.VerifyPassword(null, validPassword, "1234"));
+            Assert.Throws<ArgumentNullException>(() => PasswordService.VerifyPassword(new byte[] { 1, 2, 3 }, validPassword, null));
+#pragma warning restore CS8625
             Assert.Throws<ArgumentNullException>(() => PasswordService.VerifyPassword(Array.Empty<byte>(), validPassword, "1234"));
-            Assert.Throws<ArgumentNullException>(() => PasswordService.VerifyPassword(new byte[]{ 1, 2, 3}, validPassword, null));
             Assert.Throws<ArgumentNullException>(() => PasswordService.VerifyPassword(new byte[]{ 1, 2, 3}, validPassword, string.Empty));
         }
 
