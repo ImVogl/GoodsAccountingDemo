@@ -1,4 +1,5 @@
-﻿using GoodsAccounting.Services.Validator;
+﻿using GoodsAccounting.Model.DTO;
+using GoodsAccounting.Services.Validator;
 using NUnit.Framework;
 
 namespace GoodsAccounting.Tests;
@@ -6,6 +7,7 @@ namespace GoodsAccounting.Tests;
 public class ValidatorTests
 {
     private static readonly IPasswordValidator PasswordValidator = new Validator();
+    private static readonly IDtoValidator DtoValidator = new Validator();
 
     [Test]
     [Description("Test valid password")]
@@ -53,5 +55,20 @@ public class ValidatorTests
     {
         const string invalidPassword = "A2!2.2FGA";
         Assert.False(PasswordValidator.Validate(invalidPassword));
+    }
+
+    [Test]
+    [Description("Invalid login test")]
+    public void InvalidLoginTest()
+    {
+        const string validPassword = "Az!2.sssA";
+        const string validLogin = "abc";
+        const string loginSpace = "abn c";
+        const string loginUnicode = "abс";
+
+        Assert.True(DtoValidator.Validate(new SignInDto { UserLogin = validLogin, Password = validPassword }));
+        Assert.False(DtoValidator.Validate(new SignInDto { UserLogin = string.Empty, Password = validPassword }));
+        Assert.False(DtoValidator.Validate(new SignInDto { UserLogin = loginSpace, Password = validPassword }));
+        Assert.False(DtoValidator.Validate(new SignInDto { UserLogin = loginUnicode, Password = validPassword }));
     }
 }

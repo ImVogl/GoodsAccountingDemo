@@ -31,7 +31,12 @@ public class Validator : IPasswordValidator, IDtoValidator
     /// <inheritdoc />
     public bool Validate(SignInDto dto)
     {
+        const int lastAnsiSymbol = 128;
         var regexSpace = new Regex(@"\s");
-        return !string.IsNullOrWhiteSpace(dto.UserLogin) && !regexSpace.IsMatch(dto.UserLogin) && Validate(dto.Password);
+        return 
+            !string.IsNullOrWhiteSpace(dto.UserLogin)
+            && !regexSpace.IsMatch(dto.UserLogin)
+            && dto.UserLogin.All(sym => sym < lastAnsiSymbol)
+            && Validate(dto.Password);
     }
 }
