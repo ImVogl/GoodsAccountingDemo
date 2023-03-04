@@ -1,4 +1,5 @@
 ﻿using GoodsAccounting.Model.DTO;
+using JetBrains.Annotations;
 
 namespace GoodsAccounting.Services.Validator;
 
@@ -12,5 +13,5 @@ public interface IDtoValidator
     /// </summary>
     /// <param name="dto"><see cref="SignInDto"/></param>
     /// <returns>Value in indicating that DTO is valid.</returns>
-    bool Validate(SignInDto dto);
+    bool Validate([NotNull]SignInDto dto);
 }

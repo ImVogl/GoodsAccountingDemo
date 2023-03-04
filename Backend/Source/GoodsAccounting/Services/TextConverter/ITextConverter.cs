@@ -1,4 +1,6 @@
-﻿namespace GoodsAccounting.Services.TextConverter;
+﻿using JetBrains.Annotations;
+
+namespace GoodsAccounting.Services.TextConverter;
 
 /// <summary>
 /// Converter unicode string to ansi equivalent.
@@ -10,5 +12,6 @@ public interface ITextConverter
     /// </summary>
     /// <param name="source">Source text.</param>
     /// <returns>Translated text.</returns>
-    string Convert(string source);
+    [NotNull]
+    string Convert([NotNull] string source);
 }

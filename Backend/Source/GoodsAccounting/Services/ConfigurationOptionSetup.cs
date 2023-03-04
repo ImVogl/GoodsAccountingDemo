@@ -1,4 +1,5 @@
 ﻿using GoodsAccounting.Model.Config;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 
 namespace GoodsAccounting.Services;
@@ -17,9 +18,9 @@ public class ConfigurationOptionSetup : IConfigureOptions<JwtSection>
     /// Create new instance of <see cref="ConfigurationOptionSetup"/>.
     /// </summary>
     /// <param name="configuration">Instance of <see cref="IConfiguration"/>.</param>
-    public ConfigurationOptionSetup(IConfiguration configuration)
+    public ConfigurationOptionSetup([NotNull] IConfiguration configuration)
     {
-        _configuration = configuration;
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
     
     /// <inheritdoc />

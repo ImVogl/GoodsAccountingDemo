@@ -16,6 +16,8 @@ public interface IPassword
     /// <param name="salt">Salt.</param>
     /// <returns>Tuple with salt and hashed password.</returns>
     /// <exception cref="BadPasswordException"><see cref="BadPasswordException"/></exception>
+    [NotNull]
+    [ItemNotNull]
     (string, byte[]) Hash([NotNull] string password, [CanBeNull] string? salt = null);
 
     /// <summary>
@@ -33,5 +35,6 @@ public interface IPassword
     /// Generating random password.
     /// </summary>
     /// <returns>Password.</returns>
+    [NotNull]
     string GeneratePassword();
 }

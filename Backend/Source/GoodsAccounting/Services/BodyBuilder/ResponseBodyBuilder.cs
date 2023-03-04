@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace GoodsAccounting.Services.BodyBuilder;
+﻿namespace GoodsAccounting.Services.BodyBuilder;
 
 /// <summary>
 /// Request body builder service.

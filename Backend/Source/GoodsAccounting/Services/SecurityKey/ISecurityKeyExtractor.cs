@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using JetBrains.Annotations;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GoodsAccounting.Services.SecurityKey;
 
@@ -11,5 +12,6 @@ public interface ISecurityKeyExtractor
     /// Extract cypher key.
     /// </summary>
     /// <returns>Key.</returns>
+    [NotNull]
     SymmetricSecurityKey Extract();
 }

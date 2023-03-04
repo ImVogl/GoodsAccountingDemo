@@ -1,4 +1,5 @@
 ﻿using GoodsAccounting.Model.DataBase;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoodsAccounting.Services.DataBase;
@@ -11,6 +12,8 @@ public interface IDataBase
     /// <summary>
     /// Get collection of <see cref="User"/> entity.
     /// </summary>
+    [NotNull]
+    [ItemNotNull]
     DbSet<User> Users { get; }
 
     /// <summary>
@@ -27,5 +30,5 @@ public interface IDataBase
     /// </summary>
     /// <param name="user"><see cref="User"/>.</param>
     /// <returns><see cref="Task"/>.</returns>
-    Task AddUser(User user);
+    Task AddUser([NotNull] User user);
 }
