@@ -1,0 +1,12 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3e7c8c99_002Df46a_002D42d0_002D91cc_002Ddea1af0888ce/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GeneratePasswordTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.Tests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.ValidatorTests.InvalidLoginTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.TextConverterTests.ValidTextConversionTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.TextConverterTests.TextWithNonLetterCharactersTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.TextConverterTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.ValidatorTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.DataBaseTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
