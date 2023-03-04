@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using GoodsAccounting.Model.Exceptions;
+using JetBrains.Annotations;
 
 namespace GoodsAccounting.Services.TextConverter;
 
@@ -12,6 +13,8 @@ public interface ITextConverter
     /// </summary>
     /// <param name="source">Source text.</param>
     /// <returns>Translated text.</returns>
+    /// <exception cref="BadCharConverterException"><see cref="BadCharConverterException"/>.</exception>
+    /// <exception cref="InvalidCastException">Can't cast one of character from source.</exception>
     [NotNull]
     string Convert([NotNull] string source);
 }

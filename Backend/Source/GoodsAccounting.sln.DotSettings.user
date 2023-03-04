@@ -3,5 +3,7 @@
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.Tests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.ValidatorTests.InvalidLoginTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.TextConverterTests.ValidTextConversionTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.TextConverterTests.TextWithNonLetterCharactersTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

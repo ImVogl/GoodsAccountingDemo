@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Model\Exceptions\" />
     <Folder Include="Model\Config\" />
     <Folder Include="Services\DataBase\" />
     <Folder Include="Services\Password\" />
