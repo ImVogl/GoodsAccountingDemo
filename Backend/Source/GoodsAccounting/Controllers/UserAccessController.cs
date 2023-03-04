@@ -124,44 +124,43 @@ namespace GoodsAccounting.Controllers
         public async Task<IActionResult> AddUserAsync([FromBody] AddUserDto dto)
         {
             Log.Info($"User with identifier \'{dto.SenderId}\' is trying to create new user.");
-            try
-            {
-                if (dto.SenderId < 1 || string.IsNullOrWhiteSpace(dto.Token))
+            try {
+                if (dto.SenderId < 1)
                 {
                     Log.Warn("User's identifier is incorrect.");
                     return BadRequest(_bodyBuilder.InvalidDtoBuild());
                 }
 
-                var user = await _db.Users
-                    .SingleOrDefaultAsync(u => u.Id == dto.SenderId)
-                    .ConfigureAwait(false);
-
-                if (user != null)
+                var login = $"{_textConverter.Convert(dto.Surname)}_{_textConverter.Convert(dto.Name)}";
+                var birthDay = DateOnly.FromDateTime(dto.BirthDay);
+                if (await _db.DoesUserExistsAsync(login, dto.Name, dto.Surname, birthDay).ConfigureAwait(false))
                     return BadRequest(_bodyBuilder.EntityExistsBuild());
 
                 const int expiredMinutes = 15;
-                var expiredTime = DateOnly.FromDateTime(DateTime.Now.AddMinutes(expiredMinutes));
+                var expiredTime = DateTime.Now.AddMinutes(expiredMinutes);
                 var password = _passwordService.GeneratePassword();
                 var (salt, hash) = _passwordService.Hash(password);
                 var newUser = new User
                 {
-                    UserLogin = $"{_textConverter.Convert(dto.Surname)}_{_textConverter.Convert(dto.Name)}",
+                    UserLogin = login,
                     Name = dto.Name,
-                    BirthDate = DateOnly.FromDateTime(dto.BirthDay),
+                    BirthDate = birthDay,
                     Surname = dto.Surname, PasswordExpired = expiredTime, Hash = hash, Salt = salt,
                     Role = UserRole.RegisteredUser
                 };
 
-                await _db.AddUser(newUser).ConfigureAwait(false);
+                await _db.AddUserAsync(newUser).ConfigureAwait(false);
                 var jwtToken = ProcessToken(newUser, expiredMinutes);
-                return Ok(_bodyBuilder.TokenNewUserBuild("", password, jwtToken));
+                return Ok(_bodyBuilder.TokenNewUserBuild(login, password, jwtToken));
             }
-            catch (BadPasswordException)
-            {
+            catch (BadPasswordException) {
                 return Unauthorized();
             }
-            catch
-            {
+            catch (EntityExistsException) {
+                Log.Error("User with the same parameters exists.");
+                return BadRequest(_bodyBuilder.EntityExistsBuild());
+            }
+            catch {
                 Log.Info("Unknown error was trown.");
                 return BadRequest(_bodyBuilder.UnknownBuild());
             }
@@ -170,41 +169,46 @@ namespace GoodsAccounting.Controllers
         /// <summary>
         /// Change user password.
         /// </summary>
-        /// <param name="id">User identifier.</param>
+        /// <param name="oldPassword">Current user password.</param>
         /// <param name="password">New user password.</param>
-        /// <param name="token">Access token.</param>
         /// <returns><see cref="Task"/> for response.</returns>
         /// <response code="200">Returns value is indicated that user is drinker.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize]
-        [HttpPost("~/change/{id}/{password}/{token}")]
+        [HttpPost("~/change/{oldPassword}/{password}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ChangePasswordAsync(int id, string password, string token)
+        public async Task<IActionResult> ChangePasswordAsync(string oldPassword, string password)
         {
-            Log.Info($"User with identifier \'{id}\' is trying to change treir password.");
             try {
-                if (id < 1 || string.IsNullOrWhiteSpace(token)) {
-                    Log.Warn("User's identifier is incorrect.");
-                    return BadRequest(_bodyBuilder.InvalidDtoBuild());
+                var id = ExtractUserIdentifierFromToken();
+                if (id == null)
+                {
+                    Log.Warn("Can't extract user idetntifier from JWT.");
+                    return Unauthorized();
                 }
-                
+
+                var castId = (int)id;
+                Log.Info($"User with identifier \'{castId}\' is trying to change treir password.");
                 var user = await _db.Users
-                    .SingleOrDefaultAsync(u => u.Id == id)
+                    .SingleOrDefaultAsync(u => u.Id == castId)
                     .ConfigureAwait(false);
 
-                if (user == null)
+                if (user == null || !_passwordService.VerifyPassword(user.Hash, oldPassword, user.Salt))
                     return Unauthorized();
-                
-                var (salt, hash) =_passwordService.Hash(password);
-                await _db.ChangePasswordAsync(id, salt, hash).ConfigureAwait(false);
+
+                var (salt, hash) = _passwordService.Hash(password);
+                await _db.ChangePasswordAsync(castId, salt, hash).ConfigureAwait(false);
 
                 var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
                 return Ok(_bodyBuilder.TokenBuild(jwtToken));
             }
             catch (BadPasswordException) {
+                return Unauthorized();
+            }
+            catch (EntityNotFoundException) {
                 return Unauthorized();
             }
             catch {
@@ -229,9 +233,8 @@ namespace GoodsAccounting.Controllers
         {
             Log.Info($"User with login \'{dto.UserLogin}\' is trying to sign in.");
 
-            try
-            {
-                if (_validator.Validate(dto))
+            try {
+                if (!_validator.Validate(dto))
                 {
                     Log.Warn("User sent invalid DTO.");
                     return BadRequest(_bodyBuilder.InvalidDtoBuild());
@@ -259,23 +262,21 @@ namespace GoodsAccounting.Controllers
         /// Sign Out user.
         /// </summary>
         /// <param name="id">User identifier.</param>
-        /// <param name="token">Access token.</param>
         /// <returns><see cref="Task"/> for response.</returns>
         /// <response code="200">Returns value is indicated that user is drinker.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize]
-        [HttpPost("~/signout/{id}/{token}")]
+        [HttpPost("~/signout/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> SignOutUserAsync(int id, string token)
+        public async Task<IActionResult> SignOutUserAsync(int id)
         {
             Log.Info($"User with identifier \'{id}\' is trying to sign out.");
 
-            try
-            {
-                if (id < 1 || string.IsNullOrWhiteSpace(token)) {
+            try {
+                if (id < 1) {
                     Log.Warn("User's identifier is incorrect.");
                     return BadRequest(_bodyBuilder.InvalidDtoBuild());
                 }
@@ -290,8 +291,7 @@ namespace GoodsAccounting.Controllers
                 var jwtToken = ProcessToken(user, 0);
                 return Ok(_bodyBuilder.TokenBuild(jwtToken));
             }
-            catch
-            {
+            catch {
                 return BadRequest(_bodyBuilder.UnknownBuild());
             }
         }
@@ -304,7 +304,7 @@ namespace GoodsAccounting.Controllers
         /// <returns>Token.</returns>
         private string ProcessToken(User user, int minutes)
         {
-            var credentials = new SigningCredentials(_keyExtractor.Extract(), SecurityAlgorithms.Sha256);
+            var credentials = new SigningCredentials(_keyExtractor.Extract(), SecurityAlgorithms.HmacSha256);
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -334,9 +334,24 @@ namespace GoodsAccounting.Controllers
                     new Claim(JwtRegisteredClaimNames.FamilyName, user.Surname),
                     new Claim(JwtRegisteredClaimNames.NameId, user.UserLogin),
                     new Claim(ClaimTypes.Role, user.Role)
-
                 }
             );
+        }
+
+        /// <summary>
+        /// Extraction user identifier from JWT.
+        /// </summary>
+        /// <returns>User identifier.</returns>
+        private int? ExtractUserIdentifierFromToken()
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return null;
+            
+            var claim = identity.FindFirst("Id");
+            if (claim == null)
+                return null;
+
+            return int.TryParse(claim.Value, out var id) ? id : null;
         }
     }
 }

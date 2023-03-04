@@ -14,14 +14,7 @@ public class AddUserDto
     [Required]
     [JsonProperty("id")]
     public int SenderId { get; set; }
-
-    /// <summary>
-    /// Get or set new user's token.
-    /// </summary>
-    [Required]
-    [JsonProperty("token")]
-    public string Token { get; set; } = null!;
-
+    
     /// <summary>
     /// Get or set new user's name.
     /// </summary>
