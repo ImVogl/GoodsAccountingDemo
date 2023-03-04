@@ -8,7 +8,7 @@ namespace GoodsAccounting.Services.DataBase;
 /// <summary>
 /// Interface for data base proxy.
 /// </summary>
-public interface IDataBase
+public interface IDataBase : IDisposable
 {
     /// <summary>
     /// Get collection of <see cref="User"/> entity.

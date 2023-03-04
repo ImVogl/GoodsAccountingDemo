@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+using GoodsAccounting.Model.Config;
+using GoodsAccounting.Services;
+using GoodsAccounting.Services.SecurityKey;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
+using GoodsAccounting.Services.TextConverter;
+using GoodsAccounting.Services.Password;
+using GoodsAccounting.Services.BodyBuilder;
+
 namespace GoodsAccounting
 {
-    using Model.Config;
-    using Services;
-    using GoodsAccounting.Services.SecurityKey;
-    using Microsoft.Extensions.Options;
-    using Microsoft.OpenApi.Models;
-    using Services.TextConverter;
-    using Services.Password;
-    using Microsoft.Extensions.DependencyInjection;
-    using GoodsAccounting.Services.BodyBuilder;
 
     /// <summary>
     /// Entry class.
