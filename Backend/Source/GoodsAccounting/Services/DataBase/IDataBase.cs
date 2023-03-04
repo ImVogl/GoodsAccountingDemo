@@ -1,4 +1,5 @@
 ﻿using GoodsAccounting.Model.DataBase;
+using GoodsAccounting.Model.Exceptions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,12 +18,18 @@ public interface IDataBase
     DbSet<User> Users { get; }
 
     /// <summary>
+    /// Recreation data base.
+    /// </summary>
+    public void RecreateDataBase();
+
+    /// <summary>
     /// Change password for target user.
     /// </summary>
     /// <param name="id">User identifier.</param>
     /// <param name="salt">Password salt.</param>
     /// <param name="hash">Hashed password.</param>
     /// <returns><see cref="Task"/>.</returns>
+    /// <exception cref="EntityNotFoundException">User's <see cref="EntityNotFoundException"/></exception>
     Task ChangePasswordAsync(int id, string salt, byte[] hash);
 
     /// <summary>
@@ -30,5 +37,16 @@ public interface IDataBase
     /// </summary>
     /// <param name="user"><see cref="User"/>.</param>
     /// <returns><see cref="Task"/>.</returns>
-    Task AddUser([NotNull] User user);
+    /// <exception cref="EntityExistsException">User's <see cref="EntityExistsException"/>.</exception>
+    Task AddUserAsync([NotNull] User user);
+
+    /// <summary>
+    /// Check user in "users" table.
+    /// </summary>
+    /// <param name="login">User's login.</param>
+    /// <param name="name">User's name.</param>
+    /// <param name="surname">User's surname.</param>
+    /// <param name="birthDay">User's birth day.</param>
+    /// <returns><see cref="Task"/> with value than means: the user exists in the table.</returns>
+    Task<bool> DoesUserExistsAsync(string login, string name, string surname, DateOnly birthDay);
 }

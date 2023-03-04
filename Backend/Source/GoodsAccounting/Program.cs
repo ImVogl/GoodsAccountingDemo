@@ -1,4 +1,8 @@
+using GoodsAccounting.Model.DataBase;
+using GoodsAccounting.Services.DataBase;
+using GoodsAccounting.Services.Validator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace GoodsAccounting
@@ -8,6 +12,10 @@ namespace GoodsAccounting
     using GoodsAccounting.Services.SecurityKey;
     using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
+    using Services.TextConverter;
+    using Services.Password;
+    using Microsoft.Extensions.DependencyInjection;
+    using GoodsAccounting.Services.BodyBuilder;
 
     /// <summary>
     /// Entry class.
@@ -47,8 +55,9 @@ namespace GoodsAccounting
             app.MapControllers();
 #if DEBUG
             app.UseCors("CORS_Policy");
+            ReinitializeDataBase(app.Services);
 #endif
-            // TODO: Add db initialization!
+
             app.Run();
         }
         
@@ -171,15 +180,52 @@ namespace GoodsAccounting
         {
             return new OpenApiSecurityScheme
             {
-                Name = "JWT authorization",
+                Name = "Authorization",     // Space character there is banned!
                 Type = SecuritySchemeType.ApiKey,
                 Scheme = "Bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "Authorization for goods accounting web application"
+                Description = "Access token sending format: Bearer [token]"
             };
         }
 
+        /// <summary>
+        /// Recreate database and fill them with test data.
+        /// </summary>
+        /// <param name="provider">Instance of <see cref="IServiceProvider"/>.</param>
+        private static void ReinitializeDataBase(IServiceProvider provider)
+        {
+            using var scope = provider.CreateScope();
+            var passwordService = scope.ServiceProvider.GetRequiredService<IPassword>();
+            var (adminSalt, adminHash) = passwordService.Hash("Az!2.sssA");
+            var context = scope.ServiceProvider.GetRequiredService<IDataBase>();
+            context.RecreateDataBase();
+            context.AddUserAsync(new User
+            {
+                UserLogin = "user",
+                Name = "Иван",
+                Surname = "Иванов",
+                Role = UserRole.Administrator,
+                BirthDate = DateOnly.Parse("1990-06-15"),
+                Hash = adminHash,
+                PasswordExpired = DateTime.Now.AddDays(1),
+                Salt = adminSalt
+            }).GetAwaiter().GetResult();
+
+            var (userSalt, userHash) = passwordService.Hash("Az!2.s1sA");
+            context.AddUserAsync(new User
+            {
+                UserLogin = "Petrov",
+                Name = "Петр",
+                Surname = "Петров",
+                Role = UserRole.RegisteredUser,
+                BirthDate = DateOnly.Parse("1995-07-19"),
+                Hash = userHash,
+                PasswordExpired = DateTime.Now.AddMinutes(60),
+                Salt = userSalt
+            }).GetAwaiter().GetResult();
+        }
+        
         /// <summary>
         /// Registration types.
         /// </summary>
@@ -187,7 +233,37 @@ namespace GoodsAccounting
         private static void RegisterDependencies(IServiceCollection serviceCollection)
         {
             serviceCollection.ConfigureOptions<ConfigurationOptionSetup>();
-            serviceCollection.AddSingleton<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
+            AddDataBaseContext(serviceCollection);
+            serviceCollection.AddScoped<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
+            serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
+            serviceCollection.AddScoped<IResponseBodyBuilder>(_ => new ResponseBodyBuilder());
+            serviceCollection.AddScoped<IPasswordValidator>(_ => new Validator());
+            serviceCollection.AddScoped<IDtoValidator>(_ => new Validator());
+            serviceCollection.AddScoped<IPassword>(provider => new PasswordService(provider.GetRequiredService<IPasswordValidator>()));
+        }
+
+        /// <summary>
+        /// Configure data base proxy class and registry one.
+        /// </summary>
+        /// <param name="serviceCollection">Instance of <see cref="IServiceCollection"/> for web application.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        private static void AddDataBaseContext(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddDbContext<IDataBase, PostgresProxy>((serviceProvider, options) =>
+            {
+                var dataBaseOptions = serviceProvider.GetService<IOptions<DataBaseConfig>>()?.Value;
+                if (dataBaseOptions == null)
+                    throw new ArgumentNullException(nameof(dataBaseOptions));
+
+                options.UseNpgsql(dataBaseOptions.ConnectionString,
+                    sqlOptionAction =>
+                    {
+                        sqlOptionAction.EnableRetryOnFailure(dataBaseOptions.MaxRetryCount);
+                        sqlOptionAction.CommandTimeout(dataBaseOptions.CommandTimeout);
+                    });
+
+                options.EnableDetailedErrors(dataBaseOptions.EnableDetailedErrors);
+            });
         }
     }
 }

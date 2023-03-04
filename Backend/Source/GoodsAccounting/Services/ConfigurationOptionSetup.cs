@@ -7,7 +7,7 @@ namespace GoodsAccounting.Services;
 /// <summary>
 /// Configuration setup proxy.
 /// </summary>
-public class ConfigurationOptionSetup : IConfigureOptions<JwtSection>
+public class ConfigurationOptionSetup : IConfigureOptions<JwtSection>, IConfigureOptions<DataBaseConfig>
 {
     /// <summary>
     /// Instance of <see cref="IConfiguration"/>.
@@ -27,5 +27,12 @@ public class ConfigurationOptionSetup : IConfigureOptions<JwtSection>
     public void Configure(JwtSection options)
     {
         _configuration.GetSection("JWT").Bind(options);
+    }
+
+    /// <inheritdoc />
+    public void Configure(DataBaseConfig options)
+    {
+        options.ConnectionString = _configuration.GetConnectionString("MainDataBase");
+        _configuration.GetSection("DatabaseOption").Bind(options);
     }
 }
