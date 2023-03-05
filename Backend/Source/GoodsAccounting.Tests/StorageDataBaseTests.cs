@@ -244,7 +244,7 @@ public class StorageDataBaseTests
         
         await context.WorkShifts.AddAsync(closedShift);
         await context.SaveChangesAsync();
-        Assert.ThrowsAsync<EntityNotFoundException>(async () => await context.CloseWorkShiftAsync(id, 0));
+        Assert.ThrowsAsync<EntityNotFoundException>(async () => await context.CloseWorkShiftAsync(id, 0, string.Empty));
     }
     
     [Test]
@@ -269,7 +269,7 @@ public class StorageDataBaseTests
         await AddWorkShiftsAsync(context, DateTime.Today, DateTime.Now);
         await context.WorkShifts.AddAsync(openedShift);
         await context.SaveChangesAsync();
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await context.CloseWorkShiftAsync(id, 0));
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await context.CloseWorkShiftAsync(id, 0, string.Empty));
     }
     
     [Test]
@@ -369,7 +369,7 @@ public class StorageDataBaseTests
 
         await context.WorkShifts.AddRangeAsync(openedShiftId1, openedShiftId2);
         await context.SaveChangesAsync();
-        await context.CloseWorkShiftAsync(id1, 150);
+        await context.CloseWorkShiftAsync(id1, 150, string.Empty);
         Assert.That(context.WorkShifts.Count(shift => shift.IsOpened), Is.EqualTo(1));
         Assert.That(context.WorkShifts.Single(shift => shift.IsOpened).UserId, Is.EqualTo(id2));
         var firstItem = await context.Goods.SingleAsync(item => item.Id == firstItemId);
@@ -386,7 +386,7 @@ public class StorageDataBaseTests
 
         var firstItemStorage = (await context.Goods.SingleAsync(item => item.Id == firstItemId)).CurrentItemsInStorageCount;
         var secondItemStorage = (await context.Goods.SingleAsync(item => item.Id == secondItemId)).CurrentItemsInStorageCount;
-        await context.CloseWorkShiftAsync(id2, 250);
+        await context.CloseWorkShiftAsync(id2, 250, string.Empty);
         Assert.That(context.WorkShifts.Any(shift => shift.IsOpened), Is.False);
         var firstItemSecond = await context.Goods.SingleAsync(item => item.Id == firstItemId);
         var secondItemSecond = await context.Goods.SingleAsync(item => item.Id == secondItemId);

@@ -83,7 +83,7 @@ public class PostgresProxy : DbContext, IEfContext
     }
 
     /// <inheritdoc />
-    public async Task CloseWorkShiftAsync(int id,int cash)
+    public async Task CloseWorkShiftAsync(int id,int cash, string comment)
     {
         var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == id).ConfigureAwait(false);
         if (shift == null)
@@ -92,6 +92,9 @@ public class PostgresProxy : DbContext, IEfContext
         shift.CloseTime = DateTime.Now;
         shift.IsOpened = false;
         shift.Cash = cash;
+        if (!string.IsNullOrWhiteSpace(comment))
+            shift.Comments = $"{shift.Comments}{Environment.NewLine}{comment}";
+
         var changes = shift.GoodItemStates.ToDictionary(item => item.Id, item => item);
         foreach (var item in Goods.Where(item => changes.ContainsKey(item.Id)))
         {
