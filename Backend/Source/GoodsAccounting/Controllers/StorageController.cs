@@ -188,8 +188,11 @@ public class StorageController : ControllerBase
             foreach (var item in snapshot.StorageItems)
             {
                 item.RetailPrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].RetailPrice : 0;
-                item.WholeScalePrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].WholeScalePrice : 0;
                 item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
+                item.WholeScalePrice = -1;
+                item.GoodsInStorage = -1;
+                item.WriteOff = -1;
+                item.Receipt = -1;
             }
 
             return Ok(snapshot);

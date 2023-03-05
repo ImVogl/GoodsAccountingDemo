@@ -91,4 +91,35 @@ public class AdminStorageController : ControllerBase
             return BadRequest(_bodyBuilder.UnknownBuild());
         }
     }
+
+    /// <summary>
+    /// Getting day sold statistics.
+    /// </summary>
+    /// <param name="day">Day for requested statistics.</param>
+    /// <returns><see cref="Task"/>.</returns>
+    /// <response code="200">Response data saved.</response>
+    /// <response code="400">Returns if unknown exception was thrown.</response>
+    [HttpGet("~/sold_statistics/{day}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetDayStatistics(DateTime day)
+    {
+        try
+        {
+            var goods = _db.Goods.Where(item => item.Actives).ToDictionary(item => item.Id, item => item);
+            var snapshot = _mapper.Map<WorkShiftSnapshotDto>(await _db.GetWorkShiftSnapshotsAsync(-1, DateOnly.FromDateTime(day)).ConfigureAwait(false));
+            foreach (var item in snapshot.StorageItems)
+            {
+                item.RetailPrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].RetailPrice : 0;
+                item.WholeScalePrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].WholeScalePrice : 0;
+                item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
+            }
+
+            return Ok(snapshot);
+        }
+        catch
+        {
+            return BadRequest(_bodyBuilder.UnknownBuild());
+        }
+    }
 }

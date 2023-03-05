@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using GoodsAccounting.Model.DataBase;
 using Microsoft.AspNetCore.Authorization;
 using GoodsAccounting.Model.Exceptions;
+using GoodsAccounting.Services;
 using GoodsAccounting.Services.TextConverter;
 
 namespace GoodsAccounting.Controllers
@@ -123,7 +124,7 @@ namespace GoodsAccounting.Controllers
         public async Task<IActionResult> UpdateTokenAsync()
         {
             try {
-                var id = ExtractUserIdentifierFromToken();
+                var id = Utils.ExtractUserIdentifierFromToken(HttpContext);
                 if (id == null)
                 {
                     Log.Warn("Can't extract identifier from token.");
@@ -222,7 +223,7 @@ namespace GoodsAccounting.Controllers
         public async Task<IActionResult> ChangePasswordAsync(string oldPassword, string password)
         {
             try {
-                var id = ExtractUserIdentifierFromToken();
+                var id = Utils.ExtractUserIdentifierFromToken(HttpContext);
                 if (id == null)
                 {
                     Log.Warn("Can't extract user idetntifier from JWT.");
@@ -375,22 +376,6 @@ namespace GoodsAccounting.Controllers
                     new Claim(ClaimTypes.Role, user.Role)
                 }
             );
-        }
-
-        /// <summary>
-        /// Extraction user identifier from JWT.
-        /// </summary>
-        /// <returns>User identifier.</returns>
-        private int? ExtractUserIdentifierFromToken()
-        {
-            if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return null;
-            
-            var claim = identity.FindFirst("Id");
-            if (claim == null)
-                return null;
-
-            return int.TryParse(claim.Value, out var id) ? id : null;
         }
     }
 }
