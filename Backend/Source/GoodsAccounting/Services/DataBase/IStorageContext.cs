@@ -22,10 +22,11 @@ public interface IStorageContext : IDisposable
     /// <summary>
     /// Update sold goods.
     /// </summary>
+    /// <param name="userId">User identifier.</param>
     /// <param name="soldGoods">Sold goods dictionary.</param>
     /// <returns><see cref="Task"/>.</returns>
     /// <exception cref="EntityNotFoundException"><see cref="EntityNotFoundException"/> for working shift.</exception>
-    Task UpdateSoldGoodsAsync(Dictionary<Guid, int> soldGoods);
+    Task UpdateSoldGoodsAsync(int userId, Dictionary<Guid, int> soldGoods);
 
     /// <summary>
     /// Initialize new working shift and add it to table.

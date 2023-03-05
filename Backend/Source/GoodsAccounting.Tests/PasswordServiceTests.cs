@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace GoodsAccounting.Tests
 {
-    public class Tests
+    public class PasswordServiceTests
     {
         private static readonly IPassword PasswordService = new PasswordService(new Validator());
 

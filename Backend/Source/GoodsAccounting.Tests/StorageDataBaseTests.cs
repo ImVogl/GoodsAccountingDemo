@@ -3,7 +3,6 @@ using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services.DataBase;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
-using System.Runtime.InteropServices;
 
 namespace GoodsAccounting.Tests;
 
@@ -13,6 +12,118 @@ public class StorageDataBaseTests
         .UseInMemoryDatabase(databaseName: "goods_account")
         .EnableSensitiveDataLogging()
         .Options;
+
+    [Test]
+    [Description("Try to find working shift to consider sold goods (No user)")]
+    public async Task ThrowAddSoldGoodsNoUserTest()
+    {
+        var workShift = new WorkShift
+        {
+            Cash = 200,
+            IsOpened = true,
+            OpenTime = DateTime.Parse("2000-01-01 13:00"),
+            CloseTime = DateTime.Now,
+            UserId = 2,
+            UserDisplayName = "Second",
+            GoodItemStates = new List<GoodsItemStorage>()
+        };
+        
+        await using var context = new PostgresProxy(Options);
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        await context.WorkShifts.AddAsync(workShift);
+        await context.SaveChangesAsync();
+
+        Assert.ThrowsAsync<EntityNotFoundException>(async () =>
+            await context.UpdateSoldGoodsAsync(1, new Dictionary<Guid, int>()));
+    }
+
+    [Test]
+    [Description("Try to find working shift to consider sold goods (No user)")]
+    public async Task ThrowAddSoldGoodsNoOpenTest()
+    {
+        const int id = 1;
+        var workShift = new WorkShift
+        {
+            Cash = 200,
+            IsOpened = false,
+            OpenTime = DateTime.Parse("2000-01-01 13:00"),
+            CloseTime = DateTime.Now,
+            UserId = id,
+            UserDisplayName = "Second",
+            GoodItemStates = new List<GoodsItemStorage>()
+        };
+
+        await using var context = new PostgresProxy(Options);
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        await context.WorkShifts.AddAsync(workShift);
+        await context.SaveChangesAsync();
+
+        Assert.ThrowsAsync<EntityNotFoundException>(async () =>
+            await context.UpdateSoldGoodsAsync(id, new Dictionary<Guid, int>()));
+    }
+
+    [Test]
+    [Description("Adding sold goods")]
+    public async Task AddSoldGoodsTest()
+    {
+        const int id = 1;
+        var firstItemId = Guid.NewGuid();
+        var secondItemId = Guid.NewGuid();
+        var thirdItemId = Guid.NewGuid();
+
+        const int firstSold = 30;
+        const int secondSold = 50;
+        const int firstStorage = 100;
+        const int secondStorage = 150;
+        var workShift = new WorkShift
+        {
+            Cash = 200,
+            IsOpened = true,
+            OpenTime = DateTime.Parse("2000-01-01 13:00"),
+            CloseTime = DateTime.Now,
+            UserId = id,
+            UserDisplayName = "Second",
+            GoodItemStates = new List<GoodsItemStorage>
+            {
+                new() { Id = firstItemId, RetailPrice = 0F, WholeScalePrice = 0F, WriteOff = 0, Receipt = 0, Sold = firstSold },
+                new() { Id = secondItemId, RetailPrice = 0F, WholeScalePrice = 0F, WriteOff = 0, Receipt = 0, Sold = secondSold }
+            }
+        };
+
+        await using var context = new PostgresProxy(Options);
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+        await context.Goods.AddRangeAsync(
+            new GoodsItem
+                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 0F, WholeScalePrice = 0F, CurrentItemsInStorageCount = firstStorage },
+            new GoodsItem
+                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 0F, WholeScalePrice = 0F, CurrentItemsInStorageCount = secondStorage },
+            new GoodsItem
+                { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 0F, CurrentItemsInStorageCount = 300 }
+        );
+
+        await context.WorkShifts.AddAsync(workShift);
+        await context.SaveChangesAsync();
+
+        const int firstItemSold = 5;
+        const int secondItemSold = 8;
+        await context.UpdateSoldGoodsAsync(id, new Dictionary<Guid, int> { { firstItemId, firstItemSold }, { secondItemId, secondItemSold } });
+
+        var states = (await context.WorkShifts.FirstAsync()).GoodItemStates;
+        Assert.That(states.Count, Is.EqualTo(2));
+        Assert.That(states[0].Sold, Is.EqualTo(firstSold + firstItemSold));
+        Assert.That(states[1].Sold, Is.EqualTo(secondSold + secondItemSold));
+
+        var firstItem = context.Goods.Single(g => g.Id == firstItemId);
+        var secondItem = context.Goods.Single(g => g.Id == secondItemId);
+
+        Assert.That(firstItem.CurrentItemsInStorageCount, Is.EqualTo(firstStorage - firstItemSold));
+        Assert.That(secondItem.CurrentItemsInStorageCount, Is.EqualTo(secondStorage - secondItemSold));
+    }
 
     [Test]
     [Description("Try to initialize new working shift when opened shift exists")]

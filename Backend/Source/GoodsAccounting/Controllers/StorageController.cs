@@ -150,7 +150,7 @@ public class StorageController : ControllerBase
         }
 
         try {
-            await _db.UpdateSoldGoodsAsync(dto.Sold).ConfigureAwait(false);
+            await _db.UpdateSoldGoodsAsync(dto.Id, dto.Sold).ConfigureAwait(false);
             return Ok();
         }
         catch (EntityNotFoundException) {

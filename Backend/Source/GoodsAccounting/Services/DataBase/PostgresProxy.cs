@@ -34,9 +34,9 @@ public class PostgresProxy : DbContext, IEfContext
     }
 
     /// <inheritdoc />
-    public async Task UpdateSoldGoodsAsync(Dictionary<Guid, int> soldGoods)
+    public async Task UpdateSoldGoodsAsync(int userId, Dictionary<Guid, int> soldGoods)
     {
-        var currentShift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened).ConfigureAwait(false);
+        var currentShift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
         if (currentShift == null)
             throw new EntityNotFoundException();
 

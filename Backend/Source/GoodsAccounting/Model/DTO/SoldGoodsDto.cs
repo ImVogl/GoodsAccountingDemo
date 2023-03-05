@@ -8,6 +8,13 @@ namespace GoodsAccounting.Model.DTO;
 public class SoldGoodsDto
 {
     /// <summary>
+    /// Get or set user's identifier.
+    /// </summary>
+    [JsonRequired]
+    [JsonProperty("id")]
+    public int Id { get; set; }
+
+    /// <summary>
     /// Get or set dictionary where key: item guid; value: sold item count.
     /// </summary>
     [JsonRequired]
