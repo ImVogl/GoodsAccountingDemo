@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 namespace GoodsAccounting.Services.DataBase;
 
 /// <summary>
-/// Interface for data base proxy.
+/// Interface for users access data base proxy.
 /// </summary>
-public interface IDataBase : IDisposable
+public interface IUsersContext : IDisposable
 {
     /// <summary>
     /// Get collection of <see cref="User"/> entity.
@@ -16,11 +16,6 @@ public interface IDataBase : IDisposable
     [NotNull]
     [ItemNotNull]
     DbSet<User> Users { get; }
-
-    /// <summary>
-    /// Recreation data base.
-    /// </summary>
-    public void RecreateDataBase();
 
     /// <summary>
     /// Change password for target user.

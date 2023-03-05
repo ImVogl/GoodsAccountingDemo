@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace GoodsAccounting.Tests;
 
-public class DataBaseTests
+public class UsersDataBaseTests
 {
     private const string Login = "login";
     private const string Name = "name";
