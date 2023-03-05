@@ -66,6 +66,7 @@ public class PostgresProxy : DbContext, IEfContext
             Cash = 0,
             UserId = id,
             UserDisplayName = $"{user.Surname} {(user.Name.Length > 1 ? user.Name[0] : string.Empty)}",
+            Comments = string.Empty,
             GoodItemStates = goods.Where(item => item.Actives).Select(item => new GoodsItemStorage
             {
                 Id = item.Id,
@@ -121,6 +122,49 @@ public class PostgresProxy : DbContext, IEfContext
                 .Where(shift => !shift.IsOpened && shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime && shift.UserId == id)
                 .Include(shift => shift.GoodItemStates)
                 .ToListAsync().ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateGoodsStorageAsync(int userId, List<Guid> remove, IList<GoodsItem> goods)
+    {
+        var user = await Users.SingleOrDefaultAsync(user => user.Id == userId && user.Role == UserRole.Administrator)
+            .ConfigureAwait(false);
+
+        if (user == null)
+            throw new EntityNotFoundException();
+
+        var workingShift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        if (workingShift == null)
+            throw new EntityNotFoundException();
+
+        var message = $"{DateTime.Now:g}Пользователь {user.UserLogin} задал новое состояние для хранилища товаров;";
+        workingShift.Comments = string.IsNullOrWhiteSpace(workingShift.Comments)
+            ? message
+            : $"{workingShift.Comments}{Environment.NewLine}{message}";
+
+        var grouped = goods.ToDictionary(item => item.Id, item => item);
+        foreach (var item in Goods.Where(item => grouped.ContainsKey(item.Id)))
+        {
+            item.CurrentItemsInStorageCount = grouped[item.Id].CurrentItemsInStorageCount;
+            item.Name = grouped[item.Id].Name;
+            item.WholeScalePrice = grouped[item.Id].WholeScalePrice;
+            item.RetailPrice = grouped[item.Id].RetailPrice;
+            item.Actives = true;
+        }
+
+        foreach (var item in Goods.Where(item => remove.Contains(item.Id)))
+            item.Actives = false;
+
+        foreach (var id in grouped.Keys)
+        {
+            if (!await Goods.AllAsync(item => item.Id != id).ConfigureAwait(false))
+                continue;
+
+            grouped[id].Actives = true;
+            await Goods.AddAsync(grouped[id]).ConfigureAwait(false);
+        }
+
+        await SaveChangesAsync().ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -186,6 +230,7 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<WorkShift>().Property(shift => shift.UserId).IsRequired();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.UserDisplayName).IsRequired();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.IsOpened).IsRequired();
+        modelBuilder.Entity<WorkShift>().Property(shift => shift.Comments).IsRequired();
         modelBuilder.Entity<WorkShift>()
             .HasMany(shift => shift.GoodItemStates)
             .WithOne()

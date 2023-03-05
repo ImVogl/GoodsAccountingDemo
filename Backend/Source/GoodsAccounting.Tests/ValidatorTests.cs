@@ -71,4 +71,74 @@ public class ValidatorTests
         Assert.False(DtoValidator.Validate(new SignInDto { UserLogin = loginSpace, Password = validPassword }));
         Assert.False(DtoValidator.Validate(new SignInDto { UserLogin = loginUnicode, Password = validPassword }));
     }
+
+    [Test]
+    [Description("Invalid update storage DTO test.")]
+    public void InvalidUpdateStorageDtoTest()
+    {
+        Assert.That(
+            DtoValidator.Validate(
+                new UpdatingGoodsDto { Id = -1, Items = new List<UpdatingGoodsItemDto>() }), Is.False);
+
+        Assert.That(
+            DtoValidator.Validate(new UpdatingGoodsDto
+            {
+                Id = 1, Items = new List<UpdatingGoodsItemDto>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(), CurrentItemsInStorageCount = -1, Name = "123", RetailPrice = 10F,
+                        WholeScalePrice = 10F
+                    }
+                }
+            }), Is.False);
+
+        Assert.That(
+            DtoValidator.Validate(new UpdatingGoodsDto
+            {
+                Id = 1,
+                Items = new List<UpdatingGoodsItemDto>
+                {
+                    {
+                        new()
+                        {
+                            Id = Guid.NewGuid(), CurrentItemsInStorageCount = 1, Name = string.Empty, RetailPrice = 10F,
+                            WholeScalePrice = 10F
+                        }
+                    }
+                }
+            }), Is.False);
+
+        Assert.That(
+            DtoValidator.Validate(new UpdatingGoodsDto
+            {
+                Id = 1,
+                Items = new List<UpdatingGoodsItemDto>
+                {
+                    {
+                        new()
+                        {
+                            Id = Guid.NewGuid(), CurrentItemsInStorageCount = 1, Name = "123", RetailPrice = -1F,
+                            WholeScalePrice = 10F
+                        }
+                    }
+                }
+            }), Is.False);
+
+        Assert.That(
+            DtoValidator.Validate(new UpdatingGoodsDto
+            {
+                Id = 1,
+                Items = new List<UpdatingGoodsItemDto>
+                {
+                    {
+                        new()
+                        {
+                            Id = Guid.NewGuid(), CurrentItemsInStorageCount = 1, Name = "123", RetailPrice = 10F,
+                            WholeScalePrice = -1F
+                        }
+                    }
+                }
+            }), Is.False);
+    }
 }

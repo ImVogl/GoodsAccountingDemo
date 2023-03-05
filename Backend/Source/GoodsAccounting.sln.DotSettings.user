@@ -10,5 +10,9 @@
     &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.DataBaseTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.StorageDataBaseTests.LoadingWorkingShiftsForPairUsersAsync&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.StorageDataBaseTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.AdminStorageDataBaseTests.ThrowNoCredentialExceptionTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.AdminStorageDataBaseTests.ThrowNoWorkingShiftTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.AdminStorageDataBaseTests.AddNewItemTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::E3F21B4D-4600-4D7D-B074-3ACDC7BAC250::net6.0::GoodsAccounting.Tests.AdminStorageDataBaseTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -70,6 +70,13 @@ public class WorkShift
     public bool IsOpened { get; set; }
 
     /// <summary>
+    /// Get or set comments for working shift.
+    /// </summary>
+    [Required]
+    [Column("comments", TypeName = "text")]
+    public string Comments { get; set; }
+
+    /// <summary>
     /// Get or set collection of <see cref="GoodsItemStorage"/>.
     /// </summary>
     public List<GoodsItemStorage> GoodItemStates { get; set; }

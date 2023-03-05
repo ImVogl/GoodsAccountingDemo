@@ -236,6 +236,7 @@ namespace GoodsAccounting
             serviceCollection.ConfigureOptions<ConfigurationOptionSetup>();
             serviceCollection.AddScoped<IUsersContext>(provider => provider.GetRequiredService<PostgresProxy>());
             serviceCollection.AddScoped<IStorageContext>(provider => provider.GetRequiredService<PostgresProxy>());
+            serviceCollection.AddScoped<IAdminStorageContext>(provider => provider.GetRequiredService<PostgresProxy>());
             AddDataBaseContext(serviceCollection);
             serviceCollection.AddScoped<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
             serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
