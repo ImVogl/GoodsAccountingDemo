@@ -42,10 +42,11 @@ public interface IStorageContext : IDisposable
     /// </summary>
     /// <param name="id">User's identifier, who opened shift.</param>
     /// <param name="cash">Cash in cash machine.</param>
+    /// <param name="comment">Comment.</param>
     /// <returns><see cref="Task"/>.</returns>
     /// <exception cref="EntityNotFoundException"><see cref="EntityNotFoundException"/> for working shift.</exception>
     /// <exception cref="InvalidOperationException">This exception throws if table contains two opened shifts.</exception>
-    Task CloseWorkShiftAsync(int id, int cash);
+    Task CloseWorkShiftAsync(int id, int cash, string comment = "");
 
     /// <summary>
     /// Getting history aggregated information.

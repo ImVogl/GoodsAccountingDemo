@@ -39,4 +39,21 @@ public class Validator : IPasswordValidator, IDtoValidator
             && dto.UserLogin.All(sym => sym < lastAnsiSymbol)
             && Validate(dto.Password);
     }
+
+    /// <inheritdoc />
+    public bool Validate(UpdatingGoodsDto dto)
+    {
+        if (dto.Id < 1) 
+            return false;
+
+        foreach (var item in dto.Items)
+        {
+            if (item.CurrentItemsInStorageCount < 0) return false;
+            if (string.IsNullOrWhiteSpace(item.Name)) return false;
+            if (item.RetailPrice < 0) return false;
+            if (item.WholeScalePrice < 0) return false;
+        }
+
+        return true;
+    }
 }

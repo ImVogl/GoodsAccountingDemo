@@ -83,6 +83,19 @@ public class UsersDataBaseTests
     }
 
     [Test]
+    [Description("Remove user test")]
+    public async Task RemoveNewUserTest()
+    {
+        Assert.That(_dataBase.Users, Is.Empty);
+        await _dataBase.Users.AddAsync(User);
+        await _dataBase.SaveChangesAsync();
+        Assert.That(_dataBase.Users.Count(), Is.EqualTo(1));
+
+        await _dataBase.RemoveUserAsync(User.Id);
+        Assert.That(_dataBase.Users, Is.Empty);
+    }
+
+    [Test]
     [Description("Test password changing")]
     public async Task ChangePasswordTest()
     {

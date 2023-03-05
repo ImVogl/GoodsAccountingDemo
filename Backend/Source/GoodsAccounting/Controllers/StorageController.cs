@@ -80,6 +80,8 @@ public class StorageController : ControllerBase
     /// <param name="id">User's identifier.</param>
     /// <param name="cash">Cash in cash machine.</param>
     /// <returns><see cref="Task"/>.</returns>
+    /// <response code="200">Working shift was closed.</response>
+    /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/close/{id}/{cash}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -110,6 +112,8 @@ public class StorageController : ControllerBase
     /// </summary>
     /// <param name="id">User's identifier.</param>
     /// <returns><see cref="Task"/>.</returns>
+    /// <response code="200">Working shift was initialized.</response>
+    /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/init_shift/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -184,8 +188,11 @@ public class StorageController : ControllerBase
             foreach (var item in snapshot.StorageItems)
             {
                 item.RetailPrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].RetailPrice : 0;
-                item.WholeScalePrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].WholeScalePrice : 0;
                 item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
+                item.WholeScalePrice = -1;
+                item.GoodsInStorage = -1;
+                item.WriteOff = -1;
+                item.Receipt = -1;
             }
 
             return Ok(snapshot);

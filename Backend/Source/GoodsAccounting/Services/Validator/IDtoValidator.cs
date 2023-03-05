@@ -14,4 +14,11 @@ public interface IDtoValidator
     /// <param name="dto"><see cref="SignInDto"/></param>
     /// <returns>Value in indicating that DTO is valid.</returns>
     bool Validate([NotNull]SignInDto dto);
+
+    /// <summary>
+    /// Validation of <see cref="UpdatingGoodsDto"/>.
+    /// </summary>
+    /// <param name="dto"><see cref="UpdatingGoodsDto"/>.</param>
+    /// <returns>Value in indicating that DTO is valid.</returns>
+    bool Validate([NotNull] UpdatingGoodsDto dto);
 }

@@ -14,6 +14,7 @@ public class WorkShiftProfile : Profile
     /// </summary>
     public WorkShiftProfile()
     {
+        CreateMap<UpdatingGoodsItemDto, GoodsItem>();
         CreateMap<WorkShift, WorkShiftSnapshotDto>().ForMember(dto => dto.StorageItems, opt => opt.Ignore());
         CreateMap<GoodsItem, StorageItemInfoDto>()
             .ForMember(dto => dto.ItemName, opt => opt.MapFrom(scr => scr.Name));

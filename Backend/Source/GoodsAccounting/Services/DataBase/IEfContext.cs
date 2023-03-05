@@ -3,7 +3,7 @@
 /// <summary>
 /// Common data base proxy class interface.
 /// </summary>
-public interface IEfContext : IUsersContext, IStorageContext
+public interface IEfContext : IUsersContext, IAdminStorageContext
 {
     /// <summary>
     /// Recreation data base.

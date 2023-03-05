@@ -197,34 +197,8 @@ namespace GoodsAccounting
         private static void ReinitializeDataBase(IServiceProvider provider)
         {
             using var scope = provider.CreateScope();
-            var passwordService = scope.ServiceProvider.GetRequiredService<IPassword>();
-            var (adminSalt, adminHash) = passwordService.Hash("Az!2.sssA");
             var context = scope.ServiceProvider.GetRequiredService<IEfContext>();
             context.RecreateDataBase();
-            context.AddUserAsync(new User
-            {
-                UserLogin = "user",
-                Name = "Иван",
-                Surname = "Иванов",
-                Role = UserRole.Administrator,
-                BirthDate = DateOnly.Parse("1990-06-15"),
-                Hash = adminHash,
-                PasswordExpired = DateTime.Now.AddDays(1),
-                Salt = adminSalt
-            }).GetAwaiter().GetResult();
-
-            var (userSalt, userHash) = passwordService.Hash("Az!2.s1sA");
-            context.AddUserAsync(new User
-            {
-                UserLogin = "Petrov",
-                Name = "Петр",
-                Surname = "Петров",
-                Role = UserRole.RegisteredUser,
-                BirthDate = DateOnly.Parse("1995-07-19"),
-                Hash = userHash,
-                PasswordExpired = DateTime.Now.AddMinutes(60),
-                Salt = userSalt
-            }).GetAwaiter().GetResult();
         }
         
         /// <summary>
@@ -236,6 +210,7 @@ namespace GoodsAccounting
             serviceCollection.ConfigureOptions<ConfigurationOptionSetup>();
             serviceCollection.AddScoped<IUsersContext>(provider => provider.GetRequiredService<PostgresProxy>());
             serviceCollection.AddScoped<IStorageContext>(provider => provider.GetRequiredService<PostgresProxy>());
+            serviceCollection.AddScoped<IAdminStorageContext>(provider => provider.GetRequiredService<PostgresProxy>());
             AddDataBaseContext(serviceCollection);
             serviceCollection.AddScoped<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
             serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
