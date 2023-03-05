@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
 
 namespace GoodsAccounting.Model.DTO;
 
@@ -11,28 +10,28 @@ public class AddUserDto
     /// <summary>
     /// Get or set sender id.
     /// </summary>
-    [Required]
+    [JsonRequired]
     [JsonProperty("id")]
     public int SenderId { get; set; }
     
     /// <summary>
     /// Get or set new user's name.
     /// </summary>
-    [Required]
+    [JsonRequired]
     [JsonProperty("name")]
     public string Name { get; set; } = null!;
 
     /// <summary>
     /// Get or set new user's surname.
     /// </summary>
-    [Required]
+    [JsonRequired]
     [JsonProperty("surname")]
     public string Surname { get; set; } = null!;
 
     /// <summary>
     /// Get or set new user's birth day.
     /// </summary>
-    [Required]
+    [JsonRequired]
     [JsonProperty("date")]
     public DateTime BirthDay { get; set; }
 }

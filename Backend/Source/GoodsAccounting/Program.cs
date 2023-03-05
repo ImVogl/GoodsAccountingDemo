@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using GoodsAccounting.Services.TextConverter;
 using GoodsAccounting.Services.Password;
 using GoodsAccounting.Services.BodyBuilder;
+using GoodsAccounting.MapperProfiles;
 
 namespace GoodsAccounting
 {
@@ -180,7 +181,7 @@ namespace GoodsAccounting
         {
             return new OpenApiSecurityScheme
             {
-                Name = "Authorization",     // Space character there is banned!
+                Name = "Authorization",     // Space character is banned there!
                 Type = SecuritySchemeType.ApiKey,
                 Scheme = "Bearer",
                 BearerFormat = "JWT",
@@ -198,7 +199,7 @@ namespace GoodsAccounting
             using var scope = provider.CreateScope();
             var passwordService = scope.ServiceProvider.GetRequiredService<IPassword>();
             var (adminSalt, adminHash) = passwordService.Hash("Az!2.sssA");
-            var context = scope.ServiceProvider.GetRequiredService<IDataBase>();
+            var context = scope.ServiceProvider.GetRequiredService<IEfContext>();
             context.RecreateDataBase();
             context.AddUserAsync(new User
             {
@@ -233,6 +234,8 @@ namespace GoodsAccounting
         private static void RegisterDependencies(IServiceCollection serviceCollection)
         {
             serviceCollection.ConfigureOptions<ConfigurationOptionSetup>();
+            serviceCollection.AddScoped<IUsersContext>(provider => provider.GetRequiredService<PostgresProxy>());
+            serviceCollection.AddScoped<IStorageContext>(provider => provider.GetRequiredService<PostgresProxy>());
             AddDataBaseContext(serviceCollection);
             serviceCollection.AddScoped<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
             serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
@@ -240,6 +243,8 @@ namespace GoodsAccounting
             serviceCollection.AddScoped<IPasswordValidator>(_ => new Validator());
             serviceCollection.AddScoped<IDtoValidator>(_ => new Validator());
             serviceCollection.AddScoped<IPassword>(provider => new PasswordService(provider.GetRequiredService<IPasswordValidator>()));
+
+            serviceCollection.AddAutoMapper(typeof(WorkShiftProfile));
         }
 
         /// <summary>
@@ -249,7 +254,7 @@ namespace GoodsAccounting
         /// <exception cref="ArgumentNullException"></exception>
         private static void AddDataBaseContext(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddDbContext<IDataBase, PostgresProxy>((serviceProvider, options) =>
+            serviceCollection.AddDbContext<IEfContext, PostgresProxy>((serviceProvider, options) =>
             {
                 var dataBaseOptions = serviceProvider.GetService<IOptions<DataBaseConfig>>()?.Value;
                 if (dataBaseOptions == null)
