@@ -28,11 +28,12 @@ public interface IStorageContext : IDisposable
     Task UpdateSoldGoodsAsync(Dictionary<Guid, int> soldGoods);
 
     /// <summary>
-    /// Initialize new working shift.
+    /// Initialize new working shift and add it to table.
     /// </summary>
     /// <param name="id">User's identifier, who opened shift.</param>
     /// <returns><see cref="Task"/>.</returns>
     /// <exception cref="EntityExistsException"><see cref="EntityExistsException"/> for working shift.</exception>
+    /// <exception cref="EntityNotFoundException"><see cref="EntityNotFoundException"/> for user entity.</exception>
     Task InitWorkShiftAsync(int id);
 
     /// <summary>
@@ -42,6 +43,7 @@ public interface IStorageContext : IDisposable
     /// <param name="cash">Cash in cash machine.</param>
     /// <returns><see cref="Task"/>.</returns>
     /// <exception cref="EntityNotFoundException"><see cref="EntityNotFoundException"/> for working shift.</exception>
+    /// <exception cref="InvalidOperationException">This exception throws if table contains two opened shifts.</exception>
     Task CloseWorkShiftAsync(int id, int cash);
 
     /// <summary>

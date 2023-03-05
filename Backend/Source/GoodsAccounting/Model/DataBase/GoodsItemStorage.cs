@@ -64,9 +64,4 @@ public class GoodsItemStorage
     /// </summary>
     [Column("wholeScalePrice", TypeName = "real")]
     public float WholeScalePrice { get; set; }
-
-    /// <summary>
-    /// Get or set relationship for parent.
-    /// </summary>
-    public WorkShift ParentShift { get; set; }
 }

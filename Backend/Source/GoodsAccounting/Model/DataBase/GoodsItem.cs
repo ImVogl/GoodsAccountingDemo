@@ -42,6 +42,12 @@ public class GoodsItem
     public float RetailPrice { get; set; }
 
     /// <summary>
+    /// Get or set count of items in storage.
+    /// </summary>
+    [Column("store", TypeName = "integer")]
+    public int CurrentItemsInStorageCount { get; set; }
+
+    /// <summary>
     /// Get or set value is indicating that item is on the market.
     /// </summary>
     [Column("active", TypeName = "boolean")]

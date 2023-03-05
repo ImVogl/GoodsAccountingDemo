@@ -40,14 +40,11 @@ public class PostgresProxy : DbContext, IEfContext
         if (currentShift == null)
             throw new EntityNotFoundException();
 
-        foreach (var state in currentShift.GoodItemStates)
-        {
-            if (!soldGoods.ContainsKey(state.Id))
-                continue;
-
+        foreach (var state in currentShift.GoodItemStates.Where(state => soldGoods.ContainsKey(state.Id)))
             state.Sold += soldGoods[state.Id];
-            state.GoodsInStorage -= soldGoods[state.Id];
-        }
+        
+        foreach(var item in Goods.Where(i => i.Actives && soldGoods.ContainsKey(i.Id)))
+            item.CurrentItemsInStorageCount -= soldGoods[item.Id];
 
         await SaveChangesAsync().ConfigureAwait(false);
     }
@@ -55,31 +52,28 @@ public class PostgresProxy : DbContext, IEfContext
     /// <inheritdoc />
     public async  Task InitWorkShiftAsync(int id)
     {
-        if (await WorkShifts.AnyAsync(shift => shift.IsOpened).ConfigureAwait(false))
+        if (await WorkShifts.AnyAsync(shift => shift.IsOpened && shift.UserId == id).ConfigureAwait(false))
             throw new EntityExistsException();
-        
-        var lastShift = await WorkShifts.LastOrDefaultAsync().ConfigureAwait(false);
-        var states = lastShift?.GoodItemStates.ToDictionary(item => item.Id, item => item.GoodsInStorage);
-        var receipt = lastShift?.GoodItemStates.ToDictionary(item => item.Id, item => item.Receipt);
-        var writeOff = lastShift?.GoodItemStates.ToDictionary(item => item.Id, item => item.WriteOff);
 
         var user = await Users.SingleOrDefaultAsync(user => user.Id == id).ConfigureAwait(false);
+        if (user == null)
+            throw new EntityNotFoundException();
+        
         var goods = await Goods.ToListAsync().ConfigureAwait(false);
         var currentShift = new WorkShift
         {
             OpenTime = DateTime.Now,
             Cash = 0,
             UserId = id,
-            UserDisplayName = user == null ? "Not identified"  : $"{user.Surname} {(user.Name.Length > 1 ? user.Name[0] : string.Empty)}",
+            UserDisplayName = $"{user.Surname} {(user.Name.Length > 1 ? user.Name[0] : string.Empty)}",
             GoodItemStates = goods.Where(item => item.Actives).Select(item => new GoodsItemStorage
             {
                 Id = item.Id,
                 Sold = 0,
-                GoodsInStorage = states != null && states.ContainsKey(item.Id) ? states[item.Id] : 0,
                 RetailPrice = item.RetailPrice,
-                Receipt = receipt != null && receipt.ContainsKey(item.Id) ? receipt[item.Id] : 0,
+                Receipt = 0,
                 WholeScalePrice = item.WholeScalePrice,
-                WriteOff = writeOff != null && writeOff.ContainsKey(item.Id) ? writeOff[item.Id] : 0
+                WriteOff = 0
             }).ToList()
         };
 
@@ -90,16 +84,25 @@ public class PostgresProxy : DbContext, IEfContext
     /// <inheritdoc />
     public async Task CloseWorkShiftAsync(int id,int cash)
     {
-        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened).ConfigureAwait(false);
+        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == id).ConfigureAwait(false);
         if (shift == null)
             throw new EntityNotFoundException();
-
-        if (shift.UserId != id)
-            throw new ArgumentException();
-
+        
         shift.CloseTime = DateTime.Now;
         shift.IsOpened = false;
         shift.Cash = cash;
+        var changes = shift.GoodItemStates.ToDictionary(item => item.Id, item => item);
+        foreach (var item in Goods.Where(item => changes.ContainsKey(item.Id)))
+        {
+            item.CurrentItemsInStorageCount += changes[item.Id].Receipt - changes[item.Id].WriteOff;
+            item.RetailPrice = changes[item.Id].RetailPrice;
+            item.WholeScalePrice = changes[item.Id].WholeScalePrice;
+        }
+
+        var storage = Goods.ToDictionary(item => item.Id, item => item.CurrentItemsInStorageCount);
+        foreach (var item in shift.GoodItemStates.Where(item => storage.ContainsKey(item.Id)))
+            item.GoodsInStorage = storage[item.Id];
+
         await SaveChangesAsync().ConfigureAwait(false);
     }
 
@@ -171,8 +174,13 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<GoodsItem>().HasIndex(item => item.Id).IsUnique();
         modelBuilder.Entity<GoodsItem>().Property(item => item.Name).IsRequired();
         modelBuilder.Entity<GoodsItem>().Property(item => item.Actives).IsRequired();
+        modelBuilder.Entity<GoodsItem>().Property(item => item.RetailPrice).IsRequired();
+        modelBuilder.Entity<GoodsItem>().Property(item => item.WholeScalePrice).IsRequired();
+        modelBuilder.Entity<GoodsItem>().Property(item => item.CurrentItemsInStorageCount).IsRequired();
 
-        modelBuilder.Entity<WorkShift>().HasIndex(shift => shift.OpenTime).IsUnique();
+        modelBuilder.Entity<WorkShift>().HasIndex(shift => shift.Index).IsUnique();
+        modelBuilder.Entity<WorkShift>().Property(shift => shift.Index).ValueGeneratedOnAdd();
+        modelBuilder.Entity<WorkShift>().Property(shift => shift.OpenTime).IsRequired();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.CloseTime).IsRequired();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.Cash).IsRequired();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.UserId).IsRequired();
@@ -181,22 +189,18 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<WorkShift>()
             .HasMany(shift => shift.GoodItemStates)
             .WithOne()
-            .HasForeignKey(shift => shift.Index)
+            .HasPrincipalKey(shift => shift.Index)
             .IsRequired();
 
         modelBuilder.Entity<GoodsItemStorage>().HasIndex(storage => storage.Index).IsUnique();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Index).ValueGeneratedOnAdd();
-
-        modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.GoodsInStorage).IsRequired();
+        
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Id).IsRequired();
+        modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.GoodsInStorage).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Receipt).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.RetailPrice).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Sold).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.WholeScalePrice).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.WriteOff).IsRequired();
-        modelBuilder.Entity<GoodsItemStorage>()
-            .HasOne(state => state.ParentShift)
-            .WithMany()
-            .IsRequired();
     }
 }

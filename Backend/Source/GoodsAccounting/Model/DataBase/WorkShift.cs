@@ -20,9 +20,16 @@ public class WorkShift
 #pragma warning restore CS8618
 
     /// <summary>
-    /// Get or set shift day
+    /// Get or set entity index.
     /// </summary>
     [Key]
+    [Required]
+    [Column("index", TypeName = "bigint")]
+    public long Index { get; set; }
+
+    /// <summary>
+    /// Get or set shift day
+    /// </summary>
     [Required]
     [Column("shift_open", TypeName = "timestamp")]
     public DateTime OpenTime { get; set; }

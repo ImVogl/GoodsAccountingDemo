@@ -93,6 +93,10 @@ public class StorageController : ControllerBase
             Log.Error("Todays working shift didn't find.");
             return BadRequest(_bodyBuilder.EntityNotFoundBuild());
         }
+        catch (InvalidOperationException) {
+            Log.Error("Table contains many opened working shift.");
+            return BadRequest(_bodyBuilder.EntityExistsBuild());
+        }
         catch (ArgumentException) {
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
         }
@@ -118,6 +122,10 @@ public class StorageController : ControllerBase
         catch (EntityExistsException) {
             Log.Error("User tryed to create new working shift, but shift already exists!");
             return BadRequest(_bodyBuilder.EntityExistsBuild());
+        }
+        catch (EntityNotFoundException) {
+            Log.Error($"Can't find user with identifier {id}!");
+            return BadRequest(_bodyBuilder.EntityNotFoundBuild());
         }
         catch {
             return BadRequest(_bodyBuilder.UnknownBuild());

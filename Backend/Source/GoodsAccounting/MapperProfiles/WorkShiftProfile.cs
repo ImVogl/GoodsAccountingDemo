@@ -29,7 +29,6 @@ public class WorkShiftProfile : Profile
             dto.StorageItems = states.Select(state => new StorageItemInfoDto
             {
                 ItemId = state.Key,
-                GoodsInStorage = state.Aggregate(0, (sum, s) => sum + s.GoodsInStorage),
                 Receipt = state.Aggregate(0, (sum, s) => sum + s.Receipt),
                 Sold = state.Aggregate(0, (sum, s) => sum + s.Sold),
                 WriteOff = state.Aggregate(0, (sum, s) => sum + s.WriteOff)
