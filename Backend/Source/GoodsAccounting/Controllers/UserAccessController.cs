@@ -32,7 +32,7 @@ namespace GoodsAccounting.Controllers
         /// <summary>
         /// Default expired timespan im minutes.
         /// </summary>
-        private const int ExpiredTokenTimeSpan = 60;
+        private const int ExpiredTokenTimeSpan = 1;
 
         /// <summary>
         /// Current class logger.
@@ -40,9 +40,9 @@ namespace GoodsAccounting.Controllers
         private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Instance of <see cref="IDataBase"/>.
+        /// Instance of <see cref="IUsersContext"/>.
         /// </summary>
-        private readonly IDataBase _db;
+        private readonly IUsersContext _db;
 
         /// <summary>
         /// Instance of <see cref="IPassword"/>.
@@ -82,7 +82,7 @@ namespace GoodsAccounting.Controllers
         /// <summary>
         /// Create new instance of <see cref="UserAccessController"/>.
         /// </summary>
-        /// <param name="db">Instance of <see cref="IDataBase"/>.</param>
+        /// <param name="db">Instance of <see cref="IUsersContext"/>.</param>
         /// <param name="passwordService">Instance of <see cref="IPassword"/>.</param>
         /// <param name="validator">Instance of <see cref="IDtoValidator"/>.</param>
         /// <param name="bodyBuilder">Instance of <see cref="IResponseBodyBuilder"/>.</param>
@@ -90,7 +90,7 @@ namespace GoodsAccounting.Controllers
         /// <param name="textConverter">Instance of <see cref="ITextConverter"/>.</param>
         /// <param name="jwtOption">Option for <see cref="JwtSection"/>.</param>
         public UserAccessController(
-            IDataBase db,
+            IUsersContext db,
             IPassword passwordService,
             IDtoValidator validator,
             IResponseBodyBuilder bodyBuilder,
@@ -109,13 +109,52 @@ namespace GoodsAccounting.Controllers
         }
 
         /// <summary>
-        /// Change user password.
+        /// Update token.
         /// </summary>
-        /// <param name="dto"><see cref="AddUserDto"/>.</param>
         /// <returns><see cref="Task"/> for response.</returns>
         /// <response code="200">Returns value is indicated that user is drinker.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
+        [Authorize]
+        [HttpPost("~/update_token")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateTokenAsync()
+        {
+            try {
+                var id = ExtractUserIdentifierFromToken();
+                if (id == null)
+                {
+                    Log.Warn("Can't extract identifier from token.");
+                    return Unauthorized();
+                }
+
+                var castId = (int)id;
+                Log.Info($"User with identifier \'{castId}\' is trying to change treir password.");
+                var user = await _db.Users
+                    .SingleOrDefaultAsync(u => u.Id == castId)
+                    .ConfigureAwait(false);
+
+                if (user == null)
+                    return Unauthorized();
+
+                var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
+                return Ok(_bodyBuilder.TokenBuild(jwtToken));
+            }
+            catch {
+                return BadRequest(_bodyBuilder.UnknownBuild());
+            }
+        }
+
+        /// <summary>
+        /// Change user password.
+        /// </summary>
+        /// <param name="dto"><see cref="AddUserDto"/>.</param>
+        /// <returns><see cref="Task"/> for response.</returns>
+        /// <response code="200">Returns value is indicated that adding is success.</response>
+        /// <response code="400">Returns if requested data is invalid.</response>
+        /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
         [HttpPost("~/add_user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -150,7 +189,7 @@ namespace GoodsAccounting.Controllers
                 };
 
                 await _db.AddUserAsync(newUser).ConfigureAwait(false);
-                var jwtToken = ProcessToken(newUser, expiredMinutes);
+                var jwtToken = ProcessToken(newUser, ExpiredTokenTimeSpan);
                 return Ok(_bodyBuilder.TokenNewUserBuild(login, password, jwtToken));
             }
             catch (BadPasswordException) {
@@ -172,9 +211,9 @@ namespace GoodsAccounting.Controllers
         /// <param name="oldPassword">Current user password.</param>
         /// <param name="password">New user password.</param>
         /// <returns><see cref="Task"/> for response.</returns>
-        /// <response code="200">Returns value is indicated that user is drinker.</response>
+        /// <response code="200">Returns value is indicated that password changing is success.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
-        /// <response code="401">Returns if user didn't find.</response>
+        /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize]
         [HttpPost("~/change/{oldPassword}/{password}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -222,7 +261,7 @@ namespace GoodsAccounting.Controllers
         /// </summary>
         /// <param name="dto"><see cref="SignInDto"/>.</param>
         /// <returns><see cref="Task"/> for response.</returns>
-        /// <response code="200">Returns value is indicated that user is drinker.</response>
+        /// <response code="200">Returns value is indicated that user signed in.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if request pair of login-password is incorrect.</response>
         [HttpPost("~/signin")]
@@ -263,7 +302,7 @@ namespace GoodsAccounting.Controllers
         /// </summary>
         /// <param name="id">User identifier.</param>
         /// <returns><see cref="Task"/> for response.</returns>
-        /// <response code="200">Returns value is indicated that user is drinker.</response>
+        /// <response code="200">Returns value is indicated that user signed out.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize]

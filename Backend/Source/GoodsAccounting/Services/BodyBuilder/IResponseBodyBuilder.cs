@@ -1,5 +1,4 @@
-﻿using GoodsAccounting.Model.DataBase;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace GoodsAccounting.Services.BodyBuilder;
 
@@ -40,6 +39,14 @@ public interface IResponseBodyBuilder
     [NotNull]
     [ItemNotNull]
     Dictionary<string, string> EntityExistsBuild();
+
+    /// <summary>
+    /// Build body for entity doesn't exist in storage response.
+    /// </summary>
+    /// <returns>Response body.</returns>
+    [NotNull]
+    [ItemNotNull]
+    Dictionary<string, string> EntityNotFoundBuild();
 
     /// <summary>
     /// Build body for success response new user info.

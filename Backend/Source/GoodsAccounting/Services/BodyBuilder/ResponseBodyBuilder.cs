@@ -30,6 +30,12 @@ public class ResponseBodyBuilder : IResponseBodyBuilder
     }
 
     /// <inheritdoc />
+    public Dictionary<string, string> EntityNotFoundBuild()
+    {
+        return new Dictionary<string, string> { { "error", "resourceNotFound" } };
+    }
+
+    /// <inheritdoc />
     public Dictionary<string, string> TokenNewUserBuild(string login, string password, string token)
     {
         return new Dictionary<string, string> { { "login", login }, { "password", password }, { "token", token } };

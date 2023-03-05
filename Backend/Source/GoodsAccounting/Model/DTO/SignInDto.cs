@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace GoodsAccounting.Model.DTO;
 
@@ -11,14 +10,14 @@ public class SignInDto
     /// <summary>
     /// Get or set user's name.
     /// </summary>
-    [Required]
+    [JsonRequired]
     [JsonProperty("login")]
     public string UserLogin { get; set; } = null!;
 
     /// <summary>
     /// Get or set user's password.
     /// </summary>
-    [Required]
+    [JsonRequired]
     [JsonProperty("password")]
     public string Password { get; set; } = null!;
 }
