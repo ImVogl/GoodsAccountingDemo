@@ -36,6 +36,13 @@ public interface IUsersContext : IDisposable
     Task AddUserAsync([NotNull] User user);
 
     /// <summary>
+    /// Remove user with target identifier.
+    /// </summary>
+    /// <param name="id">User's identifier.</param>
+    /// <returns><see cref="Task"/>.</returns>
+    Task RemoveUserAsync(int id);
+
+    /// <summary>
     /// Check user in "users" table.
     /// </summary>
     /// <param name="login">User's login.</param>

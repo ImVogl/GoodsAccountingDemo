@@ -191,7 +191,18 @@ public class PostgresProxy : DbContext, IEfContext
         await Users.AddAsync(user).ConfigureAwait(false);
         await SaveChangesAsync().ConfigureAwait(false);
     }
-    
+
+    /// <inheritdoc />
+    public async Task RemoveUserAsync(int id)
+    {
+        var user = await Users.SingleOrDefaultAsync(user => user.Id == id).ConfigureAwait(false);
+        if (user == null)
+            return;
+        
+        Users.Remove(user);
+        await SaveChangesAsync().ConfigureAwait(false);
+    }
+
     /// <inheritdoc />
     public async Task<bool> DoesUserExistsAsync(string login, string name, string surname, DateOnly birthDay)
     {

@@ -284,9 +284,17 @@ namespace GoodsAccounting.Controllers
                     .SingleOrDefaultAsync(u => u.UserLogin == dto.UserLogin)
                     .ConfigureAwait(false);
 
-                if (user == null || !_passwordService.VerifyPassword(user.Hash, dto.Password, user.Salt))
+                if (user == null) return Unauthorized();
+                if (user.PasswordExpired < DateTime.Today)
+                {
+                    Log.Warn("User's password expired. User will be removed!");
+                    await _db.RemoveUserAsync(user.Id).ConfigureAwait(false);
                     return Unauthorized();
+                }
 
+
+
+                if (!_passwordService.VerifyPassword(user.Hash, dto.Password, user.Salt)) return Unauthorized();
                 var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
                 return Ok(_bodyBuilder.TokenBuild(jwtToken));
             }
