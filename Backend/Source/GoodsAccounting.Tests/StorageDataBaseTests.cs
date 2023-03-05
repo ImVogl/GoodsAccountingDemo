@@ -3,6 +3,7 @@ using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services.DataBase;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
+using System.Runtime.InteropServices;
 
 namespace GoodsAccounting.Tests;
 
@@ -170,18 +171,31 @@ public class StorageDataBaseTests
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
+        const int firstStorage = 350;
+        const int secondStorage = 150;
         var firstItemId = Guid.NewGuid();
         var secondItemId = Guid.NewGuid();
         var thirdItemId = Guid.NewGuid();
         await context.Goods.AddRangeAsync(
             new GoodsItem
-                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 100F, WholeScalePrice = 80F, CurrentItemsInStorageCount = 350 },
+                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 100F, WholeScalePrice = 80F, CurrentItemsInStorageCount = firstStorage },
             new GoodsItem
-                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 150F, WholeScalePrice = 85F, CurrentItemsInStorageCount = 150 },
+                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 150F, WholeScalePrice = 85F, CurrentItemsInStorageCount = secondStorage },
             new GoodsItem
                 { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 185F, CurrentItemsInStorageCount = 250 }
         );
-        
+
+        const int firstFirstWriteOff = 15;
+        const int firstFirstReceipt = 15;
+
+        const int firstSecondWriteOff = 5;
+        const int firstSecondReceipt = 0;
+
+        const float firstFirstRetailPrice = 100F;
+        const float firstFirstWholeScalePrice = 80F;
+
+        const float firstSecondRetailPrice = 150F;
+        const float firstSecondWholeScalePrice = 85F;
         var openedShiftId1 = new WorkShift
         {
             Cash = 100,
@@ -192,10 +206,31 @@ public class StorageDataBaseTests
             UserDisplayName = "First",
             GoodItemStates = new List<GoodsItemStorage>
             {
-                new() { Id = firstItemId, RetailPrice = 100F, WholeScalePrice = 80F, WriteOff = 15, Receipt = 25, Sold = 40 },
-                new () { Id = secondItemId, RetailPrice = 150F, WholeScalePrice = 85F, WriteOff = 0, Receipt = 0, Sold = 50 }
+                new()
+                {
+                    Id = firstItemId, RetailPrice = firstFirstRetailPrice, WholeScalePrice = firstFirstWholeScalePrice,
+                    WriteOff = firstFirstWriteOff, Receipt = firstFirstReceipt, Sold = 40
+                },
+                new()
+                {
+                    Id = secondItemId, RetailPrice = firstSecondRetailPrice,
+                    WholeScalePrice = firstSecondWholeScalePrice, WriteOff = firstSecondWriteOff,
+                    Receipt = firstSecondReceipt, Sold = 50
+                }
             }
         };
+
+        const int secondFirstWriteOff = 7;
+        const int secondFirstReceipt = 3;
+
+        const int secondSecondWriteOff = 2;
+        const int secondSecondReceipt = 1;
+
+        const float secondFirstRetailPrice = 120F;
+        const float secondFirstWholeScalePrice = 180F;
+
+        const float secondSecondRetailPrice = 350F;
+        const float secondSecondWholeScalePrice = 485F;
         var openedShiftId2 = new WorkShift
         {
             Cash = 100,
@@ -206,17 +241,53 @@ public class StorageDataBaseTests
             UserDisplayName = "First",
             GoodItemStates = new List<GoodsItemStorage>
             {
-                new() { Id = firstItemId, RetailPrice = 100F, WholeScalePrice = 80F, WriteOff = 15, Receipt = 25, Sold = 40 },
-                new () { Id = secondItemId, RetailPrice = 150F, WholeScalePrice = 85F, WriteOff = 0, Receipt = 0, Sold = 50 }
+                new()
+                {
+                    Id = firstItemId, RetailPrice = secondFirstRetailPrice,
+                    WholeScalePrice = secondFirstWholeScalePrice, WriteOff = secondFirstWriteOff,
+                    Receipt = secondFirstReceipt, Sold = 0
+                },
+                new()
+                {
+                    Id = secondItemId, RetailPrice = secondSecondRetailPrice,
+                    WholeScalePrice = secondSecondWholeScalePrice, WriteOff = secondSecondWriteOff,
+                    Receipt = secondSecondReceipt, Sold = 0
+                }
             }
         };
 
         await context.WorkShifts.AddRangeAsync(openedShiftId1, openedShiftId2);
         await context.SaveChangesAsync();
         await context.CloseWorkShiftAsync(id1, 150);
+        Assert.That(context.WorkShifts.Count(shift => shift.IsOpened), Is.EqualTo(1));
+        Assert.That(context.WorkShifts.Single(shift => shift.IsOpened).UserId, Is.EqualTo(id2));
+        var firstItem = await context.Goods.SingleAsync(item => item.Id == firstItemId);
+        var secondItem = await context.Goods.SingleAsync(item => item.Id == secondItemId);
+        
+        Assert.That(firstItem.CurrentItemsInStorageCount, Is.EqualTo(firstStorage - firstFirstWriteOff + firstFirstReceipt));
+        Assert.That(secondItem.CurrentItemsInStorageCount, Is.EqualTo(secondStorage - firstSecondWriteOff + firstSecondReceipt));
 
-        Assert.That(context.WorkShifts.Count(), Is.EqualTo(1));
+        Assert.That(firstItem.RetailPrice, Is.EqualTo(firstFirstRetailPrice));
+        Assert.That(firstItem.WholeScalePrice, Is.EqualTo(firstFirstWholeScalePrice));
+
+        Assert.That(secondItem.RetailPrice, Is.EqualTo(firstSecondRetailPrice));
+        Assert.That(secondItem.WholeScalePrice, Is.EqualTo(firstSecondWholeScalePrice));
+
+        var firstItemStorage = (await context.Goods.SingleAsync(item => item.Id == firstItemId)).CurrentItemsInStorageCount;
+        var secondItemStorage = (await context.Goods.SingleAsync(item => item.Id == secondItemId)).CurrentItemsInStorageCount;
+        await context.CloseWorkShiftAsync(id2, 250);
         Assert.That(context.WorkShifts.Any(shift => shift.IsOpened), Is.False);
+        var firstItemSecond = await context.Goods.SingleAsync(item => item.Id == firstItemId);
+        var secondItemSecond = await context.Goods.SingleAsync(item => item.Id == secondItemId);
+
+        Assert.That(firstItemSecond.CurrentItemsInStorageCount, Is.EqualTo(firstItemStorage - secondFirstWriteOff + secondFirstReceipt));
+        Assert.That(secondItemSecond.CurrentItemsInStorageCount, Is.EqualTo(secondItemStorage - secondSecondWriteOff + secondSecondReceipt));
+
+        Assert.That(firstItemSecond.RetailPrice, Is.EqualTo(secondFirstRetailPrice));
+        Assert.That(firstItemSecond.WholeScalePrice, Is.EqualTo(secondFirstWholeScalePrice));
+
+        Assert.That(secondItemSecond.RetailPrice, Is.EqualTo(secondSecondRetailPrice));
+        Assert.That(secondItemSecond.WholeScalePrice, Is.EqualTo(secondSecondWholeScalePrice));
     }
 
     [Test]
