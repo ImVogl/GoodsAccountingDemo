@@ -1,4 +1,5 @@
-﻿using GoodsAccounting.Model.DataBase;
+﻿using GoodsAccounting.Model;
+using GoodsAccounting.Model.DataBase;
 using GoodsAccounting.Model.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,7 +45,7 @@ public class PostgresProxy : DbContext, IEfContext
             state.Sold += soldGoods[state.Id];
         
         foreach(var item in Goods.Where(i => i.Actives && soldGoods.ContainsKey(i.Id)))
-            item.CurrentItemsInStorageCount -= soldGoods[item.Id];
+            item.Storage -= soldGoods[item.Id];
 
         await SaveChangesAsync().ConfigureAwait(false);
     }
@@ -95,15 +96,7 @@ public class PostgresProxy : DbContext, IEfContext
         if (!string.IsNullOrWhiteSpace(comment))
             shift.Comments = $"{shift.Comments}{Environment.NewLine}{comment}";
 
-        var changes = shift.GoodItemStates.ToDictionary(item => item.Id, item => item);
-        foreach (var item in Goods.Where(item => changes.ContainsKey(item.Id)))
-        {
-            item.CurrentItemsInStorageCount += changes[item.Id].Receipt - changes[item.Id].WriteOff;
-            item.RetailPrice = changes[item.Id].RetailPrice;
-            item.WholeScalePrice = changes[item.Id].WholeScalePrice;
-        }
-
-        var storage = Goods.ToDictionary(item => item.Id, item => item.CurrentItemsInStorageCount);
+        var storage = Goods.ToDictionary(item => item.Id, item => item.Storage);
         foreach (var item in shift.GoodItemStates.Where(item => storage.ContainsKey(item.Id)))
             item.GoodsInStorage = storage[item.Id];
 
@@ -128,45 +121,111 @@ public class PostgresProxy : DbContext, IEfContext
     }
 
     /// <inheritdoc />
-    public async Task UpdateGoodsStorageAsync(int userId, List<Guid> remove, IList<GoodsItem> goods)
+    public async Task UpdateGoodsStorageAsync(int userId, Dictionary<Guid, GoodsItemStateChanging> changing)
     {
-        var user = await Users.SingleOrDefaultAsync(user => user.Id == userId && user.Role == UserRole.Administrator)
-            .ConfigureAwait(false);
-
-        if (user == null)
-            throw new EntityNotFoundException();
+        if (!await IsUserAdminAsync(userId).ConfigureAwait(false))
+            throw new TableAccessException();
 
         var workingShift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
         if (workingShift == null)
             throw new EntityNotFoundException();
-
-        var message = $"{DateTime.Now:g}Пользователь {user.UserLogin} задал новое состояние для хранилища товаров;";
-        workingShift.Comments = string.IsNullOrWhiteSpace(workingShift.Comments)
-            ? message
-            : $"{workingShift.Comments}{Environment.NewLine}{message}";
-
-        var grouped = goods.ToDictionary(item => item.Id, item => item);
-        foreach (var item in Goods.Where(item => grouped.ContainsKey(item.Id)))
+        
+        foreach (var item in Goods.Where(item => changing.ContainsKey(item.Id)))
         {
-            item.CurrentItemsInStorageCount = grouped[item.Id].CurrentItemsInStorageCount;
-            item.Name = grouped[item.Id].Name;
-            item.WholeScalePrice = grouped[item.Id].WholeScalePrice;
-            item.RetailPrice = grouped[item.Id].RetailPrice;
-            item.Actives = true;
+            var diff = changing[item.Id].Storage - item.Storage;
+            item.Storage = diff == 0 ? item.Storage - changing[item.Id].WriteOff + changing[item.Id].Receipt : changing[item.Id].Storage;
+            item.WholeScalePrice = changing[item.Id].WholeScalePrice == 0F ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
+            item.RetailPrice = changing[item.Id].RetailPrice == 0F ? item.RetailPrice : changing[item.Id].RetailPrice;
+            item.Category = changing[item.Id].Category;
         }
 
-        foreach (var item in Goods.Where(item => remove.Contains(item.Id)))
-            item.Actives = false;
-
-        foreach (var id in grouped.Keys)
+        foreach (var item in workingShift.GoodItemStates.Where(item => changing.ContainsKey(item.Id)))
         {
-            if (!await Goods.AllAsync(item => item.Id != id).ConfigureAwait(false))
-                continue;
-
-            grouped[id].Actives = true;
-            await Goods.AddAsync(grouped[id]).ConfigureAwait(false);
+            var diff = changing[item.Id].Storage - item.GoodsInStorage;
+            item.GoodsInStorage = diff == 0 ? item.GoodsInStorage - changing[item.Id].WriteOff + changing[item.Id].Receipt : changing[item.Id].Storage;
+            item.WholeScalePrice = changing[item.Id].WholeScalePrice == 0F ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
+            item.RetailPrice = changing[item.Id].RetailPrice == 0F ? item.RetailPrice : changing[item.Id].RetailPrice;
+            item.WriteOff = changing[item.Id].WriteOff;
+            item.Receipt = changing[item.Id].Receipt;
         }
 
+        workingShift.Comments = AddCommentSourceMessage(workingShift.Comments, "Задано новое состояние для хранилища товаров");
+        await SaveChangesAsync().ConfigureAwait(false);
+    }
+    
+    /// <inheritdoc />
+    public async Task RenameGoodsItemAsync(int userId, Guid id, string newName)
+    {
+
+        if (!await IsUserAdminAsync(userId).ConfigureAwait(false))
+            throw new TableAccessException();
+
+        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        if (shift == null)
+            throw new EntityNotFoundException();
+
+        var item = await Goods.SingleOrDefaultAsync(item => item.Id == id).ConfigureAwait(false);
+        if (item == null)
+            throw new EntityNotFoundException();
+
+        shift.Comments = AddCommentSourceMessage(shift.Comments, $"Товар переименован {item.Name} на {newName}");
+        item.Name = newName;
+        await SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task AddNewGoodsItemAsync(int userId, GoodsItem newItem)
+    {
+        if (!await IsUserAdminAsync(userId).ConfigureAwait(false))
+            throw new TableAccessException();
+
+        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        if (shift == null)
+            throw new EntityNotFoundException();
+
+        if (await Goods.AnyAsync(item => item.Name == newItem.Name).ConfigureAwait(false))
+            throw new EntityExistsException();
+
+        await Goods.AddAsync(newItem).ConfigureAwait(false);
+        shift.Comments = AddCommentSourceMessage(shift.Comments, $"Добавлен товар с именем {newItem.Name} добавлен");
+        await SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task RemoveGoodsItemAsync(int userId, Guid id)
+    {
+        if (!await IsUserAdminAsync(userId).ConfigureAwait(false))
+            throw new TableAccessException();
+
+        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        if (shift == null)
+            throw new EntityNotFoundException();
+
+        var item = await Goods.SingleAsync(item => item.Id == id).ConfigureAwait(false);
+        if (item == null)
+            throw new EntityNotFoundException();
+
+        item.Actives = false;
+        shift.Comments = AddCommentSourceMessage(shift.Comments, $"Товар {item.Name} выведен из продажи");
+        await SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task RestoreGoodsItemAsync(int userId, Guid id)
+    {
+        if (!await IsUserAdminAsync(userId).ConfigureAwait(false))
+            throw new TableAccessException();
+
+        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        if (shift == null)
+            throw new EntityNotFoundException();
+
+        var item = await Goods.SingleAsync(item => item.Id == id).ConfigureAwait(false);
+        if (item == null)
+            throw new EntityNotFoundException();
+
+        item.Actives = true;
+        shift.Comments = AddCommentSourceMessage(shift.Comments, $"Товар {item.Name} возвращен в продажу");
         await SaveChangesAsync().ConfigureAwait(false);
     }
 
@@ -234,7 +293,7 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<GoodsItem>().Property(item => item.Actives).IsRequired();
         modelBuilder.Entity<GoodsItem>().Property(item => item.RetailPrice).IsRequired();
         modelBuilder.Entity<GoodsItem>().Property(item => item.WholeScalePrice).IsRequired();
-        modelBuilder.Entity<GoodsItem>().Property(item => item.CurrentItemsInStorageCount).IsRequired();
+        modelBuilder.Entity<GoodsItem>().Property(item => item.Storage).IsRequired();
 
         modelBuilder.Entity<WorkShift>().HasIndex(shift => shift.Index).IsUnique();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.Index).ValueGeneratedOnAdd();
@@ -261,5 +320,31 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Sold).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.WholeScalePrice).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.WriteOff).IsRequired();
+    }
+
+    /// <summary>
+    /// Checking user admin role access.
+    /// </summary>
+    /// <param name="id">User identifier.</param>
+    /// <returns>Value is indicating that user exists and has admin role.</returns>
+    private async Task<bool> IsUserAdminAsync(int id)
+    {
+        var user = await Users.SingleOrDefaultAsync(user => user.Id == id && user.Role == UserRole.Administrator)
+            .ConfigureAwait(false);
+
+        return user != null;
+    }
+
+    /// <summary>
+    /// Adding message to source.
+    /// </summary>
+    /// <param name="source">Source message.</param>
+    /// <param name="additional">Additional message.</param>
+    /// <returns>Concatenated message.</returns>
+    private string AddCommentSourceMessage(string source, string additional)
+    {
+        return string.IsNullOrWhiteSpace(source)
+            ? $"{DateTime.Now:g}: {additional}"
+            : $"{source}{Environment.NewLine}{DateTime.Now:g}: {additional}";
     }
 }

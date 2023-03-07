@@ -25,7 +25,8 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Now,
             UserId = 2,
             UserDisplayName = "Second",
-            GoodItemStates = new List<GoodsItemStorage>()
+            GoodItemStates = new List<GoodsItemStorage>(),
+            Comments = string.Empty
         };
         
         await using var context = new PostgresProxy(Options);
@@ -52,6 +53,7 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Now,
             UserId = id,
             UserDisplayName = "Second",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>()
         };
 
@@ -87,6 +89,7 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Now,
             UserId = id,
             UserDisplayName = "Second",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>
             {
                 new() { Id = firstItemId, RetailPrice = 0F, WholeScalePrice = 0F, WriteOff = 0, Receipt = 0, Sold = firstSold },
@@ -99,11 +102,11 @@ public class StorageDataBaseTests
         await context.Database.EnsureCreatedAsync();
         await context.Goods.AddRangeAsync(
             new GoodsItem
-                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 0F, WholeScalePrice = 0F, CurrentItemsInStorageCount = firstStorage },
+                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 0F, WholeScalePrice = 0F, Storage = firstStorage, Category = "123" },
             new GoodsItem
-                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 0F, WholeScalePrice = 0F, CurrentItemsInStorageCount = secondStorage },
+                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 0F, WholeScalePrice = 0F, Storage = secondStorage, Category = "123" },
             new GoodsItem
-                { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 0F, CurrentItemsInStorageCount = 300 }
+                { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 0F, Storage = 300, Category = "123" }
         );
 
         await context.WorkShifts.AddAsync(workShift);
@@ -121,8 +124,8 @@ public class StorageDataBaseTests
         var firstItem = context.Goods.Single(g => g.Id == firstItemId);
         var secondItem = context.Goods.Single(g => g.Id == secondItemId);
 
-        Assert.That(firstItem.CurrentItemsInStorageCount, Is.EqualTo(firstStorage - firstItemSold));
-        Assert.That(secondItem.CurrentItemsInStorageCount, Is.EqualTo(secondStorage - secondItemSold));
+        Assert.That(firstItem.Storage, Is.EqualTo(firstStorage - firstItemSold));
+        Assert.That(secondItem.Storage, Is.EqualTo(secondStorage - secondItemSold));
     }
 
     [Test]
@@ -140,7 +143,8 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Parse("2000-01-01 06:35"),
             UserId = 1,
             UserDisplayName = "First",
-            GoodItemStates = new List<GoodsItemStorage>()
+            GoodItemStates = new List<GoodsItemStorage>(),
+            Comments = string.Empty
         };
 
         await context.WorkShifts.AddAsync(closedShift);
@@ -163,7 +167,8 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Parse("2000-01-01 06:35"),
             UserId = 1,
             UserDisplayName = "First",
-            GoodItemStates = new List<GoodsItemStorage>()
+            GoodItemStates = new List<GoodsItemStorage>(),
+            Comments = string.Empty
         };
 
         await context.WorkShifts.AddAsync(closedShift);
@@ -195,11 +200,11 @@ public class StorageDataBaseTests
         var thirdItemId = Guid.NewGuid();
         await context.Goods.AddRangeAsync(
             new GoodsItem
-                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 100F, WholeScalePrice = 80F, CurrentItemsInStorageCount = 50 },
+                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 100F, WholeScalePrice = 80F, Storage = 50, Category = "123" },
             new GoodsItem
-                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 150F, WholeScalePrice = 85F, CurrentItemsInStorageCount = 150 },
+                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 150F, WholeScalePrice = 85F, Storage = 150, Category = "123" },
             new GoodsItem
-                { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 185F, CurrentItemsInStorageCount = 250 }
+                { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 185F, Storage = 250, Category = "123" }
         );
         
         await context.SaveChangesAsync();
@@ -239,6 +244,7 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Parse("2000-01-01 06:35"),
             UserId = id,
             UserDisplayName = "First",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>()
         };
         
@@ -263,7 +269,8 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Parse("2000-01-01 06:35"),
             UserId = id,
             UserDisplayName = "First",
-            GoodItemStates = new List<GoodsItemStorage>()
+            GoodItemStates = new List<GoodsItemStorage>(),
+            Comments = string.Empty
         };
 
         await AddWorkShiftsAsync(context, DateTime.Today, DateTime.Now);
@@ -289,11 +296,11 @@ public class StorageDataBaseTests
         var thirdItemId = Guid.NewGuid();
         await context.Goods.AddRangeAsync(
             new GoodsItem
-                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 100F, WholeScalePrice = 80F, CurrentItemsInStorageCount = firstStorage },
+                { Id = firstItemId, Actives = true, Name = "First", RetailPrice = 100F, WholeScalePrice = 80F, Storage = firstStorage, Category = "123" },
             new GoodsItem
-                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 150F, WholeScalePrice = 85F, CurrentItemsInStorageCount = secondStorage },
+                { Id = secondItemId, Actives = true, Name = "Second", RetailPrice = 150F, WholeScalePrice = 85F, Storage = secondStorage, Category = "123" },
             new GoodsItem
-                { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 185F, CurrentItemsInStorageCount = 250 }
+                { Id = thirdItemId, Actives = false, Name = "Third", RetailPrice = 250F, WholeScalePrice = 185F, Storage = 250, Category = "123" }
         );
 
         const int firstFirstWriteOff = 15;
@@ -315,6 +322,7 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Now.AddDays(5),
             UserId = id1,
             UserDisplayName = "First",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>
             {
                 new()
@@ -350,6 +358,7 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Now.AddDays(5),
             UserId = id2,
             UserDisplayName = "First",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>
             {
                 new()
@@ -375,30 +384,28 @@ public class StorageDataBaseTests
         var firstItem = await context.Goods.SingleAsync(item => item.Id == firstItemId);
         var secondItem = await context.Goods.SingleAsync(item => item.Id == secondItemId);
         
-        Assert.That(firstItem.CurrentItemsInStorageCount, Is.EqualTo(firstStorage - firstFirstWriteOff + firstFirstReceipt));
-        Assert.That(secondItem.CurrentItemsInStorageCount, Is.EqualTo(secondStorage - firstSecondWriteOff + firstSecondReceipt));
+        Assert.That(firstItem.Storage, Is.EqualTo(firstStorage));
+        Assert.That(secondItem.Storage, Is.EqualTo(secondStorage));
 
         Assert.That(firstItem.RetailPrice, Is.EqualTo(firstFirstRetailPrice));
         Assert.That(firstItem.WholeScalePrice, Is.EqualTo(firstFirstWholeScalePrice));
 
         Assert.That(secondItem.RetailPrice, Is.EqualTo(firstSecondRetailPrice));
         Assert.That(secondItem.WholeScalePrice, Is.EqualTo(firstSecondWholeScalePrice));
-
-        var firstItemStorage = (await context.Goods.SingleAsync(item => item.Id == firstItemId)).CurrentItemsInStorageCount;
-        var secondItemStorage = (await context.Goods.SingleAsync(item => item.Id == secondItemId)).CurrentItemsInStorageCount;
+        
         await context.CloseWorkShiftAsync(id2, 250, string.Empty);
         Assert.That(context.WorkShifts.Any(shift => shift.IsOpened), Is.False);
         var firstItemSecond = await context.Goods.SingleAsync(item => item.Id == firstItemId);
         var secondItemSecond = await context.Goods.SingleAsync(item => item.Id == secondItemId);
 
-        Assert.That(firstItemSecond.CurrentItemsInStorageCount, Is.EqualTo(firstItemStorage - secondFirstWriteOff + secondFirstReceipt));
-        Assert.That(secondItemSecond.CurrentItemsInStorageCount, Is.EqualTo(secondItemStorage - secondSecondWriteOff + secondSecondReceipt));
+        Assert.That(firstItemSecond.Storage, Is.EqualTo(firstStorage));
+        Assert.That(secondItemSecond.Storage, Is.EqualTo(secondStorage));
 
-        Assert.That(firstItemSecond.RetailPrice, Is.EqualTo(secondFirstRetailPrice));
-        Assert.That(firstItemSecond.WholeScalePrice, Is.EqualTo(secondFirstWholeScalePrice));
+        Assert.That(firstItemSecond.RetailPrice, Is.EqualTo(firstFirstRetailPrice));
+        Assert.That(firstItemSecond.WholeScalePrice, Is.EqualTo(firstFirstWholeScalePrice));
 
-        Assert.That(secondItemSecond.RetailPrice, Is.EqualTo(secondSecondRetailPrice));
-        Assert.That(secondItemSecond.WholeScalePrice, Is.EqualTo(secondSecondWholeScalePrice));
+        Assert.That(secondItemSecond.RetailPrice, Is.EqualTo(firstSecondRetailPrice));
+        Assert.That(secondItemSecond.WholeScalePrice, Is.EqualTo(firstSecondWholeScalePrice));
     }
 
     [Test]
@@ -455,6 +462,7 @@ public class StorageDataBaseTests
             CloseTime = earlySuitableShiftCloseTime,
             UserId = 1,
             UserDisplayName = "First",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>
             {
                 new()
@@ -480,6 +488,7 @@ public class StorageDataBaseTests
             CloseTime = lateSuitableShiftCloseTime,
             UserId = 2,
             UserDisplayName = "Second",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>
             {
                 new()
@@ -505,6 +514,7 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Parse("2000-01-02 08:00"),
             UserId = 2,
             UserDisplayName = "Second",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>
             {
                 new() { Id = firstItemId, RetailPrice = 100F, WholeScalePrice = 80F, WriteOff = 1, Receipt = 2, Sold = 3 },
@@ -524,6 +534,7 @@ public class StorageDataBaseTests
             CloseTime = DateTime.Parse("2000-01-01 06:35"),
             UserId = 1,
             UserDisplayName = "First",
+            Comments = string.Empty,
             GoodItemStates = new List<GoodsItemStorage>
             {
                 new()

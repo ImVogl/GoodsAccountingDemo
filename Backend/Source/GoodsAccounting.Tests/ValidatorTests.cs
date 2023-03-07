@@ -73,72 +73,76 @@ public class ValidatorTests
     }
 
     [Test]
-    [Description("Invalid update storage DTO test.")]
-    public void InvalidUpdateStorageDtoTest()
+    [Description("Invalid revision DTO test.")]
+    public void InvalidRevisionDtoTest()
     {
         Assert.That(
             DtoValidator.Validate(
-                new UpdatingGoodsDto { Id = -1, Items = new List<UpdatingGoodsItemDto>() }), Is.False);
+                new GoodsRevisionDto { Id = -1, Items = new List<RevisionGoodsItemDto>() }), Is.False);
 
         Assert.That(
-            DtoValidator.Validate(new UpdatingGoodsDto
+            DtoValidator.Validate(new GoodsRevisionDto
             {
-                Id = 1, Items = new List<UpdatingGoodsItemDto>
-                {
-                    new()
-                    {
-                        Id = Guid.NewGuid(), CurrentItemsInStorageCount = -1, Name = "123", RetailPrice = 10F,
-                        WholeScalePrice = 10F
-                    }
-                }
+                Id = 1, Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = -1, Name = "123", RetailPrice = 10F, WriteOff = 1, Category = "123" } }
             }), Is.False);
 
         Assert.That(
-            DtoValidator.Validate(new UpdatingGoodsDto
+            DtoValidator.Validate(new GoodsRevisionDto
             {
                 Id = 1,
-                Items = new List<UpdatingGoodsItemDto>
-                {
-                    {
-                        new()
-                        {
-                            Id = Guid.NewGuid(), CurrentItemsInStorageCount = 1, Name = string.Empty, RetailPrice = 10F,
-                            WholeScalePrice = 10F
-                        }
-                    }
-                }
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = string.Empty, RetailPrice = 10F, WriteOff = 1, Category = "123" } }
             }), Is.False);
 
         Assert.That(
-            DtoValidator.Validate(new UpdatingGoodsDto
+            DtoValidator.Validate(new GoodsRevisionDto
             {
                 Id = 1,
-                Items = new List<UpdatingGoodsItemDto>
-                {
-                    {
-                        new()
-                        {
-                            Id = Guid.NewGuid(), CurrentItemsInStorageCount = 1, Name = "123", RetailPrice = -1F,
-                            WholeScalePrice = 10F
-                        }
-                    }
-                }
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = "123", RetailPrice = -1F, WriteOff = 1, Category = "123" } }
             }), Is.False);
 
         Assert.That(
-            DtoValidator.Validate(new UpdatingGoodsDto
+            DtoValidator.Validate(new GoodsRevisionDto
             {
                 Id = 1,
-                Items = new List<UpdatingGoodsItemDto>
-                {
-                    {
-                        new()
-                        {
-                            Id = Guid.NewGuid(), CurrentItemsInStorageCount = 1, Name = "123", RetailPrice = 10F,
-                            WholeScalePrice = -1F
-                        }
-                    }
-                }
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = "123", RetailPrice = 10F, WriteOff = -1, Category = "123" } }
             }), Is.False);
+
+        Assert.That(
+            DtoValidator.Validate(new GoodsRevisionDto
+            {
+                Id = 1,
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = "123", RetailPrice = 10F, WriteOff = 1, Category = string.Empty } }
+            }), Is.False);
+    }
+
+    [Test]
+    [Description("Invalid supply DTO test.")]
+    public void InvalidSupplyDtoTest()
+    {
+        Assert.That(DtoValidator.Validate(new GoodsSuppliesDto { Id = -1, Items = new List<GoodsItemSupplyDto>() }), Is.False);
+
+        Assert.That(
+            DtoValidator.Validate(new GoodsSuppliesDto
+            {
+                Id = 1, 
+                Items = new List<GoodsItemSupplyDto> { new() { Id = Guid.NewGuid(), WholeScalePrice = -1F, Receipt = 10 }}
+            }), Is.False);
+
+        Assert.That(
+            DtoValidator.Validate(new GoodsSuppliesDto
+            {
+                Id = 1,
+                Items = new List<GoodsItemSupplyDto> { new() { Id = Guid.NewGuid(), WholeScalePrice = 10F, Receipt = -1 } }
+            }), Is.False);
+    }
+
+    [Test]
+    [Description("Invalid edit DTO test.")]
+    public void InvalidEditDtoTest()
+    {
+        Assert.That(DtoValidator.Validate(new EditGoodsListDto { UserId = -1, Id = Guid.Empty, Category = "123", Name = "123" }), Is.False);
+        Assert.That(DtoValidator.Validate(new EditGoodsListDto { UserId = 1, Id = null, Restore = true, Category = "123", Name = "123" }), Is.False);
+        Assert.That(DtoValidator.Validate(new EditGoodsListDto { UserId = 1, Id = Guid.NewGuid(), CreateNew = true, Category = string.Empty, Name = "123" }), Is.False);
+        Assert.That(DtoValidator.Validate(new EditGoodsListDto { UserId = 1, Id = Guid.NewGuid(), CreateNew = true, Category = "123", Name = string.Empty }), Is.False);
     }
 }
