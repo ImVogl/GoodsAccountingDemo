@@ -420,11 +420,10 @@ public class StorageDataBaseTests
         var lateSuitableShiftCloseTime = DateTime.Parse("2000-01-02 03:00");
         await AddWorkShiftsAsync(context, earlySuitableShiftCloseTime, lateSuitableShiftCloseTime);
         var suitableShifts = await context.GetWorkShiftSnapshotsAsync(-1, DateOnly.Parse("2000-01-01"));
-        Assert.That(suitableShifts.Count, Is.EqualTo(2));
+        Assert.That(suitableShifts.Count, Is.EqualTo(3));
 
         Assert.That(suitableShifts.First(c => c.CloseTime == earlySuitableShiftCloseTime).UserId, Is.EqualTo(1));
         Assert.That(suitableShifts.First(c => c.CloseTime == lateSuitableShiftCloseTime).UserId, Is.EqualTo(2));
-        Assert.That(suitableShifts.Any(c => c.IsOpened), Is.False);
         Assert.That(suitableShifts.Any(c => c.CloseTime > DateTime.Parse("2000-01-02 06:00")), Is.False);
     }
 
@@ -440,12 +439,11 @@ public class StorageDataBaseTests
         var lateSuitableShiftCloseTime = DateTime.Parse("2000-01-02 03:00");
         await AddWorkShiftsAsync(context, earlySuitableShiftCloseTime, lateSuitableShiftCloseTime);
         var suitableShifts = await context.GetWorkShiftSnapshotsAsync(1, DateOnly.Parse("2000-01-01"));
-        Assert.That(suitableShifts.Count, Is.EqualTo(1));
+        Assert.That(suitableShifts.Count, Is.EqualTo(2));
 
-        var targetShift = suitableShifts.Single();
-        Assert.That(targetShift.UserId, Is.EqualTo(1));
-        Assert.That(targetShift.CloseTime, Is.EqualTo(earlySuitableShiftCloseTime));
-        Assert.That(targetShift.IsOpened, Is.False);
+        var closedShift = suitableShifts.Single(c => !c.IsOpened);
+        Assert.That(closedShift.UserId, Is.EqualTo(1));
+        Assert.That(closedShift.CloseTime, Is.EqualTo(earlySuitableShiftCloseTime));
     }
 
     private async Task AddWorkShiftsAsync(PostgresProxy context, DateTime earlySuitableShiftCloseTime, DateTime lateSuitableShiftCloseTime)
