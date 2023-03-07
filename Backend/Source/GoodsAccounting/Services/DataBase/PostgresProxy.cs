@@ -111,11 +111,11 @@ public class PostgresProxy : DbContext, IEfContext
         var heightDateTime = date.AddDays(1).ToDateTime(new TimeOnly(6, 0));
         return id < 1 
             ? await WorkShifts
-                .Where(shift => !shift.IsOpened && shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime)
+                .Where(shift => shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime)
                 .Include(shift => shift.GoodItemStates)
                 .ToListAsync().ConfigureAwait(false)
             : await WorkShifts
-                .Where(shift => !shift.IsOpened && shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime && shift.UserId == id)
+                .Where(shift => shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime && shift.UserId == id)
                 .Include(shift => shift.GoodItemStates)
                 .ToListAsync().ConfigureAwait(false);
     }

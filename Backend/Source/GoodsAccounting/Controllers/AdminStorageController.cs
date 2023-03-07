@@ -193,27 +193,24 @@ public class AdminStorageController : ControllerBase
     /// <summary>
     /// Getting day sold statistics.
     /// </summary>
+    /// <param name="id">User identifier.</param>
     /// <param name="day">Day for requested statistics.</param>
     /// <returns><see cref="Task"/>.</returns>
     /// <response code="200">Response data saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
-    [HttpGet("~/sold_statistics/{day}")]
+    [HttpGet("~/sold_statistics_full/{id}/{day}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetDayStatistics(DateTime day)
+    public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
         try
         {
             var goods = _db.Goods.Where(item => item.Actives).ToDictionary(item => item.Id, item => item);
-            var snapshot = _mapper.Map<WorkShiftSnapshotDto>(await _db.GetWorkShiftSnapshotsAsync(-1, DateOnly.FromDateTime(day)).ConfigureAwait(false));
-            foreach (var item in snapshot.StorageItems)
-            {
-                item.RetailPrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].RetailPrice : 0;
-                item.WholeScalePrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].WholeScalePrice : 0;
+            var snapshots = _mapper.Map< IList<ShiftSnapshotDto>>(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false));
+            foreach (var item in snapshots.SelectMany(snapshot => snapshot.StorageItems))
                 item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
-            }
-
-            return Ok(snapshot);
+            
+            return Ok(snapshots);
         }
         catch
         {

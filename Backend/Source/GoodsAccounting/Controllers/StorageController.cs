@@ -66,8 +66,7 @@ public class StorageController : ControllerBase
         Log.Info("Request all goods");
 
         try {
-            var goods = _db.Goods.ToList();
-            return Task.FromResult<IActionResult>(Ok(goods));
+            return Task.FromResult<IActionResult>(Ok(_mapper.Map<GoodsItemDto>(_db.Goods.ToList())));
         }
         catch {
             return Task.FromResult<IActionResult>(BadRequest(_bodyBuilder.UnknownBuild()));
@@ -179,23 +178,13 @@ public class StorageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
-        if (id < 1)
-            return BadRequest(_bodyBuilder.InvalidDtoBuild());
-
         try {
             var goods = _db.Goods.Where(item => item.Actives).ToDictionary(item => item.Id, item => item);
-            var snapshot = _mapper.Map<WorkShiftSnapshotDto>(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false));
-            foreach (var item in snapshot.StorageItems)
-            {
-                item.RetailPrice = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].RetailPrice : 0;
+            var snapshots = _mapper.Map<IList<ReducedSnapshotDto>>(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false));
+            foreach (var item in snapshots.SelectMany(snapshot => snapshot.StorageItems))
                 item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
-                item.WholeScalePrice = -1;
-                item.GoodsInStorage = -1;
-                item.WriteOff = -1;
-                item.Receipt = -1;
-            }
 
-            return Ok(snapshot);
+            return Ok(snapshots);
         }
         catch {
             return BadRequest(_bodyBuilder.UnknownBuild());

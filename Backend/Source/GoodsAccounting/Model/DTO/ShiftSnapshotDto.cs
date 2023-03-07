@@ -5,7 +5,7 @@ namespace GoodsAccounting.Model.DTO;
 /// <summary>
 /// DTO with snapshot of working shift history with aggregate info.
 /// </summary>
-public class WorkShiftSnapshotDto
+public class ShiftSnapshotDto
 {
     /// <summary>
     /// Get or ser user's displayed name.
@@ -25,6 +25,6 @@ public class WorkShiftSnapshotDto
     /// Get or set list of <see cref="StorageItemInfoDto"/>.
     /// </summary>
     [JsonRequired]
-    [JsonProperty("storageItems")]
+    [JsonProperty("snapshots")]
     public IList<StorageItemInfoDto> StorageItems { get; set; } = null!;
 }
