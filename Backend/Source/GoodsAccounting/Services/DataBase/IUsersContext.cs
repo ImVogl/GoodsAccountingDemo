@@ -41,7 +41,7 @@ public interface IUsersContext : IDisposable
     /// <returns><see cref="Task"/>.</returns>
     /// <exception cref="EntityExistsException">User's <see cref="EntityExistsException"/>.</exception>
     Task AddUserAsync([NotNull] User user);
-
+    
     /// <summary>
     /// Remove user with target identifier.
     /// </summary>

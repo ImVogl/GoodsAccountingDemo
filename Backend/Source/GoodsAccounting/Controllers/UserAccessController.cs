@@ -149,7 +149,7 @@ namespace GoodsAccounting.Controllers
         }
 
         /// <summary>
-        /// Change user password.
+        /// Adding new user.
         /// </summary>
         /// <param name="dto"><see cref="AddUserDto"/>.</param>
         /// <returns><see cref="Task"/> for response.</returns>
@@ -204,6 +204,32 @@ namespace GoodsAccounting.Controllers
                 Log.Info("Unknown error was trown.");
                 return BadRequest(_bodyBuilder.UnknownBuild());
             }
+        }
+
+        /// <summary>
+        /// Remove user.
+        /// </summary>
+        /// <param name="id">User identifier.</param>
+        /// <returns><see cref="Task"/> for response.</returns>
+        /// <response code="200">Returns value is indicated that removing is success.</response>
+        /// <response code="400">Returns if requested data is invalid.</response>
+        [Authorize(Roles = UserRole.Administrator)]
+        [HttpPost("~/remove_user")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RemoveUserAsync(int id)
+        {
+            if (await _db.Users.AnyAsync(user => user.Id == id).ConfigureAwait(false))
+                return BadRequest(_bodyBuilder.EntityNotFoundBuild());
+
+            try {
+                await _db.RemoveUserAsync(id).ConfigureAwait(false);
+            }
+            catch {
+                return BadRequest(_bodyBuilder.UnknownBuild());
+            }
+
+            return Ok();
         }
 
         /// <summary>
