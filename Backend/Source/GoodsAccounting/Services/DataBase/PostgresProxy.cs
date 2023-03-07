@@ -230,6 +230,16 @@ public class PostgresProxy : DbContext, IEfContext
     }
 
     /// <inheritdoc />
+    public async Task<bool> GetWorkingShiftStateAsync(int userId)
+    {
+        if (await Users.AnyAsync(user => user.Id == userId).ConfigureAwait(false))
+            return false;
+
+        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.UserId == userId).ConfigureAwait(false);
+        return shift != null && shift.IsOpened;
+    }
+
+    /// <inheritdoc />
     public async Task ChangePasswordAsync(int id, string salt, byte[] hash)
     {
         var targetUser = await Users.SingleOrDefaultAsync(u => u.Id == id).ConfigureAwait(false);
