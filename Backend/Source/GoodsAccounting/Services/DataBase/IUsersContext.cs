@@ -18,6 +18,13 @@ public interface IUsersContext : IDisposable
     DbSet<User> Users { get; }
 
     /// <summary>
+    /// Get user working shift state.
+    /// </summary>
+    /// <param name="userId">User identifier.</param>
+    /// <returns>Value is indicating that user has opened working shift.</returns>
+    public Task<bool> GetWorkingShiftStateAsync(int userId);
+
+    /// <summary>
     /// Change password for target user.
     /// </summary>
     /// <param name="id">User identifier.</param>

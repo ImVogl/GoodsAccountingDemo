@@ -291,12 +291,18 @@ namespace GoodsAccounting.Controllers
                     await _db.RemoveUserAsync(user.Id).ConfigureAwait(false);
                     return Unauthorized();
                 }
-
-
-
+                
                 if (!_passwordService.VerifyPassword(user.Hash, dto.Password, user.Salt)) return Unauthorized();
                 var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
-                return Ok(_bodyBuilder.TokenBuild(jwtToken));
+                return Ok(
+                    new UserInfoDto
+                    {
+                        UserId = user.Id,
+                        IsAdmin = user.Role == UserRole.Administrator,
+                        ShiftIsOpened = await _db.GetWorkingShiftStateAsync(user.Id).ConfigureAwait(false),
+                        UserDisplayedName = $"{user.Name} {user.Surname}",
+                        Token = jwtToken
+                    });
             }
             catch (BadPasswordException) {
                 return Unauthorized();
