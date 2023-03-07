@@ -9,12 +9,15 @@ namespace GoodsAccounting.Model.DataBase;
 [Table("goods")]
 public class GoodsItem
 {
+#pragma warning disable CS8618
     /// <summary>
     /// Empty constructor.
     /// </summary>
     public GoodsItem()
     {
     }
+
+#pragma warning restore CS8618
 
     /// <summary>
     /// Get or set item identifier.
@@ -28,7 +31,13 @@ public class GoodsItem
     /// </summary>
     [Column("name", TypeName = "text")]
     public string Name { get; set; }
-    
+
+    /// <summary>
+    /// Get or set category of item.
+    /// </summary>
+    [Column("category", TypeName = "text")]
+    public string Category { get; set; }
+
     /// <summary>
     /// Get or set wholescale price of item.
     /// </summary>
@@ -45,7 +54,7 @@ public class GoodsItem
     /// Get or set count of items in storage.
     /// </summary>
     [Column("store", TypeName = "integer")]
-    public int CurrentItemsInStorageCount { get; set; }
+    public int Storage { get; set; }
 
     /// <summary>
     /// Get or set value is indicating that item is on the market.

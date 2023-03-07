@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GoodsAccounting.Model;
 using GoodsAccounting.Model.DataBase;
 using GoodsAccounting.Model.DTO;
 
@@ -14,7 +15,24 @@ public class WorkShiftProfile : Profile
     /// </summary>
     public WorkShiftProfile()
     {
-        CreateMap<UpdatingGoodsItemDto, GoodsItem>();
+        CreateMap<EditGoodsListDto, GoodsItem>()
+            .ForMember(item => item.Actives, opt => opt.MapFrom(_ => true))
+            .ForMember(item => item.Id, opt => opt.MapFrom(_ => Guid.NewGuid()));
+
+        CreateMap<IList<RevisionGoodsItemDto>, Dictionary<Guid, GoodsItemStateChanging>>().ConstructUsing(
+            (dtoList, _) =>
+            {
+                return dtoList.ToDictionary(item => item.Id, item => new GoodsItemStateChanging
+                {
+                    Category = item.Category,
+                    WholeScalePrice = 0F,
+                    RetailPrice = item.RetailPrice,
+                    Receipt = 0,
+                    Storage = item.Storage,
+                    WriteOff = item.WriteOff
+                });
+            });
+
         CreateMap<WorkShift, WorkShiftSnapshotDto>().ForMember(dto => dto.StorageItems, opt => opt.Ignore());
         CreateMap<GoodsItem, StorageItemInfoDto>()
             .ForMember(dto => dto.ItemName, opt => opt.MapFrom(scr => scr.Name));

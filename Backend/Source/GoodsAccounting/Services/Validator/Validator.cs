@@ -41,19 +41,44 @@ public class Validator : IPasswordValidator, IDtoValidator
     }
 
     /// <inheritdoc />
-    public bool Validate(UpdatingGoodsDto dto)
+    public bool Validate(GoodsRevisionDto dto)
     {
         if (dto.Id < 1) 
             return false;
 
         foreach (var item in dto.Items)
         {
-            if (item.CurrentItemsInStorageCount < 0) return false;
+            if (item.Storage < 0) return false;
             if (string.IsNullOrWhiteSpace(item.Name)) return false;
             if (item.RetailPrice < 0) return false;
-            if (item.WholeScalePrice < 0) return false;
+            if (item.WriteOff < 0) return false;
+            if (string.IsNullOrWhiteSpace(item.Category)) return false;
         }
 
         return true;
+    }
+
+    /// <inheritdoc />
+    public bool Validate(GoodsSuppliesDto dto)
+    {
+        if (dto.Id < 1)
+            return false;
+
+        foreach (var item in dto.Items)
+        {
+            if (item.WholeScalePrice < 0) return false;
+            if (item.Receipt < 0) return false;
+        }
+
+        return true;
+    }
+
+    /// <inheritdoc />
+    public bool Validate(EditGoodsListDto dto)
+    {
+        if (dto == null) return false;
+        if (dto.UserId < 1) return false;
+        if (dto.CreateNew) return !string.IsNullOrWhiteSpace(dto.Name) && !string.IsNullOrWhiteSpace(dto.Category);
+        return dto.Id != null;
     }
 }

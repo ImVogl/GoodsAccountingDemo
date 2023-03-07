@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GoodsAccounting.Model;
 using GoodsAccounting.Model.DataBase;
 using GoodsAccounting.Model.DTO;
 using GoodsAccounting.Model.Exceptions;
@@ -62,31 +63,127 @@ public class AdminStorageController : ControllerBase
     }
 
     /// <summary>
-    /// Updating goods storage state.
+    /// Make revision.
     /// </summary>
-    /// <param name="dto"></param>
+    /// <param name="dto">Information about revision.</param>
     /// <returns></returns>
     /// <response code="200">Goods storage was updated.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
-    /// <response code="401">Returns if user not found.</response>
-    [HttpPost("~/storage/set_count")]
+    /// <response code="401">Returns if user not found or hasn't access.</response>
+    [HttpPost("~/storage/revision")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> UpdateGoodsInStorageAsync([FromBody] UpdatingGoodsDto dto)
+    public async Task<IActionResult> StorageRevisionAsync([FromBody] GoodsRevisionDto dto)
     {
         if (_validator.Validate(dto)) {
-            Log.Error($"DTO \"{typeof(UpdatingGoodsDto)}\" is invalid.");
+            Log.Error($"DTO \"{typeof(GoodsRevisionDto)}\" is invalid.");
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
         }
 
         try {
-            await _db.UpdateGoodsStorageAsync(dto.Id, dto.ItemsToRemove, _mapper.Map<List<GoodsItem>>(dto.Items)).ConfigureAwait(false);
+            await _db.UpdateGoodsStorageAsync(dto.Id, _mapper.Map<Dictionary<Guid, GoodsItemStateChanging>>(dto.Items)).ConfigureAwait(false);
             return Ok();
         }
-        catch (EntityNotFoundException) {
+        catch (TableAccessException) {
             Log.Error($"User with id \"{dto.Id}\" not found.");
             return Unauthorized();
+        }
+        catch (EntityNotFoundException) {
+            return BadRequest(_bodyBuilder.EntityNotFoundBuild());
+        }
+        catch {
+            return BadRequest(_bodyBuilder.UnknownBuild());
+        }
+    }
+
+    /// <summary>
+    /// Registry goods supply.
+    /// </summary>
+    /// <param name="dto">Information about supplied goods.</param>
+    /// <returns></returns>
+    /// <response code="200">Goods storage was updated.</response>
+    /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if user not found or hasn't access.</response>
+    [HttpPost("~/storage/supplies")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> SuppliesAsync([FromBody] GoodsSuppliesDto dto)
+    {
+        if (_validator.Validate(dto))
+        {
+            Log.Error($"DTO \"{typeof(GoodsRevisionDto)}\" is invalid.");
+            return BadRequest(_bodyBuilder.InvalidDtoBuild());
+        }
+
+        try {
+            await _db.UpdateGoodsStorageAsync(dto.Id, _mapper.Map<Dictionary<Guid, GoodsItemStateChanging>>(dto.Items))
+                .ConfigureAwait(false);
+            return Ok();
+        }
+        catch (TableAccessException) {
+            Log.Error($"User with id \"{dto.Id}\" not found.");
+            return Unauthorized();
+        }
+        catch (EntityNotFoundException) {
+            return BadRequest(_bodyBuilder.EntityNotFoundBuild());
+        }
+        catch {
+            return BadRequest(_bodyBuilder.UnknownBuild());
+        }
+    }
+
+    /// <summary>
+    /// Editing goods list.
+    /// </summary>
+    /// <param name="dto">Data model for editing goods list.</param>
+    /// <returns></returns>
+    /// <response code="200">Goods storage was updated.</response>
+    /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if user not found or hasn't access.</response>
+    [HttpPost("~/storage/edit")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> EditGoodsListAsync([FromBody] EditGoodsListDto dto)
+    {
+        if (_validator.Validate(dto))
+            return BadRequest(_bodyBuilder.InvalidDtoBuild());
+
+        try {
+            if (dto.CreateNew) {
+                await _db.AddNewGoodsItemAsync(dto.UserId, _mapper.Map<GoodsItem>(dto)).ConfigureAwait(false);
+            } else if (dto.Remove) {
+
+                if (dto.Id == null)
+                    return BadRequest(_bodyBuilder.InvalidDtoBuild());
+
+                await _db.RemoveGoodsItemAsync(dto.UserId, (Guid)dto.Id).ConfigureAwait(false);
+            } else if (dto.Restore) {
+                if (dto.Id == null)
+                    return BadRequest(_bodyBuilder.InvalidDtoBuild());
+
+                await _db.RestoreGoodsItemAsync(dto.UserId, (Guid)dto.Id).ConfigureAwait(false);
+            }
+            else {
+                if (dto.Id == null)
+                    return BadRequest(_bodyBuilder.InvalidDtoBuild());
+
+                await _db.RenameGoodsItemAsync(dto.UserId, (Guid)dto.Id, dto.Name).ConfigureAwait(false);
+            }
+
+            return Ok();
+
+        }
+        catch (EntityNotFoundException) {
+            return BadRequest(_bodyBuilder.EntityNotFoundBuild());
+        }
+        catch (TableAccessException) {
+            return Unauthorized();
+        }
+        catch (EntityExistsException) {
+            return BadRequest(_bodyBuilder.EntityExistsBuild());
         }
         catch {
             return BadRequest(_bodyBuilder.UnknownBuild());
