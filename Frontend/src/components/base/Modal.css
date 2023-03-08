@@ -1,0 +1,37 @@
+/*Базовый стиль для фона модального окна.*/
+.modal-background{
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.3);
+    position: fixed;            /* чтобы при скроле окошко не смещалось */
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;                 /*1 - элемент отображается; 2 - элемент не отображается;*/
+    pointer-events: none;       /*Отвечает за взаимодействие с окном. Изначально, никакие события не обрабатываютя в окне, как следствие обрабатываются события для родительской страницы*/
+    transition: 0.5s;           /*Время "принятия" стиля.*/
+    z-index:2;
+}
+
+/*Стиль для фона активного модального окна.*/
+.modal-background.active{
+    opacity: 1;
+    pointer-events:all;
+}
+
+/*Базовый стиль для "самого окошка", там где располагается контент.*/
+.modal-content{
+    padding: 20px;
+    border-radius: 8px;
+    background-color: royalblue;
+    transform: scale(0.5);
+    transition: 0.4s all;
+    width: 25vw;
+}
+
+/*Стиль для автивного окошка, там где располагается контент.*/
+.modal-content.active{
+    transform: scale(1);
+}
