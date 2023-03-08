@@ -67,13 +67,25 @@ export class Client {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -130,13 +142,25 @@ export class Client {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -193,13 +217,25 @@ export class Client {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -211,7 +247,7 @@ export class Client {
     /**
      * @return Success
      */
-    goods(  cancelToken?: CancelToken | undefined): Promise<void> {
+    goods(  cancelToken?: CancelToken | undefined): Promise<GoodsItemDto> {
         let url_ = this.baseUrl + "/goods";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -219,6 +255,7 @@ export class Client {
             method: "GET",
             url: url_,
             headers: {
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -234,7 +271,7 @@ export class Client {
         });
     }
 
-    protected processGoods(response: AxiosResponse): Promise<void> {
+    protected processGoods(response: AxiosResponse): Promise<GoodsItemDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -246,18 +283,27 @@ export class Client {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GoodsItemDto.fromJS(resultData200);
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<GoodsItemDto>(<any>null);
     }
 
     /**
@@ -309,7 +355,13 @@ export class Client {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -321,7 +373,7 @@ export class Client {
     /**
      * @return Success
      */
-    change(oldPassword: string, password: string , cancelToken?: CancelToken | undefined): Promise<void> {
+    change(oldPassword: string, password: string , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
         let url_ = this.baseUrl + "/change/{oldPassword}/{password}";
         if (oldPassword === undefined || oldPassword === null)
             throw new Error("The parameter 'oldPassword' must be defined.");
@@ -335,6 +387,7 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -350,7 +403,7 @@ export class Client {
         });
     }
 
-    protected processChange(response: AxiosResponse): Promise<void> {
+    protected processChange(response: AxiosResponse): Promise<{ [key: string]: string; }> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -362,31 +415,52 @@ export class Client {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        result200![key] = resultData200[key];
+                }
+            }
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<{ [key: string]: string; }>(<any>null);
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    signin(body: SignInDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+    signin(body: SignInDto | undefined , cancelToken?: CancelToken | undefined): Promise<UserInfoDto> {
         let url_ = this.baseUrl + "/signin";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -398,6 +472,7 @@ export class Client {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -413,7 +488,7 @@ export class Client {
         });
     }
 
-    protected processSignin(response: AxiosResponse): Promise<void> {
+    protected processSignin(response: AxiosResponse): Promise<UserInfoDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -425,30 +500,45 @@ export class Client {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = UserInfoDto.fromJS(resultData200);
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<UserInfoDto>(<any>null);
     }
 
     /**
      * @return Success
      */
-    signout(id: number , cancelToken?: CancelToken | undefined): Promise<void> {
+    signout(id: number , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
         let url_ = this.baseUrl + "/signout/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -459,6 +549,7 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -474,7 +565,7 @@ export class Client {
         });
     }
 
-    protected processSignout(response: AxiosResponse): Promise<void> {
+    protected processSignout(response: AxiosResponse): Promise<{ [key: string]: string; }> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -486,24 +577,45 @@ export class Client {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        result200![key] = resultData200[key];
+                }
+            }
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<{ [key: string]: string; }>(<any>null);
     }
 }
 
@@ -520,7 +632,7 @@ export class StatisticsClient {
     /**
      * @return Success
      */
-    full(id: number, day: Date , cancelToken?: CancelToken | undefined): Promise<void> {
+    full(id: number, day: Date , cancelToken?: CancelToken | undefined): Promise<ShiftSnapshotDto[]> {
         let url_ = this.baseUrl + "/sold_statistics_full/{id}/{day}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -534,6 +646,7 @@ export class StatisticsClient {
             method: "GET",
             url: url_,
             headers: {
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -549,7 +662,7 @@ export class StatisticsClient {
         });
     }
 
-    protected processFull(response: AxiosResponse): Promise<void> {
+    protected processFull(response: AxiosResponse): Promise<ShiftSnapshotDto[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -561,18 +674,31 @@ export class StatisticsClient {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ShiftSnapshotDto.fromJS(item));
+            }
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<ShiftSnapshotDto[]>(<any>null);
     }
 }
 
@@ -635,7 +761,13 @@ export class CloseClient {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -701,7 +833,13 @@ export class InitClient {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -769,7 +907,13 @@ export class SoldClient {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -781,7 +925,7 @@ export class SoldClient {
     /**
      * @return Success
      */
-    statistics(id: number, day: Date , cancelToken?: CancelToken | undefined): Promise<void> {
+    statistics(id: number, day: Date , cancelToken?: CancelToken | undefined): Promise<ReducedSnapshotDto[]> {
         let url_ = this.baseUrl + "/sold_statistics/{id}/{day}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -795,6 +939,7 @@ export class SoldClient {
             method: "GET",
             url: url_,
             headers: {
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -810,7 +955,7 @@ export class SoldClient {
         });
     }
 
-    protected processStatistics(response: AxiosResponse): Promise<void> {
+    protected processStatistics(response: AxiosResponse): Promise<ReducedSnapshotDto[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -822,18 +967,31 @@ export class SoldClient {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ReducedSnapshotDto.fromJS(item));
+            }
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<ReducedSnapshotDto[]>(<any>null);
     }
 }
 
@@ -850,7 +1008,7 @@ export class UpdateClient {
     /**
      * @return Success
      */
-    token(  cancelToken?: CancelToken | undefined): Promise<void> {
+    token(  cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
         let url_ = this.baseUrl + "/update_token";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -858,6 +1016,7 @@ export class UpdateClient {
             method: "POST",
             url: url_,
             headers: {
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -873,7 +1032,7 @@ export class UpdateClient {
         });
     }
 
-    protected processToken(response: AxiosResponse): Promise<void> {
+    protected processToken(response: AxiosResponse): Promise<{ [key: string]: string; }> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -885,24 +1044,45 @@ export class UpdateClient {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        result200![key] = resultData200[key];
+                }
+            }
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<{ [key: string]: string; }>(<any>null);
     }
 }
 
@@ -920,7 +1100,7 @@ export class AddClient {
      * @param body (optional) 
      * @return Success
      */
-    user(body: AddUserDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+    user(body: AddUserDto | undefined , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
         let url_ = this.baseUrl + "/add_user";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -932,6 +1112,7 @@ export class AddClient {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -947,7 +1128,7 @@ export class AddClient {
         });
     }
 
-    protected processUser(response: AxiosResponse): Promise<void> {
+    protected processUser(response: AxiosResponse): Promise<{ [key: string]: string; }> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -959,24 +1140,45 @@ export class AddClient {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        result200![key] = resultData200[key];
+                }
+            }
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status === 401) {
             const _responseText = response.data;
             let result401: any = null;
             let resultData401  = _responseText;
-            result401 = ProblemDetails.fromJS(resultData401);
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
             return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<{ [key: string]: string; }>(<any>null);
     }
 }
 
@@ -994,7 +1196,7 @@ export class RemoveClient {
      * @param id (optional) 
      * @return Success
      */
-    user(id: number | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+    user(id: number | undefined , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
         let url_ = this.baseUrl + "/remove_user?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
@@ -1006,6 +1208,7 @@ export class RemoveClient {
             method: "POST",
             url: url_,
             headers: {
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -1021,7 +1224,7 @@ export class RemoveClient {
         });
     }
 
-    protected processUser(response: AxiosResponse): Promise<void> {
+    protected processUser(response: AxiosResponse): Promise<{ [key: string]: string; }> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1033,18 +1236,33 @@ export class RemoveClient {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        result200![key] = resultData200[key];
+                }
+            }
+            return result200;
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
             let resultData400  = _responseText;
-            result400 = ProblemDetails.fromJS(resultData400);
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
             return throwException("Bad Request", status, _responseText, _headers, result400);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(<any>null);
+        return Promise.resolve<{ [key: string]: string; }>(<any>null);
     }
 }
 
@@ -1166,6 +1384,58 @@ export interface IEditGoodsListDto {
     store?: number;
     r_price?: number;
     w_price?: number;
+}
+
+export class GoodsItemDto implements IGoodsItemDto {
+    id!: string;
+    name!: string;
+    category!: string;
+    price!: number;
+    active!: boolean;
+
+    constructor(data?: IGoodsItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.category = _data["category"];
+            this.price = _data["price"];
+            this.active = _data["active"];
+        }
+    }
+
+    static fromJS(data: any): GoodsItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GoodsItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["category"] = this.category;
+        data["price"] = this.price;
+        data["active"] = this.active;
+        return data; 
+    }
+}
+
+export interface IGoodsItemDto {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    active: boolean;
 }
 
 export class GoodsItemSupplyDto implements IGoodsItemSupplyDto {
@@ -1314,14 +1584,14 @@ export interface IGoodsSuppliesDto {
     items: GoodsItemSupplyDto[];
 }
 
-export class ProblemDetails implements IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+export class ReducedItemInfoDto implements IReducedItemInfoDto {
+    name!: string;
+    category!: string;
+    id!: string;
+    sold!: number;
+    price!: number;
 
-    constructor(data?: IProblemDetails) {
+    constructor(data?: IReducedItemInfoDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1332,38 +1602,93 @@ export class ProblemDetails implements IProblemDetails {
 
     init(_data?: any) {
         if (_data) {
-            this.type = _data["type"];
-            this.title = _data["title"];
-            this.status = _data["status"];
-            this.detail = _data["detail"];
-            this.instance = _data["instance"];
+            this.name = _data["name"];
+            this.category = _data["category"];
+            this.id = _data["id"];
+            this.sold = _data["sold"];
+            this.price = _data["price"];
         }
     }
 
-    static fromJS(data: any): ProblemDetails {
+    static fromJS(data: any): ReducedItemInfoDto {
         data = typeof data === 'object' ? data : {};
-        let result = new ProblemDetails();
+        let result = new ReducedItemInfoDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["type"] = this.type;
-        data["title"] = this.title;
-        data["status"] = this.status;
-        data["detail"] = this.detail;
-        data["instance"] = this.instance;
+        data["name"] = this.name;
+        data["category"] = this.category;
+        data["id"] = this.id;
+        data["sold"] = this.sold;
+        data["price"] = this.price;
         return data; 
     }
 }
 
-export interface IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+export interface IReducedItemInfoDto {
+    name: string;
+    category: string;
+    id: string;
+    sold: number;
+    price: number;
+}
+
+export class ReducedSnapshotDto implements IReducedSnapshotDto {
+    name!: string;
+    cash!: number;
+    snapshots!: ReducedItemInfoDto[];
+
+    constructor(data?: IReducedSnapshotDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.snapshots = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.cash = _data["cash"];
+            if (Array.isArray(_data["snapshots"])) {
+                this.snapshots = [] as any;
+                for (let item of _data["snapshots"])
+                    this.snapshots!.push(ReducedItemInfoDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ReducedSnapshotDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReducedSnapshotDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["cash"] = this.cash;
+        if (Array.isArray(this.snapshots)) {
+            data["snapshots"] = [];
+            for (let item of this.snapshots)
+                data["snapshots"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IReducedSnapshotDto {
+    name: string;
+    cash: number;
+    snapshots: ReducedItemInfoDto[];
 }
 
 export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
@@ -1420,6 +1745,61 @@ export interface IRevisionGoodsItemDto {
     storage: number;
     price: number;
     write_off: number;
+}
+
+export class ShiftSnapshotDto implements IShiftSnapshotDto {
+    name!: string;
+    cash!: number;
+    snapshots!: StorageItemInfoDto[];
+
+    constructor(data?: IShiftSnapshotDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.snapshots = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.cash = _data["cash"];
+            if (Array.isArray(_data["snapshots"])) {
+                this.snapshots = [] as any;
+                for (let item of _data["snapshots"])
+                    this.snapshots!.push(StorageItemInfoDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ShiftSnapshotDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ShiftSnapshotDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["cash"] = this.cash;
+        if (Array.isArray(this.snapshots)) {
+            data["snapshots"] = [];
+            for (let item of this.snapshots)
+                data["snapshots"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IShiftSnapshotDto {
+    name: string;
+    cash: number;
+    snapshots: StorageItemInfoDto[];
 }
 
 export class SignInDto implements ISignInDto {
@@ -1515,6 +1895,142 @@ export class SoldGoodsDto implements ISoldGoodsDto {
 export interface ISoldGoodsDto {
     id: number;
     sold: { [key: string]: number; };
+}
+
+export class StorageItemInfoDto implements IStorageItemInfoDto {
+    name!: string;
+    category!: string;
+    id!: string;
+    write_off!: number;
+    receipt!: number;
+    storage!: number;
+    sold!: number;
+    r_price!: number;
+    w_price!: number;
+    readonly income!: number;
+    readonly wsp_spending!: number;
+    readonly wow_los!: number;
+    readonly wor_los!: number;
+
+    constructor(data?: IStorageItemInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.category = _data["category"];
+            this.id = _data["id"];
+            this.write_off = _data["write_off"];
+            this.receipt = _data["receipt"];
+            this.storage = _data["storage"];
+            this.sold = _data["sold"];
+            this.r_price = _data["r_price"];
+            this.w_price = _data["w_price"];
+            (<any>this).income = _data["income"];
+            (<any>this).wsp_spending = _data["wsp_spending"];
+            (<any>this).wow_los = _data["wow_los"];
+            (<any>this).wor_los = _data["wor_los"];
+        }
+    }
+
+    static fromJS(data: any): StorageItemInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageItemInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["category"] = this.category;
+        data["id"] = this.id;
+        data["write_off"] = this.write_off;
+        data["receipt"] = this.receipt;
+        data["storage"] = this.storage;
+        data["sold"] = this.sold;
+        data["r_price"] = this.r_price;
+        data["w_price"] = this.w_price;
+        data["income"] = this.income;
+        data["wsp_spending"] = this.wsp_spending;
+        data["wow_los"] = this.wow_los;
+        data["wor_los"] = this.wor_los;
+        return data; 
+    }
+}
+
+export interface IStorageItemInfoDto {
+    name: string;
+    category: string;
+    id: string;
+    write_off: number;
+    receipt: number;
+    storage: number;
+    sold: number;
+    r_price: number;
+    w_price: number;
+    income: number;
+    wsp_spending: number;
+    wow_los: number;
+    wor_los: number;
+}
+
+export class UserInfoDto implements IUserInfoDto {
+    id!: number;
+    is_admin!: boolean;
+    shift_opened!: boolean;
+    name!: string;
+    token!: string;
+
+    constructor(data?: IUserInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.is_admin = _data["is_admin"];
+            this.shift_opened = _data["shift_opened"];
+            this.name = _data["name"];
+            this.token = _data["token"];
+        }
+    }
+
+    static fromJS(data: any): UserInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["is_admin"] = this.is_admin;
+        data["shift_opened"] = this.shift_opened;
+        data["name"] = this.name;
+        data["token"] = this.token;
+        return data; 
+    }
+}
+
+export interface IUserInfoDto {
+    id: number;
+    is_admin: boolean;
+    shift_opened: boolean;
+    name: string;
+    token: string;
 }
 
 export class ApiException extends Error {
