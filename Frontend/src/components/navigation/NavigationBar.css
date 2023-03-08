@@ -1,0 +1,68 @@
+.navigation{
+    min-height: 50px;
+    max-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    background-color:royalblue;
+    font-weight: bold;
+    color: yellow;
+    font-size:large;
+}
+
+.nav-link {
+    margin-left: 25px;
+    color: yellow;
+    text-decoration: none;
+}
+
+.nav-link:visited {
+    color: yellow;
+    text-decoration: none;
+}
+
+.nav-link:hover{
+    color: yellow;
+    text-decoration:underline;
+}
+
+.btn{
+    font-weight: bold;
+    background-color:royalblue;
+    color: yellow;
+    text-decoration: none;
+    border-style: none;
+    font-size: large;
+}
+
+.btn:hover{
+    text-decoration: underline;
+}
+
+.form-group{
+    margin: 25px;
+}
+
+.form-group-error{
+    margin: 5px;
+}
+
+.form-control{
+    margin: auto;
+    width:100%;
+    height: fit-content;
+    font-size: large;
+}
+
+.input-error{
+    margin: auto;
+    border-color: rgb(119, 36, 36);
+    border-width: 2pt;
+}
+
+.form-text{
+    color: rgb(119, 36, 36);
+    font-size: small;
+}
+
