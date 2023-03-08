@@ -9,8 +9,8 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
-import { selectTitle, setTitle } from '../../common/redux/TitleSlice';
-import { selectUserLogon, signInAsync } from '../../common/redux/UserSlice';
+import { selectTitle } from '../../common/redux/TitleSlice';
+import { selectUserLogon, selectUserError, signInAsync } from '../../common/redux/UserSlice';
 import { SignInDto } from '../../common/utilites/SwaggerClient';
 import Modal from '../base/Modal';
 import Schema from './validation';
@@ -42,26 +42,27 @@ const NavigationBar: FC = () => {
     const [entered, setEntered] = React.useState(false);
     const title = useAppSelector(selectTitle);
     const logon = useAppSelector(selectUserLogon);
+    const error = useAppSelector(selectUserError);
     const dispatch = useAppDispatch();
-    /*
-    const dispatch = useTitleDispatch();
-    dispatch(setTitle("Test"))
-     */
-
     const HandleSubmitMain = async (values: ILoginForm, actions: FormikHelpers<ILoginForm> ) => { 
         try{
             let dto = new SignInDto()
             dto.login = values.login;
             dto.password = values.password;
             dispatch(signInAsync(dto));
+            if (!logon){
+                alert(error)
+            }
+            else{
+                setActive(false);
+            }
+
         }
         catch (exception){
           alert(exception)
-          // alert(parseErrorMessage(exception.Details()));
         }
         finally{
           actions.resetForm();
-          setActive(false);
         }
       }
     

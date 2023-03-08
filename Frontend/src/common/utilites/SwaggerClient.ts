@@ -479,17 +479,11 @@ export class Client {
 
         return this.instance.request(options_).catch((_error: any) => {
             if (isAxiosError(_error) && _error.response) {
-                
-        debugger;
                 return _error.response;
             } else {
-                
-        debugger;
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            
-        debugger;
             return this.processSignin(_response);
         });
     }
