@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services;
 using GoodsAccounting.Services.TextConverter;
+using System.Net;
 
 namespace GoodsAccounting.Controllers
 {
@@ -118,9 +119,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize]
         [HttpPost("~/update_token")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> UpdateTokenAsync()
         {
             try {
@@ -158,9 +159,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
         [HttpPost("~/add_user")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> AddUserAsync([FromBody] AddUserDto dto)
         {
             Log.Info($"User with identifier \'{dto.SenderId}\' is trying to create new user.");
@@ -215,8 +216,8 @@ namespace GoodsAccounting.Controllers
         /// <response code="400">Returns if requested data is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
         [HttpPost("~/remove_user")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> RemoveUserAsync(int id)
         {
             if (await _db.Users.AnyAsync(user => user.Id == id).ConfigureAwait(false))
@@ -243,9 +244,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize]
         [HttpPost("~/change/{oldPassword}/{password}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> ChangePasswordAsync(string oldPassword, string password)
         {
             try {
@@ -292,9 +293,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if request pair of login-password is incorrect.</response>
         [HttpPost("~/signin")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> SignInUserAsync([FromBody] SignInDto dto)
         {
             Log.Info($"User with login \'{dto.UserLogin}\' is trying to sign in.");
@@ -320,15 +321,16 @@ namespace GoodsAccounting.Controllers
                 
                 if (!_passwordService.VerifyPassword(user.Hash, dto.Password, user.Salt)) return Unauthorized();
                 var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
-                return Ok(
-                    new UserInfoDto
+                var responseData = new UserInfoDto
                     {
                         UserId = user.Id,
                         IsAdmin = user.Role == UserRole.Administrator,
                         ShiftIsOpened = await _db.GetWorkingShiftStateAsync(user.Id).ConfigureAwait(false),
                         UserDisplayedName = $"{user.Name} {user.Surname}",
                         Token = jwtToken
-                    });
+                    };
+
+                return Ok(responseData);
             }
             catch (BadPasswordException) {
                 return Unauthorized();
@@ -348,9 +350,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize]
         [HttpPost("~/signout/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> SignOutUserAsync(int id)
         {
             Log.Info($"User with identifier \'{id}\' is trying to sign out.");

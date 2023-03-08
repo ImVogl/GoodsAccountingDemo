@@ -1,4 +1,6 @@
-﻿namespace GoodsAccounting.Services.BodyBuilder;
+﻿using GoodsAccounting.Model.DTO;
+
+namespace GoodsAccounting.Services.BodyBuilder;
 
 /// <summary>
 /// Request body builder service.

@@ -24,6 +24,8 @@ public class UserInfoDto
     /// <summary>
     /// Get or set value is indicating that user has opened working shift.
     /// </summary>
+    [JsonRequired]
+    [JsonProperty("shift_opened")]
     public bool ShiftIsOpened { get; set; }
 
     /// <summary>

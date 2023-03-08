@@ -59,8 +59,8 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [AllowAnonymous]
     [HttpGet("~/goods")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GoodsItemDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public Task<IActionResult> GetAllGoods()
     {
         Log.Info("Request all goods");
@@ -83,7 +83,7 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/close/{id}/{cash}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> CloseWorkingShift(int id, int cash)
     {
         try {
@@ -115,7 +115,7 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/init_shift/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> InitWorkingShiftAsync(int id)
     {
         try {
@@ -144,7 +144,7 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/sold_goods")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> PostSoldGoodsAsync([FromBody] SoldGoodsDto dto)
     {
         if (dto?.Sold == null) {
@@ -174,8 +174,8 @@ public class StorageController : ControllerBase
     /// <response code="200">Response data saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpGet("~/sold_statistics/{id}/{day}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<ReducedSnapshotDto>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
         try {

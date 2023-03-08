@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using GoodsAccounting.Model.DTO;
+using JetBrains.Annotations;
 
 namespace GoodsAccounting.Services.BodyBuilder;
 

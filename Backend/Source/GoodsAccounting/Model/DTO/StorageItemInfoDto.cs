@@ -15,6 +15,13 @@ public class StorageItemInfoDto
     public string ItemName { get; set; } = null!;
 
     /// <summary>
+    /// Get or set goods item name.
+    /// </summary>
+    [JsonRequired]
+    [JsonProperty("category")]
+    public string ItemCategory { get; set; } = null!;
+
+    /// <summary>
     /// Get or set goods item identifier.
     /// </summary>
     [JsonRequired]
