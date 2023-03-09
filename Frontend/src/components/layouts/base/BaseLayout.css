@@ -1,6 +1,6 @@
 
 .blok{
-    min-height: 100vh;
+    min-height: 90vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -11,12 +11,12 @@
 
 .internal-block{
     background: rgba(206, 210, 212, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    display:flex;
+    align-items:first baseline;
+    justify-content:first baseline;
+    position:absolute;
+    top: 60px;
     left: 40px;
-    top: 2px;
     right: 40px;
-    bottom: 40px;
+    bottom: 30px;
 }
