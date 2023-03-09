@@ -1,10 +1,17 @@
 import { UpdateClient } from './SwaggerClient';
 import { getBaseUrl } from './Common';
+import { updateToken } from '../redux/UserSlice'
 
 const TOKEN_KEY:string = "token";
 
 export class TokenUpdater{
-    public constructor(client?: UpdateClient){
+    private readonly timeout:number = 30000;
+    private readonly _client: UpdateClient;
+    private readonly _dispatcher: any;
+
+    private _tokenExpire: ReturnType<typeof setTimeout>;
+
+    public constructor(dispatcher?: any, client?: UpdateClient){
         if (client === null || client === undefined){
             this._client = new UpdateClient(getBaseUrl());
         }
@@ -13,11 +20,10 @@ export class TokenUpdater{
         }
 
         this._tokenExpire = setTimeout(async() => {}, 0);
+        if (dispatcher !== null){
+            this._dispatcher = dispatcher;
+        }
     }
-
-    private readonly  timeout:number = 30000;
-    _tokenExpire: ReturnType<typeof setTimeout>;
-    _client: UpdateClient;
 
 
     public prepare(token: string){
@@ -31,7 +37,12 @@ export class TokenUpdater{
             return;
         }
 
-        let tokenResponse = await this._client.token();
+        let tokenResponse = await this._client.token(tokenInStorage);
+        console.log(tokenResponse);
+        if (this._dispatcher !== null && this._dispatcher !== undefined){
+            this._dispatcher(updateToken(tokenResponse[TOKEN_KEY]));
+        }
+
         window.localStorage.setItem(TOKEN_KEY, tokenResponse[TOKEN_KEY]);
         this._tokenExpire = setTimeout(async() => await this.startTokenUpdater(), this.timeout);
     }

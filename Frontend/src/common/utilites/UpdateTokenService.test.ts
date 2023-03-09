@@ -10,7 +10,7 @@ describe('Token updater main loop test.', () => {
     let resultPromise = new Promise<{[key: string]: string}>((resolve, reject) => resolve({"token": newToken}))
     let spy = jest.spyOn(client, 'token').mockImplementation(() => resultPromise);
     test('Update token cycle test', async () => {
-        const tokenUpdater = new TokenUpdater(client);
+        const tokenUpdater = new TokenUpdater(null, client);
         tokenUpdater.prepare(token);
         expect(window.localStorage.getItem(token_key)).toEqual(token);
         await tokenUpdater.startTokenUpdater();

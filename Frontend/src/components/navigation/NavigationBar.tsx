@@ -10,8 +10,10 @@ import Col from 'react-bootstrap/Col';
 
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { selectTitle } from '../../common/redux/TitleSlice';
-import { selectUserLogon, selectUserError, signInAsync } from '../../common/redux/UserSlice';
+import { selectUserLogon, selectUserError, signInAsync, selectUserToken } from '../../common/redux/UserSlice';
 import { SignInDto } from '../../common/utilites/SwaggerClient';
+import { TokenUpdater } from '../../common/utilites/UpdateTokenService';
+
 import Modal from '../base/Modal';
 import Schema from './validation';
 
@@ -42,8 +44,19 @@ const NavigationBar: FC = () => {
     const [entered, setEntered] = React.useState(false);
     const title = useAppSelector(selectTitle);
     const logon = useAppSelector(selectUserLogon);
+    const token = useAppSelector(selectUserToken);
     const error = useAppSelector(selectUserError);
     const dispatch = useAppDispatch();
+    const updater = new TokenUpdater(useAppDispatch());
+    React.useEffect(() =>{
+        if (logon){
+            updater.prepare(token);
+            updater.startTokenUpdater(); 
+        }
+        else{
+            updater.reset();
+        }
+    }, [logon]);
     const HandleSubmitMain = async (values: ILoginForm, actions: FormikHelpers<ILoginForm> ) => { 
         try{
             let dto = new SignInDto()
