@@ -9,7 +9,7 @@ export function lengthEnought(value: string):boolean
 
 export function containsSpecSymbol(value: string): boolean
 {
-    return /[\!\@#\$\%\^\&\*\(\)\-\_\+\=\/\\\?\>\<\.\,\`\~\{\}]/.test(value);
+    return /[!@#$%^&*()\-_\+=/\\?><.,`~{}'":;]/.test(value);
 }
 
 export function containsLetter(value: string): boolean
