@@ -59,7 +59,7 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [AllowAnonymous]
     [HttpGet("~/goods")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GoodsItemDto))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<GoodsItemDto>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public Task<IActionResult> GetAllGoods()
     {

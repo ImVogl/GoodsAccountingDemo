@@ -74,12 +74,7 @@ namespace GoodsAccounting
                     policyBuilder.AllowAnyMethod();
             policyBuilder.WithOrigins("http://localhost:3000");
             policyBuilder.AllowCredentials();
-            serviceCollection.AddCors(options =>
-            {
-                options.AddPolicy("CORS_Policy", policyBuilder.Build());
-                });
-            });
-
+            serviceCollection.AddCors(options => { options.AddPolicy("CORS_Policy", policyBuilder.Build()); });
             serviceCollection.AddRouting(r => r.SuppressCheckForUnhandledSecurityMetadata = true);
         }
 
