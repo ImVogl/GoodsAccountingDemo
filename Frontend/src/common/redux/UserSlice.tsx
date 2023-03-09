@@ -9,6 +9,7 @@ export interface IUser{
     shift_opened: boolean;
     name: string;
     logon: boolean;
+    token: string;
     error: string;
 }
 
@@ -22,6 +23,7 @@ const initialState: IUser = {
     shift_opened: false,
     name: '',
     logon: false,
+    token: '',
     error: ''
 };
 
@@ -46,13 +48,16 @@ export const userSlice = createSlice({
     name: 'controler',
     initialState,
     reducers: {
-        setUser: (state, action: PayloadAction<IUser>) => {
-            state.id = action.payload.id;
-            state.name = action.payload.name;
-            state.is_admin = action.payload.is_admin;
-            state.shift_opened = action.payload.shift_opened;
-            state.logon = action.payload.logon;
+      setUser: (state, action: PayloadAction<IUser>) => {
+        state.id = action.payload.id;
+        state.name = action.payload.name;
+        state.is_admin = action.payload.is_admin;
+        state.shift_opened = action.payload.shift_opened;
+        state.logon = action.payload.logon;
       },
+      updateToken: (state, action: PayloadAction<string>) => {
+        state.token = action.payload
+      }
     },
     extraReducers: (builder) => {
         builder
@@ -63,6 +68,7 @@ export const userSlice = createSlice({
             state.name = action.payload.name;
             state.is_admin = action.payload.is_admin;
             state.shift_opened = action.payload.shift_opened;
+            state.token = action.payload.token;
             state.logon = true;
             state.error = "";
           })
@@ -84,7 +90,8 @@ export const userSlice = createSlice({
       }
   });
   
-export const { setUser } = userSlice.actions;
+export const { setUser, updateToken } = userSlice.actions;
 export const selectUserLogon = (state: RootState) => state.controler.logon;
+export const selectUserToken = (state: RootState) => state.controler.token;
 export const selectUserError = (state: RootState) => state.controler.error;
 export default userSlice.reducer;
