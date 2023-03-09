@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Authorization;
 using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services;
 using GoodsAccounting.Services.TextConverter;
-using System.Net;
 
 namespace GoodsAccounting.Controllers
 {

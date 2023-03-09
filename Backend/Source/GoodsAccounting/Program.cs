@@ -14,6 +14,7 @@ using GoodsAccounting.Services.TextConverter;
 using GoodsAccounting.Services.Password;
 using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.MapperProfiles;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace GoodsAccounting
 {
@@ -68,13 +69,14 @@ namespace GoodsAccounting
         /// <param name="serviceCollection">Instance of <see cref="IServiceCollection"/> for web application.</param>
         private static void ConfigureNoCors(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddCors(options =>
-            {
-                options.AddPolicy("CORS_Policy", policyBuilder =>
-                {
+            var policyBuilder = new CorsPolicyBuilder();
                     policyBuilder.AllowAnyHeader();
                     policyBuilder.AllowAnyMethod();
-                    policyBuilder.AllowAnyOrigin();
+            policyBuilder.WithOrigins("http://localhost:3000");
+            policyBuilder.AllowCredentials();
+            serviceCollection.AddCors(options =>
+            {
+                options.AddPolicy("CORS_Policy", policyBuilder.Build());
                 });
             });
 
