@@ -247,7 +247,7 @@ export class Client {
     /**
      * @return Success
      */
-    goods(  cancelToken?: CancelToken | undefined): Promise<GoodsItemDto> {
+    goods(  cancelToken?: CancelToken | undefined): Promise<GoodsItemDto[]> {
         let url_ = this.baseUrl + "/goods";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -271,7 +271,7 @@ export class Client {
         });
     }
 
-    protected processGoods(response: AxiosResponse): Promise<GoodsItemDto> {
+    protected processGoods(response: AxiosResponse): Promise<GoodsItemDto[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -285,7 +285,9 @@ export class Client {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            result200 = GoodsItemDto.fromJS(resultData200);
+            result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GoodsItemDto.fromJS(item));
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
@@ -303,7 +305,7 @@ export class Client {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<GoodsItemDto>(<any>null);
+        return Promise.resolve<GoodsItemDto[]>(<any>null);
     }
 
     /**
@@ -1008,7 +1010,7 @@ export class UpdateClient {
     /**
      * @return Success
      */
-    token(  cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
+    token( token?:string | undefined, cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
         let url_ = this.baseUrl + "/update_token";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1016,7 +1018,9 @@ export class UpdateClient {
             method: "POST",
             url: url_,
             headers: {
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                Authorization: `Bearer ${token}`,
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
