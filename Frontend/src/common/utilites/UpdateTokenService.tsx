@@ -38,7 +38,6 @@ export class TokenUpdater{
         }
 
         let tokenResponse = await this._client.token(tokenInStorage);
-        console.log(tokenResponse);
         if (this._dispatcher !== null && this._dispatcher !== undefined){
             this._dispatcher(updateToken(tokenResponse[TOKEN_KEY]));
         }

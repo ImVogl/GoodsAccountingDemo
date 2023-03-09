@@ -48,6 +48,11 @@ const NavigationBar: FC = () => {
     const error = useAppSelector(selectUserError);
     const dispatch = useAppDispatch();
     const updater = new TokenUpdater(useAppDispatch());
+    React.useEffect(() => {
+        if (error !== null && error !== undefined && error !== ""){
+            alert(error);
+        }
+    }, [error]);
     React.useEffect(() =>{
         if (logon){
             updater.prepare(token);
@@ -63,13 +68,7 @@ const NavigationBar: FC = () => {
             dto.login = values.login;
             dto.password = values.password;
             dispatch(signInAsync(dto));
-            if (!logon){
-                alert(error)
-            }
-            else{
-                setActive(false);
-            }
-
+            setActive(false);
         }
         catch (exception){
           alert(exception)
