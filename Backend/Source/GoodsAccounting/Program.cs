@@ -1,3 +1,4 @@
+using AutoMapper;
 using GoodsAccounting.Model.DataBase;
 using GoodsAccounting.Services.DataBase;
 using GoodsAccounting.Services.Validator;
@@ -15,6 +16,7 @@ using GoodsAccounting.Services.Password;
 using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.MapperProfiles;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using GoodsAccounting.Services.SnapshotConverter;
 
 namespace GoodsAccounting
 {
@@ -211,6 +213,7 @@ namespace GoodsAccounting
             AddDataBaseContext(serviceCollection);
             serviceCollection.AddScoped<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
             serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
+            serviceCollection.AddScoped<ISnapshotConverter>(provider => new HistorySnapshotConverter(provider.GetRequiredService<IMapper>()));
             serviceCollection.AddScoped<IResponseBodyBuilder>(_ => new ResponseBodyBuilder());
             serviceCollection.AddScoped<IPasswordValidator>(_ => new Validator());
             serviceCollection.AddScoped<IDtoValidator>(_ => new Validator());

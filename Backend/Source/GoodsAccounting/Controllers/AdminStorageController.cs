@@ -5,6 +5,7 @@ using GoodsAccounting.Model.DTO;
 using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.Services.DataBase;
+using GoodsAccounting.Services.SnapshotConverter;
 using GoodsAccounting.Services.Validator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,18 +49,25 @@ public class AdminStorageController : ControllerBase
     private readonly IResponseBodyBuilder _bodyBuilder;
 
     /// <summary>
+    /// Instance of <see cref="ISnapshotConverter"/>.
+    /// </summary>
+    private readonly ISnapshotConverter _converter;
+
+    /// <summary>
     /// Create new instance of <see cref="AdminStorageController"/>.
     /// </summary>
     /// <param name="db">Instance of <see cref="IAdminStorageContext"/>.</param>
     /// <param name="mapper">Instance of <see cref="IMapper"/>.</param>
     /// <param name="validator">Instance of <see cref="IDtoValidator"/>.</param>
     /// <param name="bodyBuilder">Instance of <see cref="IResponseBodyBuilder"/>.</param>
-    public AdminStorageController(IAdminStorageContext db, IMapper mapper, IDtoValidator validator, IResponseBodyBuilder bodyBuilder)
+    /// <param name="converter">Instance of <see cref="ISnapshotConverter"/>.</param>
+    public AdminStorageController(IAdminStorageContext db, IMapper mapper, IDtoValidator validator, IResponseBodyBuilder bodyBuilder, ISnapshotConverter converter)
     {
         _db = db;
         _mapper = mapper;
         _validator = validator;
         _bodyBuilder = bodyBuilder;
+        _converter = converter;
     }
 
     /// <summary>
@@ -205,12 +213,8 @@ public class AdminStorageController : ControllerBase
     {
         try
         {
-            var goods = _db.Goods.Where(item => item.Actives).ToDictionary(item => item.Id, item => item);
-            var snapshots = _mapper.Map<IList<ShiftSnapshotDto>>(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false));
-            foreach (var item in snapshots.SelectMany(snapshot => snapshot.StorageItems))
-                item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
-            
-            return Ok(snapshots);
+            var goods = await _db.Goods.Where(item => item.Actives).ToListAsync().ConfigureAwait(false);
+            return Ok(_converter.Convert(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false), goods));
         }
         catch
         {
