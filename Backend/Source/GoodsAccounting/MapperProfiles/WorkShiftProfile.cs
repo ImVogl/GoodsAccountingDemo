@@ -19,7 +19,7 @@ public class WorkShiftProfile : Profile
             .ForMember(item => item.Storage, opt => opt.Ignore())
             .ForMember(item => item.WholeScalePrice, opt => opt.Ignore());
 
-        CreateMap<GoodsItem, GoodsItemDto>();
+        CreateMap<GoodsItem, GoodsItemDto>().ForMember(item => item.Price, opt => opt.MapFrom(scr => scr.RetailPrice));
         CreateMap<EditGoodsListDto, GoodsItem>()
             .ForMember(item => item.Actives, opt => opt.MapFrom(_ => true))
             .ForMember(item => item.Id, opt => opt.MapFrom(_ => Guid.NewGuid()));
