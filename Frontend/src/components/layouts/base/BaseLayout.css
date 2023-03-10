@@ -11,9 +11,9 @@
 
 .internal-block{
     background: rgba(206, 210, 212, 0.1);
-    display:flex;
-    align-items:first baseline;
-    justify-content:first baseline;
+    display:block;
+    align-items:start;
+    justify-content:start;
     position:absolute;
     top: 60px;
     left: 40px;
