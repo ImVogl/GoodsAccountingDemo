@@ -18,11 +18,11 @@ interface ICategory{
     goods: IGoodsItem[];
 }
 
-function GetCategories(goods: IGoodsItemDto[], search: string):ICategory[]
+export function GetCategories(goods: IGoodsItemDto[], search: string):ICategory[]
 {
     let parts = search.toUpperCase().split(':', 2);
-    let category = parts.length === 2 ? parts[0] : "";
-    let searchPattern = parts.length === 2 ? parts[1] : search.toUpperCase();
+    let category = (parts.length === 2 ? parts[0] : "").trimStart();
+    let searchPattern = (parts.length === 2 ? parts[1] : search.toUpperCase()).trimStart();
     let result: ICategory[] = []
     goods.forEach(item => {
         if (item.active){
@@ -77,7 +77,7 @@ const HomePage: FC = () => {
                     goods.map((category) => 
                     { 
                         return (
-                            <div>
+                            <div key={category.name.concat("-div")}>
                                 <Row className="category" key={category.name}>{category.name}</Row>
                                 {
                                     category.goods.map((item) => { 
