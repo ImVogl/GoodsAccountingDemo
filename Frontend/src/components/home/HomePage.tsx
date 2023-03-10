@@ -27,7 +27,7 @@ function GetCategories(goods: IGoodsItemDto[], search: string):ICategory[]
     goods.forEach(item => {
         if (item.active){
             if (((category !== "" && category === item.category.toUpperCase()) || category === "") && item.name.toUpperCase().startsWith(searchPattern)){
-                let index = result.findIndex(c => c.name == item.category)
+                let index = result.findIndex(c => c.name === item.category)
                 if (index >= 0){
                     result[index].name = item.category;
                     result[index].goods.push({ id: item.id, name: item.name, price: item.price })
@@ -58,7 +58,7 @@ const HomePage: FC = () => {
         }, [search]
     )
     
-    return(
+    return( 
         <LayoutBase>
         <div>
             <Form className='search-panel'>
@@ -72,7 +72,7 @@ const HomePage: FC = () => {
             </Form>
         </div>
         <div  className='list-blok'>
-            <Container>
+            <Container className='container'>
                 {
                     goods.map((category) => 
                     { 
@@ -95,7 +95,6 @@ const HomePage: FC = () => {
                 }
                 </Container>
             </div>
-                
         </LayoutBase>
     );
 }
