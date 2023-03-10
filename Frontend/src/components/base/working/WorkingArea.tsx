@@ -59,14 +59,17 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
                 </Form>
             </Modal>
             <LayoutBase>
-                <div className='root'>
-                    <div className='working-block'>
+                <div className='working-area-root'>
+                    <div className='working-area-block'>
                         {props.children}
                     </div>
-                    <div className='control-block'>
-                        <Container>
-                            <Row><Button variant="outline-dark" type="submit" disabled={loading} onClick={!loading ? () => setLoading(true) : () => {}}>{shiftButton}</Button></Row>
-                            <Row><Button variant="outline-dark" href={ACCOUNT}>{displayedName}</Button></Row>
+                    <div className='working-area-control-block'>
+                        <Container className='working-area-container'>
+                            <Row className='working-area-row'>
+                                <Button className='working-area-button' variant="outline-dark" type="submit" disabled={loading} onClick={!loading ? () => setLoading(true) : () => {}}>{shiftButton}</Button>
+                            </Row>
+                            <Row className='working-area-row'>
+                                <Button className='working-area-button' variant="outline-dark" href={ACCOUNT}>{displayedName}</Button></Row>
                             <Row />
                         </Container>
                     </div>

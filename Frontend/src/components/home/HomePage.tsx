@@ -1,5 +1,5 @@
 import './HomePage.css'
-import React, { FC } from 'react';
+import React, { FC, ReactElement } from 'react';
 import { Row, Container, Col, Form } from 'react-bootstrap';
 
 import { getBaseUrl } from '../../common/utilites/Common';
@@ -42,6 +42,29 @@ export function GetCategories(goods: IGoodsItemDto[], search: string):ICategory[
     return result;
 }
 
+const GoodsList: FC<ICategory[]> = (goods:ICategory[]): ReactElement => {
+    let elements = goods.map((category) => 
+    {
+        return (
+            <div className='row-block' key={category.name.concat("-div")}>
+                <Row className="category" key={category.name}>{category.name}</Row>
+                {
+                    category.goods.map((item) => {
+                        return(
+                            <Row className='item' key = {item.id}>
+                                <Col className='item-name'>{item.name}</Col>
+                                <Col className='item-price'>{item.price} Руб</Col>
+                            </Row>
+                        )
+                    })
+                }
+            </div>
+        )
+    })
+
+    return(<Container className='container'>{elements}</Container>)
+}
+
 const HomePage: FC = () => {
     const init: ICategory[] = [];
     const [goods, setGoods] = React.useState(init);
@@ -60,40 +83,19 @@ const HomePage: FC = () => {
     
     return(
         <LayoutBase>
-        <div>
-            <Form className='search-panel'>
-                <Form.Group className="mb-3" controlId="search">
-                    <Form.Control
-                        type="text"
-                        className='search-panel control'
-                        placeholder="Поиск..."
-                        onChange={(event) => setSearch(event.target.value)} />
-                </Form.Group>
-            </Form>
-        </div>
-        <div  className='list-blok'>
-            <Container className='container'>
-                {
-                    goods.map((category) => 
-                    { 
-                        return (
-                            <div key={category.name.concat("-div")}>
-                                <Row className="category" key={category.name}>{category.name}</Row>
-                                {
-                                    category.goods.map((item) => { 
-                                        return(
-                                            <Row className='item' key = {item.id}>
-                                                <Col className='item-name'>{item.name}</Col>
-                                                <Col className='item-price'>{item.price} Руб</Col>
-                                            </Row>
-                                        )
-                                    })
-                                }
-                            </div>
-                        )
-                    })
-                }
-                </Container>
+            <div>
+                <Form className='search-panel'>
+                    <Form.Group className="mb-3" controlId="search">
+                        <Form.Control
+                            type="text"
+                            className='search-panel control'
+                            placeholder="Поиск..."
+                            onChange={(event) => setSearch(event.target.value)} />
+                    </Form.Group>
+                </Form>
+            </div>
+            <div className='list-blok'>
+                {GoodsList(goods)}
             </div>
         </LayoutBase>
     );

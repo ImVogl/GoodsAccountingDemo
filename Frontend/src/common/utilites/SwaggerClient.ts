@@ -35,6 +35,7 @@ export class Client {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -110,6 +111,7 @@ export class Client {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -185,6 +187,7 @@ export class Client {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -255,7 +258,8 @@ export class Client {
             method: "GET",
             url: url_,
             headers: {
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -391,7 +395,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -476,7 +481,8 @@ export class Client {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -553,7 +559,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -650,7 +657,8 @@ export class StatisticsClient {
             method: "GET",
             url: url_,
             headers: {
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -733,6 +741,7 @@ export class CloseClient {
             method: "GET",
             url: url_,
             headers: {
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -881,6 +890,7 @@ export class SoldClient {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -945,7 +955,8 @@ export class SoldClient {
             method: "GET",
             url: url_,
             headers: {
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -1120,7 +1131,8 @@ export class AddClient {
             url: url_,
             headers: {
                 "Content-Type": "application/json-patch+json",
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -1216,7 +1228,8 @@ export class RemoveClient {
             method: "POST",
             url: url_,
             headers: {
-                "Accept": "text/plain"
+                "Accept": "text/plain",
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };

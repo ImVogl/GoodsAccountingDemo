@@ -4,10 +4,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import { useAppSelector } from '../../common/redux/hooks';
 import { selectUserLogon } from '../../common/redux/UserSlice';
+import SellPage from '../sell/SellPage';
 import HomePage from '../home/HomePage';
 import ForbiddenPage from '../forbidden/ForbiddenPage';
 import NavigationBar from '../navigation/NavigationBar';
-import SellPage from '../sell/SellPage';
 import { SELLS, INV, ACCOUNT } from '../../common/utilites/Paths';
 
 const App: FC = () => {
