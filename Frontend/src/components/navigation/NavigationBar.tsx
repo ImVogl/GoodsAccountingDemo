@@ -15,7 +15,7 @@ import { SignInDto } from '../../common/utilites/SwaggerClient';
 import { TokenUpdater } from '../../common/utilites/UpdateTokenService';
 import { INDEX, SELLS, INV } from '../../common/utilites/Paths';
 
-import Modal from '../base/Modal';
+import Modal from '../base/modal/Modal';
 import Schema from './validation';
 
 const NavigationPanel: FC = () => {

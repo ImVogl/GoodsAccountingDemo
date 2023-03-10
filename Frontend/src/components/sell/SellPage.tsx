@@ -1,12 +1,12 @@
 import { FC } from 'react'
 
-import InnerLayout from '../layouts/inner/InnerLayout'
+import WorkingArea from '../base/working/WorkingArea'
 
 const SellPage: FC = () =>{
     return(
-        <InnerLayout>
+        <WorkingArea>
             <div>Hello, World!</div>
-        </InnerLayout>
+        </WorkingArea>
     );
 }
 

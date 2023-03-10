@@ -311,7 +311,7 @@ export class Client {
     /**
      * @return Success
      */
-    close(id: number, cash: number , cancelToken?: CancelToken | undefined): Promise<void> {
+    close(id: number, cash: number, token?:string | undefined, cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/close/{id}/{cash}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -325,6 +325,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
+                Authorization: `Bearer ${token}`,
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -792,7 +794,7 @@ export class InitClient {
     /**
      * @return Success
      */
-    shift(id: number , cancelToken?: CancelToken | undefined): Promise<void> {
+    shift(id: number, token?:string | undefined, cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/init_shift/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -803,6 +805,8 @@ export class InitClient {
             method: "POST",
             url: url_,
             headers: {
+                Authorization: `Bearer ${token}`,
+                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };

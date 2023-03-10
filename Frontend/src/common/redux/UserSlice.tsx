@@ -57,6 +57,9 @@ export const userSlice = createSlice({
       },
       updateToken: (state, action: PayloadAction<string>) => {
         state.token = action.payload
+      },
+      updateShiftState: (state, action: PayloadAction<boolean>) => {
+        state.shift_opened = action.payload
       }
     },
     extraReducers: (builder) => {
@@ -90,10 +93,11 @@ export const userSlice = createSlice({
       }
   });
   
-export const { setUser, updateToken } = userSlice.actions;
+export const { setUser, updateToken, updateShiftState } = userSlice.actions;
 export const selectUserLogon = (state: RootState) => state.controler.logon;
 export const selectUserToken = (state: RootState) => state.controler.token;
 export const selectUserError = (state: RootState) => state.controler.error;
 export const selectShiftUser = (state: RootState) => state.controler.shift_opened;
 export const selectUserName = (state: RootState) => state.controler.name;
+export const selectUserIdentifier = (state: RootState) => state.controler.id;
 export default userSlice.reducer;

@@ -5,7 +5,7 @@ import { Row, Container, Col, Form } from 'react-bootstrap';
 import { getBaseUrl } from '../../common/utilites/Common';
 import { Client, IGoodsItemDto } from '../../common/utilites/SwaggerClient'
 
-import LayoutBase from '../layouts/base/BaseLayout'
+import LayoutBase from '../layouts/BaseLayout'
 
 interface IGoodsItem{
     id: string;
