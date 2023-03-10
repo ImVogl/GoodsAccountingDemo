@@ -3,8 +3,10 @@ using GoodsAccounting.Model.DTO;
 using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.Services.DataBase;
+using GoodsAccounting.Services.SnapshotConverter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using ILogger = NLog.ILogger;
 
@@ -39,16 +41,23 @@ public class StorageController : ControllerBase
     private readonly IMapper _mapper;
 
     /// <summary>
+    /// Implementation of <see cref="ISnapshotConverter"/>.
+    /// </summary>
+    private readonly ISnapshotConverter _converter;
+
+    /// <summary>
     /// Create new instance of <see cref="StorageController"/>.
     /// </summary>
     /// <param name="db">Implementation of <see cref="IStorageContext"/>.</param>
     /// <param name="bodyBuilder">Implementation of <see cref="IResponseBodyBuilder"/>.</param>
     /// <param name="mapper">AutoMapper mapper instance.</param>
-    public StorageController(IStorageContext db, IResponseBodyBuilder bodyBuilder, IMapper mapper)
+    /// <param name="converter">Implementation of <see cref="ISnapshotConverter"/>.</param>
+    public StorageController(IStorageContext db, IResponseBodyBuilder bodyBuilder, IMapper mapper, ISnapshotConverter converter)
     {
         _db = db;
         _bodyBuilder = bodyBuilder;
         _mapper = mapper;
+        _converter = converter;
     }
 
     /// <summary>
@@ -59,16 +68,17 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [AllowAnonymous]
     [HttpGet("~/goods")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<GoodsItemDto>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public Task<IActionResult> GetAllGoods()
     {
         Log.Info("Request all goods");
 
         try {
-            return Task.FromResult<IActionResult>(Ok(_mapper.Map<GoodsItemDto>(_db.Goods.ToList())));
+            return Task.FromResult<IActionResult>(Ok(_mapper.Map<IList<GoodsItemDto>>(_db.Goods.ToList())));
         }
-        catch {
+        catch(Exception exception) {
+            Log.Error(exception);
             return Task.FromResult<IActionResult>(BadRequest(_bodyBuilder.UnknownBuild()));
         }
     }
@@ -83,7 +93,7 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/close/{id}/{cash}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> CloseWorkingShift(int id, int cash)
     {
         try {
@@ -115,7 +125,7 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/init_shift/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> InitWorkingShiftAsync(int id)
     {
         try {
@@ -144,7 +154,7 @@ public class StorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpPost("~/sold_goods")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> PostSoldGoodsAsync([FromBody] SoldGoodsDto dto)
     {
         if (dto?.Sold == null) {
@@ -174,17 +184,13 @@ public class StorageController : ControllerBase
     /// <response code="200">Response data saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpGet("~/sold_statistics/{id}/{day}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<ReducedSnapshotDto>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
         try {
-            var goods = _db.Goods.Where(item => item.Actives).ToDictionary(item => item.Id, item => item);
-            var snapshots = _mapper.Map<IList<ReducedSnapshotDto>>(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false));
-            foreach (var item in snapshots.SelectMany(snapshot => snapshot.StorageItems))
-                item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
-
-            return Ok(snapshots);
+            var goods = await _db.Goods.Where(item => item.Actives).ToListAsync().ConfigureAwait(false);
+            return Ok(_converter.ConvertReduced(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false), goods));
         }
         catch {
             return BadRequest(_bodyBuilder.UnknownBuild());

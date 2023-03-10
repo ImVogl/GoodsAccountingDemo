@@ -5,6 +5,7 @@ using GoodsAccounting.Model.DTO;
 using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.Services.DataBase;
+using GoodsAccounting.Services.SnapshotConverter;
 using GoodsAccounting.Services.Validator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,18 +49,25 @@ public class AdminStorageController : ControllerBase
     private readonly IResponseBodyBuilder _bodyBuilder;
 
     /// <summary>
+    /// Instance of <see cref="ISnapshotConverter"/>.
+    /// </summary>
+    private readonly ISnapshotConverter _converter;
+
+    /// <summary>
     /// Create new instance of <see cref="AdminStorageController"/>.
     /// </summary>
     /// <param name="db">Instance of <see cref="IAdminStorageContext"/>.</param>
     /// <param name="mapper">Instance of <see cref="IMapper"/>.</param>
     /// <param name="validator">Instance of <see cref="IDtoValidator"/>.</param>
     /// <param name="bodyBuilder">Instance of <see cref="IResponseBodyBuilder"/>.</param>
-    public AdminStorageController(IAdminStorageContext db, IMapper mapper, IDtoValidator validator, IResponseBodyBuilder bodyBuilder)
+    /// <param name="converter">Instance of <see cref="ISnapshotConverter"/>.</param>
+    public AdminStorageController(IAdminStorageContext db, IMapper mapper, IDtoValidator validator, IResponseBodyBuilder bodyBuilder, ISnapshotConverter converter)
     {
         _db = db;
         _mapper = mapper;
         _validator = validator;
         _bodyBuilder = bodyBuilder;
+        _converter = converter;
     }
 
     /// <summary>
@@ -72,8 +80,8 @@ public class AdminStorageController : ControllerBase
     /// <response code="401">Returns if user not found or hasn't access.</response>
     [HttpPost("~/storage/revision")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> StorageRevisionAsync([FromBody] GoodsRevisionDto dto)
     {
         if (_validator.Validate(dto)) {
@@ -107,8 +115,8 @@ public class AdminStorageController : ControllerBase
     /// <response code="401">Returns if user not found or hasn't access.</response>
     [HttpPost("~/storage/supplies")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> SuppliesAsync([FromBody] GoodsSuppliesDto dto)
     {
         if (_validator.Validate(dto))
@@ -144,8 +152,8 @@ public class AdminStorageController : ControllerBase
     /// <response code="401">Returns if user not found or hasn't access.</response>
     [HttpPost("~/storage/edit")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> EditGoodsListAsync([FromBody] EditGoodsListDto dto)
     {
         if (_validator.Validate(dto))
@@ -199,18 +207,14 @@ public class AdminStorageController : ControllerBase
     /// <response code="200">Response data saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpGet("~/sold_statistics_full/{id}/{day}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<ShiftSnapshotDto>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
         try
         {
-            var goods = _db.Goods.Where(item => item.Actives).ToDictionary(item => item.Id, item => item);
-            var snapshots = _mapper.Map< IList<ShiftSnapshotDto>>(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false));
-            foreach (var item in snapshots.SelectMany(snapshot => snapshot.StorageItems))
-                item.ItemName = goods.ContainsKey(item.ItemId) ? goods[item.ItemId].Name : string.Empty;
-            
-            return Ok(snapshots);
+            var goods = await _db.Goods.Where(item => item.Actives).ToListAsync().ConfigureAwait(false);
+            return Ok(_converter.Convert(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false), goods));
         }
         catch
         {
@@ -228,7 +232,7 @@ public class AdminStorageController : ControllerBase
     /// <response code="400">Returns if unknown exception was thrown.</response>
     [HttpGet("~/close_other/{targetUserId}/{cash}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> CloseWorkShiftForTargetUserAsync(int targetUserId, int cash)
     {
         var opened = await _db.WorkShifts.AnyAsync(shift => shift.IsOpened && shift.UserId == targetUserId).ConfigureAwait(false);

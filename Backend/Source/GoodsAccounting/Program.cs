@@ -1,3 +1,4 @@
+using AutoMapper;
 using GoodsAccounting.Model.DataBase;
 using GoodsAccounting.Services.DataBase;
 using GoodsAccounting.Services.Validator;
@@ -14,6 +15,8 @@ using GoodsAccounting.Services.TextConverter;
 using GoodsAccounting.Services.Password;
 using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.MapperProfiles;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using GoodsAccounting.Services.SnapshotConverter;
 
 namespace GoodsAccounting
 {
@@ -68,16 +71,12 @@ namespace GoodsAccounting
         /// <param name="serviceCollection">Instance of <see cref="IServiceCollection"/> for web application.</param>
         private static void ConfigureNoCors(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddCors(options =>
-            {
-                options.AddPolicy("CORS_Policy", policyBuilder =>
-                {
+            var policyBuilder = new CorsPolicyBuilder();
                     policyBuilder.AllowAnyHeader();
                     policyBuilder.AllowAnyMethod();
-                    policyBuilder.AllowAnyOrigin();
-                });
-            });
-
+            policyBuilder.WithOrigins("http://localhost:3000");
+            policyBuilder.AllowCredentials();
+            serviceCollection.AddCors(options => { options.AddPolicy("CORS_Policy", policyBuilder.Build()); });
             serviceCollection.AddRouting(r => r.SuppressCheckForUnhandledSecurityMetadata = true);
         }
 
@@ -214,6 +213,7 @@ namespace GoodsAccounting
             AddDataBaseContext(serviceCollection);
             serviceCollection.AddScoped<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
             serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
+            serviceCollection.AddScoped<ISnapshotConverter>(provider => new HistorySnapshotConverter(provider.GetRequiredService<IMapper>()));
             serviceCollection.AddScoped<IResponseBodyBuilder>(_ => new ResponseBodyBuilder());
             serviceCollection.AddScoped<IPasswordValidator>(_ => new Validator());
             serviceCollection.AddScoped<IDtoValidator>(_ => new Validator());

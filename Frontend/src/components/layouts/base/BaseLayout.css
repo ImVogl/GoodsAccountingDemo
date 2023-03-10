@@ -1,0 +1,22 @@
+
+.blok{
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgb(18,137,208);
+    background: linear-gradient(180deg, rgba(18,137,208,1) 0%, rgba(255,255,255,1) 100%);
+}
+
+.internal-block{
+    background: rgba(206, 210, 212, 0.1);
+    display:block;
+    align-items:start;
+    justify-content:start;
+    position:absolute;
+    top: 60px;
+    left: 40px;
+    right: 40px;
+    bottom: 30px;
+}

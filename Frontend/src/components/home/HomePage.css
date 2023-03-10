@@ -1,0 +1,55 @@
+.list-blok{
+    width: 100%;
+    overflow-y: auto;
+    min-height: 50%;
+    max-height: 100%;
+}
+
+.list-blok::-webkit-scrollbar {
+    width: 0px;
+}
+
+.search-panel{
+    position: relative;
+    margin-top: 5px;
+    margin-left: 20px;
+    margin-right: 25px;
+    margin-bottom: 15px;;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
+}
+
+.search-panel.control{
+    border-radius: 5px;
+    font-size: larger;
+}
+
+.category{
+    background-color: rgba(168, 161, 161, 0.6);
+    position: relative;
+    margin: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
+    display:grid;
+    font-size: x-large;
+    font-weight: bold;
+}
+
+.item{
+    background-color: rgba(168, 161, 161, 0.4);
+    position: relative;
+    margin: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
+    display:grid;
+    font-size: large;
+    font-weight: bold;
+}
+
+.item-name{
+    justify-content: left;
+}
+
+.item-price{
+    justify-content: right;
+}
