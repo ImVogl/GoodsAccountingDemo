@@ -13,6 +13,7 @@ import { selectTitle } from '../../common/redux/TitleSlice';
 import { selectUserLogon, selectUserError, signInAsync, selectUserToken } from '../../common/redux/UserSlice';
 import { SignInDto } from '../../common/utilites/SwaggerClient';
 import { TokenUpdater } from '../../common/utilites/UpdateTokenService';
+import { INDEX, SELLS, INV } from '../../common/utilites/Paths';
 
 import Modal from '../base/Modal';
 import Schema from './validation';
@@ -24,9 +25,9 @@ const NavigationPanel: FC = () => {
             <Navbar>
                 <Navbar.Collapse>
                     <Nav>
-                        <Nav.Link className='nav-link' href={"/"}>{title}</Nav.Link>
-                        <Nav.Link className='nav-link' href={"/sells"}>Продажи</Nav.Link>
-                        <Nav.Link className='nav-link' href={"/inventarisation"}>Инвентаризация</Nav.Link>
+                        <Nav.Link className='nav-link' href={INDEX}>{title}</Nav.Link>
+                        <Nav.Link className='nav-link' href={SELLS}>Продажи</Nav.Link>
+                        <Nav.Link className='nav-link' href={INV}>Инвентаризация</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>         

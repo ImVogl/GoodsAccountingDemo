@@ -58,7 +58,7 @@ const HomePage: FC = () => {
         }, [search]
     )
     
-    return( 
+    return(
         <LayoutBase>
         <div>
             <Form className='search-panel'>

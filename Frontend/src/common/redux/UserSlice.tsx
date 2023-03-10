@@ -94,4 +94,6 @@ export const { setUser, updateToken } = userSlice.actions;
 export const selectUserLogon = (state: RootState) => state.controler.logon;
 export const selectUserToken = (state: RootState) => state.controler.token;
 export const selectUserError = (state: RootState) => state.controler.error;
+export const selectShiftUser = (state: RootState) => state.controler.shift_opened;
+export const selectUserName = (state: RootState) => state.controler.name;
 export default userSlice.reducer;
