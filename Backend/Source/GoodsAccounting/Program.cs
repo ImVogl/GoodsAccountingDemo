@@ -1,5 +1,4 @@
 using AutoMapper;
-using GoodsAccounting.Model.DataBase;
 using GoodsAccounting.Services.DataBase;
 using GoodsAccounting.Services.Validator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -72,8 +71,8 @@ namespace GoodsAccounting
         private static void ConfigureNoCors(IServiceCollection serviceCollection)
         {
             var policyBuilder = new CorsPolicyBuilder();
-                    policyBuilder.AllowAnyHeader();
-                    policyBuilder.AllowAnyMethod();
+            policyBuilder.AllowAnyHeader();
+            policyBuilder.AllowAnyMethod();
             policyBuilder.WithOrigins("http://localhost:3000");
             policyBuilder.AllowCredentials();
             serviceCollection.AddCors(options => { options.AddPolicy("CORS_Policy", policyBuilder.Build()); });
@@ -199,7 +198,7 @@ namespace GoodsAccounting
             var context = scope.ServiceProvider.GetRequiredService<IEfContext>();
             context.RecreateDataBase();
         }
-        
+
         /// <summary>
         /// Registration types.
         /// </summary>

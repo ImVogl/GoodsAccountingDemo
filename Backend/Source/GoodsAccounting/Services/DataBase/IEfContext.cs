@@ -9,5 +9,4 @@ public interface IEfContext : IUsersContext, IAdminStorageContext
     /// Recreation data base.
     /// </summary>
     public void RecreateDataBase();
-
 }
