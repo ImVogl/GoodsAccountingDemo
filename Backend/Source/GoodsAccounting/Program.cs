@@ -59,8 +59,8 @@ namespace GoodsAccounting
             app.UseAuthentication();    // Checking who is connected user.
             app.UseAuthorization();     // Checking what permissions has connected user.
             app.MapControllers();
-#if DEBUG
             app.UseCors(CorsName);
+#if DEBUG
             ReinitializeDataBase(app.Services);
 #endif
 
