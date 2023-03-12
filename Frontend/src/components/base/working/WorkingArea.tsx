@@ -1,47 +1,75 @@
 import './WorkingArea.css';
 import { FC, ReactElement, PropsWithChildren, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 import { Row, Container, Button, Form } from 'react-bootstrap';
 
-import { getBaseUrl } from '../../../common/utilites/Common';
-import { getCurrentToken } from '../../../common/utilites/UpdateTokenService';
 import { useAppSelector, useAppDispatch } from '../../../common/redux/hooks';
 import { selectShiftUser, selectUserName, selectUserIdentifier, updateShiftState } from '../../../common/redux/UserSlice'
-import { ACCOUNT } from '../../../common/utilites/Paths';
+import { ACCOUNT, INDEX } from '../../../common/utilites/Paths';
 import LayoutBase from '../../layouts/BaseLayout';
 import Modal from '../modal/Modal';
-import { InitClient, Client } from '../../../common/utilites/SwaggerClient';
+import ApiClientWrapper from '../../../common/utilites/ApiClientWrapper';
+import TokenService from '../../../common/utilites/TokenService';
 
 interface Children { }
 const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<Children>): ReactElement => {
     const [loading, setLoading] = useState(false);
+    const [closing, setClosing] = useState(false);
+    const navigate = useNavigate();
     const dispatcher = useAppDispatch();
     const opened = useAppSelector(selectShiftUser);
     const displayedName = useAppSelector(selectUserName);
     const dentifier = useAppSelector(selectUserIdentifier);
     const [cash, setCash] = useState(0);
     const [active, setActive] = useState(false);
-    let clientInit = new InitClient(getBaseUrl());
-    let client = new Client(getBaseUrl());
+    let client = new ApiClientWrapper();
+    let tokenService = new TokenService(dispatcher);
     let shiftButton = opened ? "Закрыть смену" : "Открыть смену";
     useEffect(() => {
-        const fetchData = opened
-        ? async () => {
-            if (cash === undefined){
+        const fetchData = async () => {
+            if (cash === undefined || cash < 0){
+                setActive(false);
                 alert("Некорректная сумма!");
                 throw "Incorrect cash value";
             }
 
-            await client.close(dentifier, cash, getCurrentToken());
-            dispatcher(updateShiftState(false));
-            setLoading(false);}
-        : async () =>{
-            await clientInit.shift(dentifier, getCurrentToken());
+            try{
+                await client.closeWorkingShift(dentifier, cash);
+                tokenService.reset();
+                navigate(INDEX);
+            }
+            catch (error){
+                alert(error);
+                console.error(error)
+            }
+            finally{
+                setActive(false);
+                setClosing(false);
+            }
+            
+        };
+
+        if (closing && opened && active) {
+            fetchData().catch(console.error);
+        }
+
+    }, [closing]);
+
+    useEffect(() => {
+        const fetchData = async () =>{
+            await client.initWorkingShift(dentifier);
             dispatcher(updateShiftState(true));
             setLoading(false);
         };
 
         if (loading) {
-            fetchData().catch(console.error);
+            if (opened){
+                setActive(true);
+                setLoading(false);
+            }
+            else{
+                fetchData().catch(console.error);
+            }
         }
       }, [loading]);
 
@@ -54,7 +82,7 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
                             <Form.Label>Остаток в кассе:</Form.Label>
                             <Form.Control type="number" onChange={event => setCash(parseInt(event.target.value))} />
                         </Form.Group>
-                        <Button variant="success" type="submit" disabled={loading}>Закрыть смену</Button>
+                        <Button className='working-area-button' variant="success" type="submit" disabled={closing} onClick={() => setClosing(true)}>Закрыть смену</Button>
                     </Container>
                 </Form>
             </Modal>

@@ -63,7 +63,7 @@ export const signInAsync = createAsyncThunk(
 
 export const updateUserDataAsync = createAsyncThunk(
   'controler/update',
-  async (_:string = "", { rejectWithValue }) => {
+  async (_:string, { rejectWithValue }) => {
     try {
       let client = new ApiClientWrapper()
       let response = await client.updateToken();
@@ -95,6 +95,14 @@ export const userSlice = createSlice({
       },
       updateShiftState: (state, action: PayloadAction<boolean>) => {
         state.shift_opened = action.payload
+      },
+      logout:(state) =>{
+        state.id = 0;
+        state.name = "";
+        state.is_admin = false;
+        state.shift_opened = false;
+        state.logon = false;
+        state.token = "";
       }
     },
     extraReducers: (builder) => {
@@ -155,7 +163,7 @@ export const userSlice = createSlice({
       }
   });
   
-export const { setUser, updateToken, updateShiftState } = userSlice.actions;
+export const { setUser, updateToken, updateShiftState, logout } = userSlice.actions;
 export const selectUserLogon = (state: RootState) => state.controler.logon;
 export const selectUserToken = (state: RootState) => state.controler.token;
 export const selectUserExpired = (state: RootState) => state.controler.expired;

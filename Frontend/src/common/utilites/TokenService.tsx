@@ -1,4 +1,4 @@
-import { updateUserDataAsync } from '../redux/UserSlice';
+import { updateUserDataAsync, logout } from '../redux/UserSlice';
 import { cleanStore } from '../redux/store';
 import { sleep_ms } from './Common';
 
@@ -20,8 +20,8 @@ class TokenService{
         window.localStorage.setItem(EXPIRED_KEY, expired.toString());
     }
 
-    public update(){
-        sleep_ms(this.timeout);
+    public async update(){
+        await sleep_ms(this.timeout);
         let tokenInStorage = window.localStorage.getItem(TOKEN_KEY);
         let tokenExpired = window.localStorage.getItem(EXPIRED_KEY);
         if (tokenInStorage == null || tokenExpired === null){
@@ -34,12 +34,10 @@ class TokenService{
         }
         catch{
             this.reset();
-            cleanStore();
             return;
         }
         if (expiredNumber < Date.parse(new Date().toUTCString())){
             this.reset();
-            cleanStore();
             return;
         }
 
@@ -57,6 +55,8 @@ class TokenService{
     public reset(){
         window.localStorage.removeItem(TOKEN_KEY);
         window.localStorage.removeItem(EXPIRED_KEY);
+        this._dispatcher(logout());
+        cleanStore();
     }
 }
 
