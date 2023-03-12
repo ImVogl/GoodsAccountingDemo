@@ -16,6 +16,7 @@ using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.MapperProfiles;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using GoodsAccounting.Services.SnapshotConverter;
+using GoodsAccounting.HeaderFilters;
 
 namespace GoodsAccounting
 {
@@ -26,18 +27,20 @@ namespace GoodsAccounting
     public class Program
     {
         /// <summary>
+        /// CORS policy name.
+        /// </summary>
+        private const string CorsName = "CORS";
+
+        /// <summary>
         /// Entry method.
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-#if DEBUG
-            ConfigureNoCors(builder.Services);
-#endif
             RegisterDependencies(builder.Services);
+            ConfigureCors(builder.Services);
             ConfigureSwagger(builder.Services);
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -57,7 +60,7 @@ namespace GoodsAccounting
             app.UseAuthorization();     // Checking what permissions has connected user.
             app.MapControllers();
 #if DEBUG
-            app.UseCors("CORS_Policy");
+            app.UseCors(CorsName);
             ReinitializeDataBase(app.Services);
 #endif
 
@@ -65,17 +68,22 @@ namespace GoodsAccounting
         }
         
         /// <summary>
-        /// Disable CORS control.
+        /// Configure CORS policy.
         /// </summary>
         /// <param name="serviceCollection">Instance of <see cref="IServiceCollection"/> for web application.</param>
-        private static void ConfigureNoCors(IServiceCollection serviceCollection)
+        private static void ConfigureCors(IServiceCollection serviceCollection)
         {
+            var provider = serviceCollection.BuildServiceProvider();
+            var origin = provider.GetRequiredService<IOptions<BearerSection>>().Value.Origin;
+            if (string.IsNullOrWhiteSpace(origin))
+                throw new NullReferenceException();
+
             var policyBuilder = new CorsPolicyBuilder();
             policyBuilder.AllowAnyHeader();
             policyBuilder.AllowAnyMethod();
-            policyBuilder.WithOrigins("http://localhost:3000");
+            policyBuilder.WithOrigins(origin);
             policyBuilder.AllowCredentials();
-            serviceCollection.AddCors(options => { options.AddPolicy("CORS_Policy", policyBuilder.Build()); });
+            serviceCollection.AddCors(options => { options.AddPolicy(CorsName, policyBuilder.Build()); });
             serviceCollection.AddRouting(r => r.SuppressCheckForUnhandledSecurityMetadata = true);
         }
 
@@ -107,10 +115,11 @@ namespace GoodsAccounting
                 option.SwaggerDoc("v1", apiInfo);
                 option.AddSecurityDefinition("Bearer", GenerateSecurityScheme());
                 option.AddSecurityRequirement(GenerateSecurityRequirement());
+                option.OperationFilter<HeaderFilter>();
             });
 
             serviceCollection.AddSwaggerGenNewtonsoftSupport();
-            var section = provider.GetRequiredService<IOptions<JwtSection>>().Value;
+            var section = provider.GetRequiredService<IOptions<BearerSection>>().Value;
             if (string.IsNullOrWhiteSpace(section.ValidIssuer))
                 throw new NullReferenceException(nameof(section.ValidIssuer));
 

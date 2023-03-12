@@ -40,5 +40,5 @@ public class UserInfoDto
     /// </summary>
     [JsonRequired]
     [JsonProperty("token")]
-    public string Token { get; set; } = null!;
+    public TokenDto TokenDto { get; set; } = null!;
 }

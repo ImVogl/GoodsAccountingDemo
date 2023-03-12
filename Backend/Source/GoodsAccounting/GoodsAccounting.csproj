@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Model\Config\" />
     <Folder Include="MapperProfiles\" />
     <Folder Include="Services\SnapshotConverter\" />
     <Folder Include="Services\Password\" />
