@@ -24,8 +24,8 @@ public class WorkShift
     /// </summary>
     [Key]
     [Required]
-    [Column("index", TypeName = "bigint")]
-    public long Index { get; set; }
+    [Column("index", TypeName = "serial")]
+    public int Index { get; set; }
 
     /// <summary>
     /// Get or set shift day

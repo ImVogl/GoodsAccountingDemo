@@ -2,6 +2,7 @@
 using GoodsAccounting.Model.DataBase;
 using GoodsAccounting.Model.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace GoodsAccounting.Services.DataBase;
 
@@ -59,26 +60,29 @@ public class PostgresProxy : DbContext, IEfContext
         var user = await Users.SingleOrDefaultAsync(user => user.Id == id).ConfigureAwait(false);
         if (user == null)
             throw new EntityNotFoundException();
+
+        var goods = await Goods.Where(item => item.Actives).ToListAsync().ConfigureAwait(false);
+        var states = goods.Select(item => new GoodsItemStorage
+        {
+            Id = item.Id,
+            Sold = 0,
+            RetailPrice = item.RetailPrice,
+            Receipt = 0,
+            WholeScalePrice = item.WholeScalePrice,
+            WriteOff = 0
+        }).ToList();
         
-        var goods = await Goods.ToListAsync().ConfigureAwait(false);
         var currentShift = new WorkShift
         {
+            IsOpened = true,
             OpenTime = DateTime.Now,
             Cash = 0,
             UserId = id,
             UserDisplayName = $"{user.Surname} {(user.Name.Length > 1 ? user.Name[0] : string.Empty)}",
             Comments = string.Empty,
-            GoodItemStates = goods.Where(item => item.Actives).Select(item => new GoodsItemStorage
-            {
-                Id = item.Id,
-                Sold = 0,
-                RetailPrice = item.RetailPrice,
-                Receipt = 0,
-                WholeScalePrice = item.WholeScalePrice,
-                WriteOff = 0
-            }).ToList()
+            GoodItemStates = states
         };
-
+        
         await WorkShifts.AddAsync(currentShift).ConfigureAwait(false);
         await SaveChangesAsync().ConfigureAwait(false);
     }
@@ -86,7 +90,11 @@ public class PostgresProxy : DbContext, IEfContext
     /// <inheritdoc />
     public async Task CloseWorkShiftAsync(int id,int cash, string comment)
     {
-        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == id).ConfigureAwait(false);
+        var shift = await WorkShifts
+            .Include(shift => shift.GoodItemStates)
+            .SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == id)
+            .ConfigureAwait(false);
+
         if (shift == null)
             throw new EntityNotFoundException();
         
@@ -287,7 +295,9 @@ public class PostgresProxy : DbContext, IEfContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasIndex(user => user.Id).IsUnique();
-        modelBuilder.Entity<User>().Property(user => user.Id).ValueGeneratedOnAdd();
+        modelBuilder.Entity<User>().Property(user => user.Id)
+            .ValueGeneratedOnAdd()
+            .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
         modelBuilder.Entity<User>().Property(user => user.UserLogin).IsRequired();
         modelBuilder.Entity<User>().Property(user => user.Name).IsRequired();
@@ -306,7 +316,10 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<GoodsItem>().Property(item => item.Storage).IsRequired();
 
         modelBuilder.Entity<WorkShift>().HasIndex(shift => shift.Index).IsUnique();
-        modelBuilder.Entity<WorkShift>().Property(shift => shift.Index).ValueGeneratedOnAdd();
+        modelBuilder.Entity<WorkShift>().Property(shift => shift.Index)
+            .ValueGeneratedOnAdd()
+            .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+
         modelBuilder.Entity<WorkShift>().Property(shift => shift.OpenTime).IsRequired();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.CloseTime).IsRequired();
         modelBuilder.Entity<WorkShift>().Property(shift => shift.Cash).IsRequired();
@@ -317,12 +330,15 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<WorkShift>()
             .HasMany(shift => shift.GoodItemStates)
             .WithOne()
-            .HasPrincipalKey(shift => shift.Index)
+            .HasForeignKey("ShiftIdentifier")
             .IsRequired();
 
         modelBuilder.Entity<GoodsItemStorage>().HasIndex(storage => storage.Index).IsUnique();
-        modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Index).ValueGeneratedOnAdd();
-        
+        modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Index)
+            .ValueGeneratedOnAdd()
+            .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+
+
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Id).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.GoodsInStorage).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Receipt).IsRequired();
@@ -330,6 +346,7 @@ public class PostgresProxy : DbContext, IEfContext
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.Sold).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.WholeScalePrice).IsRequired();
         modelBuilder.Entity<GoodsItemStorage>().Property(storage => storage.WriteOff).IsRequired();
+        modelBuilder.Entity<GoodsItemStorage>().Property("ShiftIdentifier").HasColumnName("shift_identifier").IsRequired();
     }
 
     /// <summary>

@@ -20,7 +20,7 @@ public class User
     /// Get or set user's identifier.
     /// </summary>
     [Key]
-    [Column("id", TypeName = "integer")]
+    [Column("id", TypeName = "serial")]
     public int Id { get; set; }
 
     /// <summary>

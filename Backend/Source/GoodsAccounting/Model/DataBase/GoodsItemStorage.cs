@@ -20,8 +20,8 @@ public class GoodsItemStorage
     /// Get or set index.
     /// </summary>
     [Key]
-    [Column("index", TypeName = "bigint")]
-    public long Index { get; set; }
+    [Column("index", TypeName = "serial")]
+    public int Index { get; set; }
 
     /// <summary>
     /// Get or set item identifier.
@@ -56,12 +56,12 @@ public class GoodsItemStorage
     /// <summary>
     /// Get or set retail price of item.
     /// </summary>
-    [Column("retailPrice", TypeName = "real")]
+    [Column("retail_price", TypeName = "real")]
     public float RetailPrice { get; set; }
 
     /// <summary>
     /// Get or set wholescale price of item.
     /// </summary>
-    [Column("wholeScalePrice", TypeName = "real")]
+    [Column("whole_scale_price", TypeName = "real")]
     public float WholeScalePrice { get; set; }
 }
