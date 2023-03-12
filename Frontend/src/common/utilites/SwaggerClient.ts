@@ -20,10 +20,11 @@ export class Client {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @param body (optional) 
      * @return Success
      */
-    revision(body: GoodsRevisionDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+    revision(authorization?: any | undefined, body?: GoodsRevisionDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/storage/revision";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -34,8 +35,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
-                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -96,10 +97,11 @@ export class Client {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @param body (optional) 
      * @return Success
      */
-    supplies(body: GoodsSuppliesDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+    supplies(authorization?: any | undefined, body?: GoodsSuppliesDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/storage/supplies";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -110,8 +112,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
-                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -172,10 +174,11 @@ export class Client {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @param body (optional) 
      * @return Success
      */
-    edit(body: EditGoodsListDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+    edit(authorization?: any | undefined, body?: EditGoodsListDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/storage/edit";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -186,8 +189,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
-                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -248,9 +251,10 @@ export class Client {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    goods(  cancelToken?: CancelToken | undefined): Promise<GoodsItemDto[]> {
+    goods(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<GoodsItemDto[]> {
         let url_ = this.baseUrl + "/goods";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -258,8 +262,8 @@ export class Client {
             method: "GET",
             url: url_,
             headers: {
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -289,9 +293,11 @@ export class Client {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            result200 = [] as any;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
                 for (let item of resultData200)
                     result200!.push(GoodsItemDto.fromJS(item));
+            }
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
@@ -313,9 +319,10 @@ export class Client {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    close(id: number, cash: number, token?:string | undefined, cancelToken?: CancelToken | undefined): Promise<void> {
+    close(id: number, cash: number, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/close/{id}/{cash}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -329,8 +336,7 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
-                Authorization: `Bearer ${token}`,
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
             cancelToken
         };
@@ -379,9 +385,10 @@ export class Client {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    change(oldPassword: string, password: string , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
+    change(oldPassword: string, password: string, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<TokenDto> {
         let url_ = this.baseUrl + "/change/{oldPassword}/{password}";
         if (oldPassword === undefined || oldPassword === null)
             throw new Error("The parameter 'oldPassword' must be defined.");
@@ -395,8 +402,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -412,7 +419,7 @@ export class Client {
         });
     }
 
-    protected processChange(response: AxiosResponse): Promise<{ [key: string]: string; }> {
+    protected processChange(response: AxiosResponse): Promise<TokenDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -426,13 +433,7 @@ export class Client {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            if (resultData200) {
-                result200 = {} as any;
-                for (let key in resultData200) {
-                    if (resultData200.hasOwnProperty(key))
-                        result200![key] = resultData200[key];
-                }
-            }
+            result200 = TokenDto.fromJS(resultData200);
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
@@ -462,14 +463,15 @@ export class Client {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<{ [key: string]: string; }>(<any>null);
+        return Promise.resolve<TokenDto>(<any>null);
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @param body (optional) 
      * @return Success
      */
-    signin(body: SignInDto | undefined , cancelToken?: CancelToken | undefined): Promise<UserInfoDto> {
+    signin(authorization?: any | undefined, body?: SignInDto | undefined , cancelToken?: CancelToken | undefined): Promise<UserInfoDto> {
         let url_ = this.baseUrl + "/signin";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -480,9 +482,9 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -546,9 +548,10 @@ export class Client {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    signout(id: number , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
+    signout(id: number, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<TokenDto> {
         let url_ = this.baseUrl + "/signout/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -559,8 +562,8 @@ export class Client {
             method: "POST",
             url: url_,
             headers: {
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -576,7 +579,7 @@ export class Client {
         });
     }
 
-    protected processSignout(response: AxiosResponse): Promise<{ [key: string]: string; }> {
+    protected processSignout(response: AxiosResponse): Promise<TokenDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -590,13 +593,7 @@ export class Client {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            if (resultData200) {
-                result200 = {} as any;
-                for (let key in resultData200) {
-                    if (resultData200.hasOwnProperty(key))
-                        result200![key] = resultData200[key];
-                }
-            }
+            result200 = TokenDto.fromJS(resultData200);
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
@@ -626,7 +623,7 @@ export class Client {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<{ [key: string]: string; }>(<any>null);
+        return Promise.resolve<TokenDto>(<any>null);
     }
 }
 
@@ -641,9 +638,10 @@ export class StatisticsClient {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    full(id: number, day: Date , cancelToken?: CancelToken | undefined): Promise<ShiftSnapshotDto[]> {
+    full(id: number, day: Date, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<ShiftSnapshotDto[]> {
         let url_ = this.baseUrl + "/sold_statistics_full/{id}/{day}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -657,8 +655,8 @@ export class StatisticsClient {
             method: "GET",
             url: url_,
             headers: {
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -725,9 +723,10 @@ export class CloseClient {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    other(targetUserId: number, cash: number , cancelToken?: CancelToken | undefined): Promise<void> {
+    other(targetUserId: number, cash: number, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/close_other/{targetUserId}/{cash}";
         if (targetUserId === undefined || targetUserId === null)
             throw new Error("The parameter 'targetUserId' must be defined.");
@@ -741,7 +740,7 @@ export class CloseClient {
             method: "GET",
             url: url_,
             headers: {
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
             cancelToken
         };
@@ -801,9 +800,10 @@ export class InitClient {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    shift(id: number, token?:string | undefined, cancelToken?: CancelToken | undefined): Promise<void> {
+    shift(id: number, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/init_shift/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -814,8 +814,7 @@ export class InitClient {
             method: "POST",
             url: url_,
             headers: {
-                Authorization: `Bearer ${token}`,
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
             cancelToken
         };
@@ -875,10 +874,11 @@ export class SoldClient {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @param body (optional) 
      * @return Success
      */
-    goods(body: SoldGoodsDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+    goods(authorization?: any | undefined, body?: SoldGoodsDto | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/sold_goods";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -889,8 +889,8 @@ export class SoldClient {
             method: "POST",
             url: url_,
             headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
-                "Access-Control-Allow-Origin": "*"
             },
             cancelToken
         };
@@ -939,9 +939,10 @@ export class SoldClient {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    statistics(id: number, day: Date , cancelToken?: CancelToken | undefined): Promise<ReducedSnapshotDto[]> {
+    statistics(id: number, day: Date, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<ReducedSnapshotDto[]> {
         let url_ = this.baseUrl + "/sold_statistics/{id}/{day}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -955,8 +956,8 @@ export class SoldClient {
             method: "GET",
             url: url_,
             headers: {
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -1023,9 +1024,10 @@ export class UpdateClient {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    token( token?:string | undefined, cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
+    token(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<UserInfoDto> {
         let url_ = this.baseUrl + "/update_token";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1033,9 +1035,8 @@ export class UpdateClient {
             method: "POST",
             url: url_,
             headers: {
-                "Accept": "text/plain",
-                Authorization: `Bearer ${token}`,
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -1051,7 +1052,7 @@ export class UpdateClient {
         });
     }
 
-    protected processToken(response: AxiosResponse): Promise<{ [key: string]: string; }> {
+    protected processToken(response: AxiosResponse): Promise<UserInfoDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1065,13 +1066,7 @@ export class UpdateClient {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            if (resultData200) {
-                result200 = {} as any;
-                for (let key in resultData200) {
-                    if (resultData200.hasOwnProperty(key))
-                        result200![key] = resultData200[key];
-                }
-            }
+            result200 = UserInfoDto.fromJS(resultData200);
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
@@ -1101,7 +1096,7 @@ export class UpdateClient {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<{ [key: string]: string; }>(<any>null);
+        return Promise.resolve<UserInfoDto>(<any>null);
     }
 }
 
@@ -1116,10 +1111,11 @@ export class AddClient {
     }
 
     /**
+     * @param authorization (optional) Header with JWT
      * @param body (optional) 
      * @return Success
      */
-    user(body: AddUserDto | undefined , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
+    user(authorization?: any | undefined, body?: AddUserDto | undefined , cancelToken?: CancelToken | undefined): Promise<NewUserDto> {
         let url_ = this.baseUrl + "/add_user";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1130,9 +1126,9 @@ export class AddClient {
             method: "POST",
             url: url_,
             headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -1148,7 +1144,7 @@ export class AddClient {
         });
     }
 
-    protected processUser(response: AxiosResponse): Promise<{ [key: string]: string; }> {
+    protected processUser(response: AxiosResponse): Promise<NewUserDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1162,13 +1158,7 @@ export class AddClient {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            if (resultData200) {
-                result200 = {} as any;
-                for (let key in resultData200) {
-                    if (resultData200.hasOwnProperty(key))
-                        result200![key] = resultData200[key];
-                }
-            }
+            result200 = NewUserDto.fromJS(resultData200);
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
@@ -1198,7 +1188,7 @@ export class AddClient {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<{ [key: string]: string; }>(<any>null);
+        return Promise.resolve<NewUserDto>(<any>null);
     }
 }
 
@@ -1213,23 +1203,21 @@ export class RemoveClient {
     }
 
     /**
-     * @param id (optional) 
+     * @param authorization (optional) Header with JWT
      * @return Success
      */
-    user(id: number | undefined , cancelToken?: CancelToken | undefined): Promise<{ [key: string]: string; }> {
-        let url_ = this.baseUrl + "/remove_user?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
+    user(id: number, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/remove_user/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ = <AxiosRequestConfig>{
-            method: "POST",
+            method: "DELETE",
             url: url_,
             headers: {
-                "Accept": "text/plain",
-                "Access-Control-Allow-Origin": "*"
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
             cancelToken
         };
@@ -1245,7 +1233,7 @@ export class RemoveClient {
         });
     }
 
-    protected processUser(response: AxiosResponse): Promise<{ [key: string]: string; }> {
+    protected processUser(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1257,16 +1245,7 @@ export class RemoveClient {
         }
         if (status === 200) {
             const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (resultData200) {
-                result200 = {} as any;
-                for (let key in resultData200) {
-                    if (resultData200.hasOwnProperty(key))
-                        result200![key] = resultData200[key];
-                }
-            }
-            return result200;
+            return Promise.resolve<void>(<any>null);
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
@@ -1283,7 +1262,7 @@ export class RemoveClient {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<{ [key: string]: string; }>(<any>null);
+        return Promise.resolve<void>(<any>null);
     }
 }
 
@@ -1603,6 +1582,53 @@ export class GoodsSuppliesDto implements IGoodsSuppliesDto {
 export interface IGoodsSuppliesDto {
     id: number;
     items: GoodsItemSupplyDto[];
+}
+
+export class NewUserDto implements INewUserDto {
+    login!: string;
+    password!: string;
+    token!: TokenDto;
+
+    constructor(data?: INewUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.token = new TokenDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.login = _data["login"];
+            this.password = _data["password"];
+            this.token = _data["token"] ? TokenDto.fromJS(_data["token"]) : new TokenDto();
+        }
+    }
+
+    static fromJS(data: any): NewUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NewUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["login"] = this.login;
+        data["password"] = this.password;
+        data["token"] = this.token ? this.token.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface INewUserDto {
+    login: string;
+    password: string;
+    token: TokenDto;
 }
 
 export class ReducedItemInfoDto implements IReducedItemInfoDto {
@@ -2002,14 +2028,11 @@ export interface IStorageItemInfoDto {
     wor_los: number;
 }
 
-export class UserInfoDto implements IUserInfoDto {
-    id!: number;
-    is_admin!: boolean;
-    shift_opened!: boolean;
-    name!: string;
+export class TokenDto implements ITokenDto {
     token!: string;
+    expired!: Date;
 
-    constructor(data?: IUserInfoDto) {
+    constructor(data?: ITokenDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2020,11 +2043,57 @@ export class UserInfoDto implements IUserInfoDto {
 
     init(_data?: any) {
         if (_data) {
+            this.token = _data["token"];
+            this.expired = _data["expired"] ? new Date(_data["expired"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): TokenDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TokenDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token;
+        data["expired"] = this.expired ? this.expired.toISOString() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface ITokenDto {
+    token: string;
+    expired: Date;
+}
+
+export class UserInfoDto implements IUserInfoDto {
+    id!: number;
+    is_admin!: boolean;
+    shift_opened!: boolean;
+    name!: string;
+    token!: TokenDto;
+
+    constructor(data?: IUserInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.token = new TokenDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
             this.id = _data["id"];
             this.is_admin = _data["is_admin"];
             this.shift_opened = _data["shift_opened"];
             this.name = _data["name"];
-            this.token = _data["token"];
+            this.token = _data["token"] ? TokenDto.fromJS(_data["token"]) : new TokenDto();
         }
     }
 
@@ -2041,7 +2110,7 @@ export class UserInfoDto implements IUserInfoDto {
         data["is_admin"] = this.is_admin;
         data["shift_opened"] = this.shift_opened;
         data["name"] = this.name;
-        data["token"] = this.token;
+        data["token"] = this.token ? this.token.toJSON() : <any>undefined;
         return data; 
     }
 }
@@ -2051,7 +2120,7 @@ export interface IUserInfoDto {
     is_admin: boolean;
     shift_opened: boolean;
     name: string;
-    token: string;
+    token: TokenDto;
 }
 
 export class ApiException extends Error {
