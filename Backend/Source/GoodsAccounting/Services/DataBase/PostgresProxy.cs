@@ -232,11 +232,11 @@ public class PostgresProxy : DbContext, IEfContext
     /// <inheritdoc />
     public async Task<bool> GetWorkingShiftStateAsync(int userId)
     {
-        if (await Users.AnyAsync(user => user.Id == userId).ConfigureAwait(false))
+        if (!await Users.AnyAsync(user => user.Id == userId).ConfigureAwait(false))
             return false;
 
-        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.UserId == userId).ConfigureAwait(false);
-        return shift != null && shift.IsOpened;
+        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.UserId == userId && shift.IsOpened).ConfigureAwait(false);
+        return shift != null;
     }
 
     /// <inheritdoc />
