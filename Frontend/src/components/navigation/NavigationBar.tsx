@@ -10,11 +10,12 @@ import Col from 'react-bootstrap/Col';
 
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { selectTitle } from '../../common/redux/TitleSlice';
-import { selectUserLogon, selectUserError, signInAsync, selectUserToken } from '../../common/redux/UserSlice';
-import { SignInDto } from '../../common/utilites/SwaggerClient';
-import { TokenUpdater } from '../../common/utilites/UpdateTokenService';
+import { selectUserLogon, selectUserError, signInAsync, selectUserToken, selectUserExpired } from '../../common/redux/UserSlice';
+import { SignIn } from '../../common/redux/UserSlice';
+import TokenUpdater from '../../common/utilites/TokenService';
+import { INDEX, SELLS, INV } from '../../common/utilites/Paths';
 
-import Modal from '../base/Modal';
+import Modal from '../base/modal/Modal';
 import Schema from './validation';
 
 const NavigationPanel: FC = () => {
@@ -24,9 +25,9 @@ const NavigationPanel: FC = () => {
             <Navbar>
                 <Navbar.Collapse>
                     <Nav>
-                        <Nav.Link className='nav-link' href={"/"}>{title}</Nav.Link>
-                        <Nav.Link className='nav-link' href={"/sells"}>Продажи</Nav.Link>
-                        <Nav.Link className='nav-link' href={"/inventarisation"}>Инвентаризация</Nav.Link>
+                        <Nav.Link className='nav-link' href={INDEX}>{title}</Nav.Link>
+                        <Nav.Link className='nav-link' href={SELLS}>Продажи</Nav.Link>
+                        <Nav.Link className='nav-link' href={INV}>Инвентаризация</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>         
@@ -45,6 +46,7 @@ const NavigationBar: FC = () => {
     const title = useAppSelector(selectTitle);
     const logon = useAppSelector(selectUserLogon);
     const token = useAppSelector(selectUserToken);
+    const expired = useAppSelector(selectUserExpired);
     const error = useAppSelector(selectUserError);
     const dispatch = useAppDispatch();
     const updater = new TokenUpdater(useAppDispatch());
@@ -55,16 +57,16 @@ const NavigationBar: FC = () => {
     }, [error]);
     React.useEffect(() =>{
         if (logon){
-            updater.prepare(token);
-            updater.startTokenUpdater(); 
+            updater.set(token, expired);
+            updater.update();
         }
         else{
             updater.reset();
         }
-    }, [logon]);
+    }, [token]);
     const HandleSubmitMain = async (values: ILoginForm, actions: FormikHelpers<ILoginForm> ) => { 
         try{
-            let dto = new SignInDto()
+            let dto = new SignIn()
             dto.login = values.login;
             dto.password = values.password;
             dispatch(signInAsync(dto));
@@ -97,7 +99,7 @@ const NavigationBar: FC = () => {
                             value={values.login}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={errors.login && touched.login ? "input-error" : "form-control"}
+                            className={errors.login && touched.login ? "input-error" : "form-control-pass"}
                             placeholder="Логин..." />
                         <Form.Text>{errors.login}</Form.Text>
                     </Form.Group>
@@ -107,17 +109,17 @@ const NavigationBar: FC = () => {
                             value={values.password}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={errors.password && touched.password ? "input-error" : "form-control"}
+                            className={errors.password && touched.password ? "input-error" : "form-control-pass"}
                             placeholder="Пароль..." />
                         <Form.Text>{errors.password}</Form.Text>
                     </Form.Group>
-                    <Col align="center"><Button variant="success" type="submit" disabled={isSubmitting}>Авторизация</Button></Col>
+                    <Col align="center"><Button className='navigation-btn' variant="success" type="submit" disabled={isSubmitting}>Авторизация</Button></Col>
                 </Container>
             </Form>
         </Modal>
             {
                 entered
-                ? logon ? <div><NavigationPanel /></div> : <Button onClick={() => setActive(true)}>Авторизация</Button>
+                ? logon ? <div><NavigationPanel /></div> : <Button className='navigation-btn' onClick={() => setActive(true)}>Авторизация</Button>
                 : <div>{title}</div>
             }
         </div>

@@ -140,7 +140,8 @@ public class StorageController : ControllerBase
             Log.Error($"Can't find user with identifier {id}!");
             return BadRequest(_bodyBuilder.EntityNotFoundBuild());
         }
-        catch {
+        catch (Exception exception){
+            Log.Error(exception);
             return BadRequest(_bodyBuilder.UnknownBuild());
         }
     }

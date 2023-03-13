@@ -1,0 +1,18 @@
+[
+    {
+        "login": "user",
+        "password": "Az!2.sssA"
+    },
+    {
+        "login": "Petrov",
+        "password": "Az!2.s1sA"
+    },
+    {
+        "id": 1,
+        "token": "string",
+        "name": "Сергей",
+        "surname": "Сидоров",
+        "date": "1985-10-19"
+      }
+]
+

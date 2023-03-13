@@ -1,0 +1,114 @@
+.sell-container{
+    display: grid;
+}
+
+.sell-page-root{
+    width: 100%;
+    height: 100%;
+}
+
+.internal-sell-page-root{
+    width: 100%;
+    height: 95%;
+}
+
+.sell-page-list-block{
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sell-page-list-block::-webkit-scrollbar {
+    width: 0px;
+}
+
+.sell-button-group-accept{
+    display: grid;
+    grid-template-columns: 1fr 250px;
+}
+
+.sell-button-accept{
+    width: 150px;
+    height: 30px;
+    background-color: beige;
+    justify-self: right;
+    margin-right: 55px;
+    align-self: center;
+    border-radius: 5px;
+    color: black;
+    font-size: large;
+}
+
+.sell-button-accept:hover{
+    background-color: azure;
+}
+
+.cash-form-control{
+    width: 150px;
+    border-radius: 5px;
+    font-size: large;
+    justify-self: right;
+    text-align: right;
+}
+
+.cash-form-control::-webkit-outer-spin-button,
+.cash-form-control::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sell-page-row-block{
+    display: grid;
+}
+
+.sell-page-category{
+    font-size: larger;
+    font-weight: bold;
+    padding-left: 25px;
+    border-bottom: solid 2px black;
+}
+
+.sell-page-item{
+    font-size: large;
+    font-weight: bold;
+    grid-template-columns: 1fr 250px;
+    display: grid;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    display: grid;
+    border-bottom: solid 2px black;
+}
+
+.sell-page-item-name{
+    padding-left: 35px;
+}
+
+.sell-page-item-sold{
+    padding-right: 25px;
+    display: grid;
+}
+
+.sell-page-tabs{
+    background-color:#1a82a5b0;
+    width: 100%;
+    height: 35px;
+    display: grid;
+    grid-template-columns: 100px 100px 1fr;
+}
+
+.sell-page-tab{
+    width: 100%;
+    background-color: #1a82a5b0;
+    border: none;
+    font-weight: bold;
+    font-size: large;
+    color: yellow;
+}
+
+.sell-page-tab:hover{
+    background-color: #1ea2ceb0;
+}
+
+.sell-page-tab.active{
+    background-color: #1ea2ceb0;
+}

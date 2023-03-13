@@ -4,7 +4,7 @@ import userReduser from './UserSlice';
 
 function saveToLocalStorage(state:RootState){
   try{
-      window.localStorage.setItem('state', JSON.stringify(state));
+    window.localStorage.setItem('state', JSON.stringify(state));
   } catch (error) {
       console.error(error);
   }

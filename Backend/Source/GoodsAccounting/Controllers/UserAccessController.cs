@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services;
 using GoodsAccounting.Services.TextConverter;
+using JetBrains.Annotations;
 
 namespace GoodsAccounting.Controllers
 {
@@ -89,7 +90,7 @@ namespace GoodsAccounting.Controllers
         /// <param name="bodyBuilder">Instance of <see cref="IResponseBodyBuilder"/>.</param>
         /// <param name="keyExtractor">Instance of <see cref="ISecurityKeyExtractor"/>.</param>
         /// <param name="textConverter">Instance of <see cref="ITextConverter"/>.</param>
-        /// <param name="jwtOption">Option for <see cref="JwtSection"/>.</param>
+        /// <param name="jwtOption">Option for <see cref="BearerSection"/>.</param>
         public UserAccessController(
             IUsersContext db,
             IPassword passwordService,
@@ -97,7 +98,7 @@ namespace GoodsAccounting.Controllers
             IResponseBodyBuilder bodyBuilder,
             ISecurityKeyExtractor keyExtractor,
             ITextConverter textConverter,
-            IOptions<JwtSection> jwtOption)
+            IOptions<BearerSection> jwtOption)
         {
             _db = db;
             _passwordService = passwordService;
@@ -118,7 +119,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize]
         [HttpPost("~/update_token")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> UpdateTokenAsync()
@@ -140,8 +141,16 @@ namespace GoodsAccounting.Controllers
                 if (user == null)
                     return Unauthorized();
 
-                var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
-                return Ok(_bodyBuilder.TokenBuild(jwtToken));
+                var tokenDto = ProcessToken(user, ExpiredTokenTimeSpan);
+                var responseData = new UserInfoDto
+                {
+                    UserId = user.Id,
+                    IsAdmin = user.Role == UserRole.Administrator,
+                    ShiftIsOpened = await _db.GetWorkingShiftStateAsync(user.Id).ConfigureAwait(false),
+                    UserDisplayedName = $"{user.Name} {user.Surname}",
+                    TokenDto = tokenDto
+                };
+                return Ok(responseData);
             }
             catch {
                 return BadRequest(_bodyBuilder.UnknownBuild());
@@ -158,7 +167,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
         [HttpPost("~/add_user")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NewUserDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> AddUserAsync([FromBody] AddUserDto dto)
@@ -190,8 +199,14 @@ namespace GoodsAccounting.Controllers
                 };
 
                 await _db.AddUserAsync(newUser).ConfigureAwait(false);
-                var jwtToken = ProcessToken(newUser, ExpiredTokenTimeSpan);
-                return Ok(_bodyBuilder.TokenNewUserBuild(login, password, jwtToken));
+                var newUserDto = new NewUserDto
+                {
+                    Login = login,
+                    Password = password,
+                    Token = ProcessToken(newUser, ExpiredTokenTimeSpan)
+                };
+
+                return Ok(newUserDto);
             }
             catch (BadPasswordException) {
                 return Unauthorized();
@@ -214,8 +229,8 @@ namespace GoodsAccounting.Controllers
         /// <response code="200">Returns value is indicated that removing is success.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
-        [HttpPost("~/remove_user")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [HttpDelete("~/remove_user/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> RemoveUserAsync(int id)
         {
@@ -243,7 +258,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize]
         [HttpPost("~/change/{oldPassword}/{password}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> ChangePasswordAsync(string oldPassword, string password)
@@ -268,8 +283,8 @@ namespace GoodsAccounting.Controllers
                 var (salt, hash) = _passwordService.Hash(password);
                 await _db.ChangePasswordAsync(castId, salt, hash).ConfigureAwait(false);
 
-                var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
-                return Ok(_bodyBuilder.TokenBuild(jwtToken));
+                var tokenDto = ProcessToken(user, ExpiredTokenTimeSpan);
+                return Ok(tokenDto);
             }
             catch (BadPasswordException) {
                 return Unauthorized();
@@ -319,14 +334,14 @@ namespace GoodsAccounting.Controllers
                 }
                 
                 if (!_passwordService.VerifyPassword(user.Hash, dto.Password, user.Salt)) return Unauthorized();
-                var jwtToken = ProcessToken(user, ExpiredTokenTimeSpan);
+                var tokenDto = ProcessToken(user, ExpiredTokenTimeSpan);
                 var responseData = new UserInfoDto
                     {
                         UserId = user.Id,
                         IsAdmin = user.Role == UserRole.Administrator,
                         ShiftIsOpened = await _db.GetWorkingShiftStateAsync(user.Id).ConfigureAwait(false),
                         UserDisplayedName = $"{user.Name} {user.Surname}",
-                        Token = jwtToken
+                        TokenDto = tokenDto
                     };
 
                 return Ok(responseData);
@@ -349,7 +364,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize]
         [HttpPost("~/signout/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> SignOutUserAsync(int id)
@@ -369,8 +384,8 @@ namespace GoodsAccounting.Controllers
                 if (user == null)
                     return Unauthorized();
 
-                var jwtToken = ProcessToken(user, 0);
-                return Ok(_bodyBuilder.TokenBuild(jwtToken));
+                var tokenDto = ProcessToken(user, 0);
+                return Ok(tokenDto);
             }
             catch {
                 return BadRequest(_bodyBuilder.UnknownBuild());
@@ -382,22 +397,28 @@ namespace GoodsAccounting.Controllers
         /// </summary>
         /// <param name="user"><see cref="User"/>.</param>
         /// <param name="minutes">Expired time.</param>
-        /// <returns>Token.</returns>
-        private string ProcessToken(User user, int minutes)
+        /// <returns><see cref="TokenDto"/>.</returns>
+        [NotNull]
+        private TokenDto ProcessToken(User user, int minutes)
         {
             var credentials = new SigningCredentials(_keyExtractor.Extract(), SecurityAlgorithms.HmacSha256);
             var tokenHandler = new JwtSecurityTokenHandler();
+            var expiredTime = DateTime.Now.AddMinutes(minutes);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = CreateClaimsIdentity(user),
-                Expires = DateTime.Now.AddMinutes(minutes),
+                Expires = expiredTime,
                 Audience = _validAudience,
                 Issuer = _validIssuer,
                 SigningCredentials = credentials
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return new TokenDto
+            {
+                Token = tokenHandler.WriteToken(token),
+                ExpiredTime = expiredTime.ToUniversalTime()
+            };
         }
 
         /// <summary>

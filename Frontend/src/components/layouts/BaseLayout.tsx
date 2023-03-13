@@ -1,5 +1,5 @@
 import './BaseLayout.css'
-import React, { FC, ReactElement, PropsWithChildren } from 'react'
+import { FC, ReactElement, PropsWithChildren } from 'react'
 
 interface Children { }
 const LayoutBase: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<Children>): ReactElement => {
