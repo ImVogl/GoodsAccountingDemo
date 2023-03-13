@@ -38,15 +38,20 @@ public class PostgresProxy : DbContext, IEfContext
     /// <inheritdoc />
     public async Task UpdateSoldGoodsAsync(int userId, Dictionary<Guid, int> soldGoods)
     {
-        var currentShift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        var currentShift = await WorkShifts
+            .Include(shift => shift.GoodItemStates)
+            .SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId)
+            .ConfigureAwait(false);
+
         if (currentShift == null)
             throw new EntityNotFoundException();
 
         foreach (var state in currentShift.GoodItemStates.Where(state => soldGoods.ContainsKey(state.Id)))
             state.Sold += soldGoods[state.Id];
         
-        foreach(var item in Goods.Where(i => i.Actives && soldGoods.ContainsKey(i.Id)))
-            item.Storage -= soldGoods[item.Id];
+        foreach(var item in Goods.Where(i => i.Actives))
+            if (soldGoods.ContainsKey(item.Id))
+                item.Storage -= soldGoods[item.Id];
 
         await SaveChangesAsync().ConfigureAwait(false);
     }
