@@ -99,7 +99,7 @@ const NavigationBar: FC = () => {
                             value={values.login}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={errors.login && touched.login ? "input-error" : "form-control"}
+                            className={errors.login && touched.login ? "input-error" : "form-control-pass"}
                             placeholder="Логин..." />
                         <Form.Text>{errors.login}</Form.Text>
                     </Form.Group>
@@ -109,17 +109,17 @@ const NavigationBar: FC = () => {
                             value={values.password}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={errors.password && touched.password ? "input-error" : "form-control"}
+                            className={errors.password && touched.password ? "input-error" : "form-control-pass"}
                             placeholder="Пароль..." />
                         <Form.Text>{errors.password}</Form.Text>
                     </Form.Group>
-                    <Col align="center"><Button variant="success" type="submit" disabled={isSubmitting}>Авторизация</Button></Col>
+                    <Col align="center"><Button className='navigation-btn' variant="success" type="submit" disabled={isSubmitting}>Авторизация</Button></Col>
                 </Container>
             </Form>
         </Modal>
             {
                 entered
-                ? logon ? <div><NavigationPanel /></div> : <Button onClick={() => setActive(true)}>Авторизация</Button>
+                ? logon ? <div><NavigationPanel /></div> : <Button className='navigation-btn' onClick={() => setActive(true)}>Авторизация</Button>
                 : <div>{title}</div>
             }
         </div>

@@ -1,4 +1,3 @@
-import { jsonProperty, Serializable } from "ts-serializable";
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import ApiClientWrapper, { UserInfo } from '../utilites/ApiClientWrapper';

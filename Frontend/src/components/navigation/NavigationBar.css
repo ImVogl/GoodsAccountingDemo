@@ -27,7 +27,7 @@
     text-decoration:underline;
 }
 
-.btn{
+.navigation-btn{
     font-weight: bold;
     background-color:royalblue;
     color: yellow;
@@ -36,7 +36,7 @@
     font-size: large;
 }
 
-.btn:hover{
+.navigation-btn:hover{
     text-decoration: underline;
 }
 
@@ -48,7 +48,7 @@
     margin: 5px;
 }
 
-.form-control{
+.form-control-pass{
     margin: auto;
     width:100%;
     height: fit-content;

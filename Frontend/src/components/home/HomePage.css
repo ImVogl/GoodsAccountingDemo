@@ -8,6 +8,7 @@
 }
 
 .search-panel.control{
+    width: 95%;
     border-radius: 5px;
     font-size: larger;
 }

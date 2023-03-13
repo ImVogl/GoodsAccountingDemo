@@ -1,5 +1,5 @@
-import { GetCategories } from './HomePage';
-import { IGoodsItemDto } from '../../common/utilites/SwaggerClient';
+import { GetCategories } from './Common';
+import { IGoodsItemDto } from './SwaggerClient';
 import { expect, test } from '@jest/globals'
 
 describe('Get categories tests.', () => {

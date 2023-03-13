@@ -19,7 +19,7 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
     const dispatcher = useAppDispatch();
     const opened = useAppSelector(selectShiftUser);
     const displayedName = useAppSelector(selectUserName);
-    const dentifier = useAppSelector(selectUserIdentifier);
+    const identifier = useAppSelector(selectUserIdentifier);
     const [cash, setCash] = useState(0);
     const [active, setActive] = useState(false);
     let client = new ApiClientWrapper();
@@ -34,7 +34,7 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
             }
 
             try{
-                await client.closeWorkingShift(dentifier, cash);
+                await client.closeWorkingShift(identifier, cash);
                 tokenService.reset();
                 navigate(INDEX);
             }
@@ -57,7 +57,7 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
 
     useEffect(() => {
         const fetchData = async () =>{
-            await client.initWorkingShift(dentifier);
+            await client.initWorkingShift(identifier);
             dispatcher(updateShiftState(true));
             setLoading(false);
         };
