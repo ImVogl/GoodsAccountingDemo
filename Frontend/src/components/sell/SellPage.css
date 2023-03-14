@@ -112,3 +112,65 @@
 .sell-page-tab.active{
     background-color: #1ea2ceb0;
 }
+
+.left-change-date-button{
+    background-image: url("../../../public/images/triangle_left_16.png");
+    background-color: transparent;
+    height: 18px;
+    width: 16px;
+    border-width: 0px;
+    background-position: center;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    margin-top: 2px;
+}
+
+.right-change-date-button{
+    background-image: url("../../../public/images/triangle_right_16.png");
+    background-color: transparent;
+    height: 18px;
+    width: 16px;
+    border-width: 0px;
+    background-position: center;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    margin-top: 2px;
+}
+
+.history-snapshot-data{
+    height: 18px;
+    margin-top: 0px;
+}
+
+.historysearch-panel-container{
+    grid-template-columns: 1fr 150px;
+    display: grid;
+}
+
+.historysearch-panel-col-right{
+    height: 100%;
+}
+
+.historysearch-panel-col-left{
+    width: 100%;
+}
+
+.historysearch-panel-col-right-form{
+    margin-top: 8px;
+    height: 24px;
+    background-color: transparent;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
+    display: grid;
+    gap: normal;
+    align-items: stretch;
+    justify-items: center;
+    align-content: center;
+    grid-auto-flow: column;
+}

@@ -170,4 +170,5 @@ export const selectUserError = (state: RootState) => state.controler.error;
 export const selectShiftUser = (state: RootState) => state.controler.shift_opened;
 export const selectUserName = (state: RootState) => state.controler.name;
 export const selectUserIdentifier = (state: RootState) => state.controler.id;
+export const selectUserIsAdmin = (state: RootState) => state.controler.is_admin;
 export default userSlice.reducer;
