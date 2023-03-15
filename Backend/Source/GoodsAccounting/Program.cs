@@ -17,6 +17,8 @@ using GoodsAccounting.MapperProfiles;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using GoodsAccounting.Services.SnapshotConverter;
 using GoodsAccounting.HeaderFilters;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.CookiePolicy;
 
 namespace GoodsAccounting
 {
@@ -59,6 +61,8 @@ namespace GoodsAccounting
             app.UseAuthentication();    // Checking who is connected user.
             app.UseAuthorization();     // Checking what permissions has connected user.
             app.MapControllers();
+            var cookiePolicyOptions = new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Strict, HttpOnly = HttpOnlyPolicy.Always };
+            app.UseCookiePolicy(cookiePolicyOptions);
             app.UseCors(CorsName);
             app.Run();
         }
@@ -109,7 +113,7 @@ namespace GoodsAccounting
             serviceCollection.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", apiInfo);
-                option.AddSecurityDefinition("Bearer", GenerateSecurityScheme());
+                option.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, GenerateSecurityScheme());
                 option.AddSecurityRequirement(GenerateSecurityRequirement());
                 option.OperationFilter<HeaderFilter>();
             });
@@ -124,11 +128,20 @@ namespace GoodsAccounting
 
             var keyExtractor = provider.GetRequiredService<ISecurityKeyExtractor>();
             serviceCollection.AddAuthentication(option =>
-            {
-                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options => options.TokenValidationParameters = GenerateValidationParameters(section.ValidIssuer, section.ValidAudience, keyExtractor));
+                {
+                    option.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    option.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options => options.TokenValidationParameters = GenerateValidationParameters(section.ValidIssuer, section.ValidAudience, keyExtractor))
+                .AddCookie(option =>
+                {
+                    option.LoginPath = "/signin";
+                    option.LogoutPath = "/signout";
+                    option.ExpireTimeSpan = TimeSpan.FromDays(15);
+                }); 
 
             serviceCollection.AddAuthentication();
             serviceCollection.AddAuthorization();

@@ -377,6 +377,12 @@ export class Client {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -388,7 +394,7 @@ export class Client {
      * @param authorization (optional) Header with JWT
      * @return Success
      */
-    change(oldPassword: string, password: string, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<TokenDto> {
+    change(oldPassword: string, password: string, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<string> {
         let url_ = this.baseUrl + "/change/{oldPassword}/{password}";
         if (oldPassword === undefined || oldPassword === null)
             throw new Error("The parameter 'oldPassword' must be defined.");
@@ -419,7 +425,7 @@ export class Client {
         });
     }
 
-    protected processChange(response: AxiosResponse): Promise<TokenDto> {
+    protected processChange(response: AxiosResponse): Promise<string> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -433,7 +439,7 @@ export class Client {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            result200 = TokenDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
@@ -463,7 +469,7 @@ export class Client {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<TokenDto>(<any>null);
+        return Promise.resolve<string>(<any>null);
     }
 
     /**
@@ -551,7 +557,7 @@ export class Client {
      * @param authorization (optional) Header with JWT
      * @return Success
      */
-    signout(id: number, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<TokenDto> {
+    signout(id: number, authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
         let url_ = this.baseUrl + "/signout/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -561,9 +567,9 @@ export class Client {
         let options_ = <AxiosRequestConfig>{
             method: "POST",
             url: url_,
+            withCredentials: true,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
-                "Accept": "text/plain"
             },
             cancelToken
         };
@@ -579,7 +585,7 @@ export class Client {
         });
     }
 
-    protected processSignout(response: AxiosResponse): Promise<TokenDto> {
+    protected processSignout(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -591,10 +597,7 @@ export class Client {
         }
         if (status === 200) {
             const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = TokenDto.fromJS(resultData200);
-            return result200;
+            return Promise.resolve<void>(<any>null);
         } else if (status === 400) {
             const _responseText = response.data;
             let result400: any = null;
@@ -623,7 +626,7 @@ export class Client {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<TokenDto>(<any>null);
+        return Promise.resolve<void>(<any>null);
     }
 }
 
@@ -704,6 +707,12 @@ export class StatisticsClient {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -781,6 +790,12 @@ export class CloseClient {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -855,6 +870,12 @@ export class InitClient {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -931,6 +952,12 @@ export class SoldClient {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1005,6 +1032,12 @@ export class SoldClient {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1087,6 +1120,12 @@ export class ShiftClient {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1116,6 +1155,7 @@ export class UpdateClient {
         let options_ = <AxiosRequestConfig>{
             method: "POST",
             url: url_,
+            withCredentials: true,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Accept": "text/plain"
@@ -1340,6 +1380,12 @@ export class RemoveClient {
                 }
             }
             return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1669,7 +1715,6 @@ export interface IGoodsSuppliesDto {
 export class NewUserDto implements INewUserDto {
     login!: string;
     password!: string;
-    token!: TokenDto;
 
     constructor(data?: INewUserDto) {
         if (data) {
@@ -1678,16 +1723,12 @@ export class NewUserDto implements INewUserDto {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
-        if (!data) {
-            this.token = new TokenDto();
-        }
     }
 
     init(_data?: any) {
         if (_data) {
             this.login = _data["login"];
             this.password = _data["password"];
-            this.token = _data["token"] ? TokenDto.fromJS(_data["token"]) : new TokenDto();
         }
     }
 
@@ -1702,7 +1743,6 @@ export class NewUserDto implements INewUserDto {
         data = typeof data === 'object' ? data : {};
         data["login"] = this.login;
         data["password"] = this.password;
-        data["token"] = this.token ? this.token.toJSON() : <any>undefined;
         return data; 
     }
 }
@@ -1710,7 +1750,58 @@ export class NewUserDto implements INewUserDto {
 export interface INewUserDto {
     login: string;
     password: string;
-    token: TokenDto;
+}
+
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
+    }
+
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data; 
+    }
+}
+
+export interface IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
 }
 
 export class ReducedItemInfoDto implements IReducedItemInfoDto {
@@ -2110,52 +2201,12 @@ export interface IStorageItemInfoDto {
     wor_los: number;
 }
 
-export class TokenDto implements ITokenDto {
-    token!: string;
-    expired!: Date;
-
-    constructor(data?: ITokenDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.token = _data["token"];
-            this.expired = _data["expired"] ? new Date(_data["expired"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): TokenDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TokenDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["token"] = this.token;
-        data["expired"] = this.expired ? this.expired.toISOString() : <any>undefined;
-        return data; 
-    }
-}
-
-export interface ITokenDto {
-    token: string;
-    expired: Date;
-}
-
 export class UserInfoDto implements IUserInfoDto {
     id!: number;
     is_admin!: boolean;
     shift_opened!: boolean;
     name!: string;
-    token!: TokenDto;
+    token!: string;
 
     constructor(data?: IUserInfoDto) {
         if (data) {
@@ -2163,9 +2214,6 @@ export class UserInfoDto implements IUserInfoDto {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
-        }
-        if (!data) {
-            this.token = new TokenDto();
         }
     }
 
@@ -2175,7 +2223,7 @@ export class UserInfoDto implements IUserInfoDto {
             this.is_admin = _data["is_admin"];
             this.shift_opened = _data["shift_opened"];
             this.name = _data["name"];
-            this.token = _data["token"] ? TokenDto.fromJS(_data["token"]) : new TokenDto();
+            this.token = _data["token"];
         }
     }
 
@@ -2192,7 +2240,7 @@ export class UserInfoDto implements IUserInfoDto {
         data["is_admin"] = this.is_admin;
         data["shift_opened"] = this.shift_opened;
         data["name"] = this.name;
-        data["token"] = this.token ? this.token.toJSON() : <any>undefined;
+        data["token"] = this.token;
         return data; 
     }
 }
@@ -2202,7 +2250,7 @@ export interface IUserInfoDto {
     is_admin: boolean;
     shift_opened: boolean;
     name: string;
-    token: TokenDto;
+    token: string;
 }
 
 export class ApiException extends Error {

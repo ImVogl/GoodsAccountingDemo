@@ -20,11 +20,4 @@ public class NewUserDto
     [JsonRequired]
     [JsonProperty("password")]
     public string Password { get; set; } = null!;
-
-    /// <summary>
-    /// Get or set <see cref="TokenDto"/>.
-    /// </summary>
-    [JsonRequired]
-    [JsonProperty("token")]
-    public TokenDto Token { get; set; } = null!;
 }

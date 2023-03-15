@@ -91,9 +91,11 @@ public class StorageController : ControllerBase
     /// <returns><see cref="Task"/>.</returns>
     /// <response code="200">Working shift was closed.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if token expired.</response>
     [HttpPost("~/close/{id}/{cash}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CloseWorkingShift(int id, int cash)
     {
         try {
@@ -123,9 +125,11 @@ public class StorageController : ControllerBase
     /// <returns><see cref="Task"/>.</returns>
     /// <response code="200">Working shift was initialized.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if token expired.</response>
     [HttpPost("~/init_shift/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> InitWorkingShiftAsync(int id)
     {
         try {
@@ -153,9 +157,11 @@ public class StorageController : ControllerBase
     /// <returns><see cref="Task"/></returns>
     /// <response code="200">Data was saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if token expired.</response>
     [HttpPost("~/sold_goods")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> PostSoldGoodsAsync([FromBody] SoldGoodsDto dto)
     {
         if (dto?.Sold == null) {
@@ -183,9 +189,11 @@ public class StorageController : ControllerBase
     /// <returns><see cref="Task"/>.</returns>
     /// <response code="200">Response data saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if token expired.</response>
     [HttpGet("~/shift_days/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<DateTime>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetWorkShiftDays(int id)
     {
         try
@@ -208,9 +216,11 @@ public class StorageController : ControllerBase
     /// <returns><see cref="Task"/>.</returns>
     /// <response code="200">Response data saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if token expired.</response>
     [HttpGet("~/sold_statistics/{id}/{day}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<ReducedSnapshotDto>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
         try {
