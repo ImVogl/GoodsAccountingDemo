@@ -213,7 +213,7 @@ public class AdminStorageController : ControllerBase
     {
         try
         {
-            var goods = await _db.Goods.Where(item => item.Actives).ToListAsync().ConfigureAwait(false);
+            var goods = await _db.Goods.ToListAsync().ConfigureAwait(false);
             return Ok(_converter.Convert(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false), goods));
         }
         catch

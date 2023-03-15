@@ -12,6 +12,7 @@ import
     UpdateClient,
     AddClient,
     RemoveClient,
+    ShiftClient,
     GoodsRevisionDto,
     TokenDto,
     EditGoodsListDto,
@@ -60,8 +61,9 @@ class ApiClientWrapper{
     private readonly _close: CloseClient;
     private readonly _init: InitClient;
     private readonly _remove: RemoveClient;
-    private readonly _statistics: StatisticsClient;
+    private readonly _shift: ShiftClient;
     private readonly _sold: SoldClient;
+    private readonly _statistics: StatisticsClient;
     private readonly _update: UpdateClient;
 
     constructor(){
@@ -70,6 +72,7 @@ class ApiClientWrapper{
         this._close = new CloseClient(getBaseUrl());
         this._init = new InitClient(getBaseUrl());
         this._remove = new RemoveClient(getBaseUrl());
+        this._shift = new ShiftClient(getBaseUrl());
         this._sold = new SoldClient(getBaseUrl());
         this._statistics = new StatisticsClient(getBaseUrl());
         this._update = new UpdateClient(getBaseUrl());
@@ -93,6 +96,10 @@ class ApiClientWrapper{
 
     public soldGoods(dto: SoldGoodsDto): Promise<void>{
         return this._sold.goods(this.getToken(), dto);
+    }
+
+    public getShiftDays(id: number): Promise<Date[]>{
+        return this._shift.days(id, this.getToken());
     }
 
     public getStatistics(id: number, day: Date): Promise<ReducedSnapshotDto[]>{

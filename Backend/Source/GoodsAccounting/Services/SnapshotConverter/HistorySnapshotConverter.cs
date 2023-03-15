@@ -27,7 +27,7 @@ public class HistorySnapshotConverter : ISnapshotConverter
     public IList<ShiftSnapshotDto> Convert(IList<WorkShift> shifts, IList<GoodsItem> goods)
     {
         if (shifts.Count == 0)
-            throw new ArgumentOutOfRangeException();
+            return new List<ShiftSnapshotDto>();
 
         var goodsDictionary = goods.ToDictionary(item => item.Id, item => item);
         var mergedDto = new ShiftSnapshotDto { Cash = 0, UserDisplayName = string.Empty, StorageItems = new List<StorageItemInfoDto>() };
@@ -76,7 +76,7 @@ public class HistorySnapshotConverter : ISnapshotConverter
     public IList<ReducedSnapshotDto> ConvertReduced(IList<WorkShift> shifts, IList<GoodsItem> goods)
     {
         if (shifts.Count == 0)
-            throw new ArgumentOutOfRangeException();
+            return new List<ReducedSnapshotDto>();
 
         var goodsDictionary = goods.ToDictionary(item => item.Id, item => item);
         var mergedDto = new ReducedSnapshotDto { Cash = 0, UserDisplayName = string.Empty, StorageItems = new List<ReducedItemInfoDto>() };
@@ -110,7 +110,9 @@ public class HistorySnapshotConverter : ISnapshotConverter
                 ItemName = goodsDictionary.ContainsKey(shift.Key) ? goodsDictionary[shift.Key].Name : string.Empty
             }).ToList();
 
-        dtoList.Add(mergedDto);
+        if (shifts.Count > 1)
+            dtoList.Add(mergedDto);
+        
         return dtoList;
     }
 }

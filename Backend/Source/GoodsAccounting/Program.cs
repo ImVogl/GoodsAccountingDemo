@@ -60,10 +60,6 @@ namespace GoodsAccounting
             app.UseAuthorization();     // Checking what permissions has connected user.
             app.MapControllers();
             app.UseCors(CorsName);
-#if DEBUG
-            ReinitializeDataBase(app.Services);
-#endif
-
             app.Run();
         }
         
@@ -196,18 +192,7 @@ namespace GoodsAccounting
                 Description = "Access token sending format: Bearer [token]"
             };
         }
-
-        /// <summary>
-        /// Recreate database and fill them with test data.
-        /// </summary>
-        /// <param name="provider">Instance of <see cref="IServiceProvider"/>.</param>
-        private static void ReinitializeDataBase(IServiceProvider provider)
-        {
-            using var scope = provider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<IEfContext>();
-            context.RecreateDataBase();
-        }
-
+        
         /// <summary>
         /// Registration types.
         /// </summary>

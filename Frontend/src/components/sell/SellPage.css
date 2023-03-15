@@ -59,6 +59,7 @@
 
 .sell-page-row-block{
     display: grid;
+    grid-auto-flow: row;
 }
 
 .sell-page-category{
@@ -66,9 +67,27 @@
     font-weight: bold;
     padding-left: 25px;
     border-bottom: solid 2px black;
+    display: grid;
+    grid-template-columns: 1fr 250px;
+}
+
+.sell-page-category-sold{
+    justify-self: end;
+    padding-right: 25px;
 }
 
 .sell-page-item{
+    font-size: large;
+    font-weight: bold;
+    grid-template-columns: 1fr 250px 250px;
+    display: grid;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    display: grid;
+    border-bottom: solid 2px black;
+}
+
+.sell-page-item-simple{
     font-size: large;
     font-weight: bold;
     grid-template-columns: 1fr 250px;
@@ -79,13 +98,14 @@
     border-bottom: solid 2px black;
 }
 
+
 .sell-page-item-name{
     padding-left: 35px;
 }
 
 .sell-page-item-sold{
     padding-right: 25px;
-    display: grid;
+    justify-self: end;
 }
 
 .sell-page-tabs{
@@ -128,6 +148,10 @@
     margin-top: 2px;
 }
 
+.left-change-date-button:active{
+    background-image: url("../../../public/images/triangle_left_16_active.png");
+}
+
 .right-change-date-button{
     background-image: url("../../../public/images/triangle_right_16.png");
     background-color: transparent;
@@ -141,6 +165,10 @@
     -o-background-size: cover;
     background-size: cover;
     margin-top: 2px;
+}
+
+.right-change-date-button:active{
+    background-image: url("../../../public/images/triangle_right_16_active.png");
 }
 
 .history-snapshot-data{
@@ -165,7 +193,6 @@
     margin-top: 8px;
     height: 24px;
     background-color: transparent;
-    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.8);
     border-radius: 5px;
     display: grid;
     gap: normal;
@@ -173,4 +200,43 @@
     justify-items: center;
     align-content: center;
     grid-auto-flow: column;
+    padding-left: 5px;
+}
+.snapshots-selector-form{
+    margin-top: 8px;
+    height: 24px;
+    background-color: transparent;
+    border-radius: 5px;
+    display: grid;
+    gap: normal;
+    align-items: stretch;
+    justify-items: center;
+    align-content: center;
+    grid-auto-flow: column;
+    padding-left: 5px;
+    grid-template-columns: 18px 150px 18px 1fr;
+}
+
+.reduced-history-page-list-block{
+    height: 100%;
+    display: grid;
+    grid-template-rows: 50px 1fr 25px;
+}
+
+.sell-page-container{
+    margin-top: 10px;
+    height: 100%;
+}
+
+.cash-in-cashbox{
+    font-size: large;
+    font-weight: bold;
+    justify-self: start;
+    padding-left: 10px;
+}
+
+.snapshot-seller{
+    font-size: large;
+    font-weight: bold;
+    padding-left: 10px;
 }

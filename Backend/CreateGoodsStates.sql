@@ -40,7 +40,7 @@ INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_pr
 	VALUES ('34ebd79c-fc04-437d-b540-a4e1d0c43d67', 0, 0, 10, 0, '105', '85', 1);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
-	VALUES ('2ffd3c04-516e-4550-9b38-ec646a20b656', 0, 0, 10, 0, '105', '85', 1);
+	VALUES ('f0f4776b-916f-463c-b8b4-ff9a3358d4e8', 0, 0, 10, 0, '105', '85', 1);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
 	VALUES ('6411a6fc-5b6a-4b2a-ae53-18fe968a7f02', 0, 0, 10, 0, '100', '80', 1);
@@ -67,7 +67,7 @@ INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_pr
 	VALUES ('34ebd79c-fc04-437d-b540-a4e1d0c43d67', 0, 0, 10, 0, '105', '85', 2);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
-	VALUES ('2ffd3c04-516e-4550-9b38-ec646a20b656', 0, 0, 10, 0, '105', '85', 2);
+	VALUES ('f0f4776b-916f-463c-b8b4-ff9a3358d4e8', 0, 0, 10, 0, '105', '85', 2);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
 	VALUES ('6411a6fc-5b6a-4b2a-ae53-18fe968a7f02', 0, 0, 10, 0, '100', '80', 2);
@@ -94,7 +94,7 @@ INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_pr
 	VALUES ('34ebd79c-fc04-437d-b540-a4e1d0c43d67', 0, 0, 10, 0, '105', '85', 3);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
-	VALUES ('2ffd3c04-516e-4550-9b38-ec646a20b656', 0, 0, 10, 0, '105', '85', 3);
+	VALUES ('f0f4776b-916f-463c-b8b4-ff9a3358d4e8', 0, 0, 10, 0, '105', '85', 3);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
 	VALUES ('6411a6fc-5b6a-4b2a-ae53-18fe968a7f02', 0, 0, 10, 0, '100', '80', 3);
@@ -121,7 +121,7 @@ INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_pr
 	VALUES ('34ebd79c-fc04-437d-b540-a4e1d0c43d67', 0, 0, 10, 0, '105', '85', 4);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
-	VALUES ('2ffd3c04-516e-4550-9b38-ec646a20b656', 0, 0, 10, 0, '105', '85', 4);
+	VALUES ('f0f4776b-916f-463c-b8b4-ff9a3358d4e8', 0, 0, 10, 0, '105', '85', 4);
 
 INSERT INTO public.goods_states(id, write_off, receipt, storage, sold, retail_price, whole_scale_price, shift_identifier)
 	VALUES ('6411a6fc-5b6a-4b2a-ae53-18fe968a7f02', 0, 0, 10, 0, '100', '80', 4);

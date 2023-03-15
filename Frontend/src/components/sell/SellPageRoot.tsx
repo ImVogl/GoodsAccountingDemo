@@ -14,7 +14,7 @@ const PREVIOUS: string = "previous";
 const SellPageRoot: FC = () =>{
     const [key, setKey] = useState(CURRENT);
     const admin = useAppSelector(selectUserIsAdmin);
-    const previous = admin ? <SellPagePrevious /> : <></>
+    const previous = admin ? <></> : <SellPagePrevious />;
     const component = key === CURRENT ? <SellPageCurrent /> : previous;
     return(
         <WorkingArea>

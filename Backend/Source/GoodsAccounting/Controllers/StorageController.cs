@@ -177,6 +177,30 @@ public class StorageController : ControllerBase
     }
 
     /// <summary>
+    /// Getting days when user had working shifts.
+    /// </summary>
+    /// <param name="id">User identifier.</param>
+    /// <returns><see cref="Task"/>.</returns>
+    /// <response code="200">Response data saved.</response>
+    /// <response code="400">Returns if unknown exception was thrown.</response>
+    [HttpGet("~/shift_days/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<DateTime>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    public async Task<IActionResult> GetWorkShiftDays(int id)
+    {
+        try
+        {
+            return Ok(await _db.WorkShifts.Where(shift => shift.UserId == id)
+                .Select(shift => shift.IsOpened ? shift.OpenTime : shift.CloseTime).ToListAsync()
+                .ConfigureAwait(false));
+        }
+        catch
+        {
+            return BadRequest(_bodyBuilder.UnknownBuild());
+        }
+    }
+
+    /// <summary>
     /// Getting day sold statistics.
     /// </summary>
     /// <param name="id">User identifier.</param>
@@ -190,7 +214,7 @@ public class StorageController : ControllerBase
     public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
         try {
-            var goods = await _db.Goods.Where(item => item.Actives).ToListAsync().ConfigureAwait(false);
+            var goods = await _db.Goods.ToListAsync().ConfigureAwait(false);
             return Ok(_converter.ConvertReduced(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false), goods));
         }
         catch {

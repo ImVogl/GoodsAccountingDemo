@@ -69,7 +69,7 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
                 {
                     category.goods.map((item) => {
                         return(
-                            <Row className='sell-page-item' key = {item.id}>
+                            <Row className='sell-page-item-simple' key = {item.id}>
                                 <Col className='sell-page-item-name'>{item.name}</Col>
                                 <Col className='sell-page-item-sold'>
                                     <Form.Group className='sell-page-item-sold'>
@@ -106,7 +106,6 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
     )
 }
 
-
 const SellPageCurrent: FC = () => {
     const init: ICategory[] = [];
     const [goods, setGoods] = useState(init);
@@ -115,8 +114,8 @@ const SellPageCurrent: FC = () => {
     useEffect(
         () => {
             const fetchData = async () =>{
-                let goods = await client.getAllGoods();
-                setGoods(GetCategories(goods, search));
+                let goodsDto = await client.getAllGoods();
+                setGoods(GetCategories(goodsDto, search));
             }
             
             fetchData().catch(console.error);
