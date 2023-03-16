@@ -201,7 +201,8 @@ class ApiClientWrapper{
     }
 
     public getStatistics(id: number, day: Date): Promise<ReducedSnapshotDto[]>{
-        return this._sold.statistics(id, day, this.getToken()).then(async response => {
+        let locDate = new Date(day.getFullYear(), day.getMonth(), day.getDay());
+        return this._sold.statistics(id, locDate, this.getToken()).then(async response => {
             await this._update.user(this.getToken());
             return response;
         }).catch(async error => {
@@ -222,7 +223,8 @@ class ApiClientWrapper{
     }
 
     public getFullStatistics(id: number, day: Date): Promise<ShiftSnapshotDto[]>{
-        return this._statistics.full(id, day, this.getToken()).then(async response => {
+        let locDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 4);
+        return this._statistics.full(id, locDate, this.getToken()).then(async response => {
             await this._update.user(this.getToken());
             return response;
         }).catch(async error => {

@@ -226,6 +226,7 @@
     grid-auto-flow: column;
     padding-left: 5px;
 }
+
 .snapshots-selector-form{
     margin-top: 8px;
     height: 24px;
@@ -241,6 +242,9 @@
     grid-template-columns: 18px 150px 18px 1fr;
 }
 
+.snapshots-selector-form-wide{
+    grid-template-columns: 18px 150px 18px 250px 220px 1fr;
+}
 .reduced-history-page-list-block{
     height: 100%;
     display: grid;
@@ -263,4 +267,8 @@
     font-size: large;
     font-weight: bold;
     padding-left: 10px;
+}
+
+.sell-page-full-history-container{
+    font-size: medium;
 }

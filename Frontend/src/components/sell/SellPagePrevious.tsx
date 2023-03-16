@@ -6,6 +6,7 @@ import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { IReducedItemInfoDto } from '../../common/utilites/SwaggerClient';
+import { getNearstDay } from './utils';
 
 interface ISnapshot{
     id: string;
@@ -100,7 +101,7 @@ const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]):
                         return(
                             <Row className='sell-page-item' key = {item.id}>
                                 <Col className='sell-page-item-name'>{item.name}</Col>
-                                <Col>{item.price}</Col>
+                                <Col className='sell-page-item-intermediate'>{item.price}</Col>
                                 <Col className='sell-page-item-sold'>{item.sold}</Col>
                             </Row>
                         )
@@ -166,26 +167,6 @@ const SellPagePrevious: FC = () => {
             setDayIndex(dates.length > 0 ? 0 : -1);
         });
     }, []);
-
-    const setNearstDay = (day: string | Date) =>{
-        if (days.length === 0){
-            setDate(new Date());
-            return;
-        }
-
-        var targetDate = typeof day === "string" ? new Date(day) : day;
-        let min = Math.abs(targetDate.getTime() - days[0].getTime());
-        let locIndex = 0;
-        for (let i = 0; i < days.length; i++){
-            let diff = Math.abs(targetDate.getTime() - days[i].getTime());
-            if (min > diff){
-                min = diff;
-                locIndex = i;
-            }
-        }
-
-        setDate(days[locIndex]);
-    };
     return(
         <div className='reduced-history-page-list-block'>
             <Col className=''>
@@ -206,10 +187,10 @@ const SellPagePrevious: FC = () => {
                                 <Form.Control
                                     type="date"
                                     className='history-snapshot-data'
-                                    max={getMaxDate(days).toISOString().split('T')[0]}
-                                    min={getMinDate(days).toISOString().split('T')[0]}
-                                    value={getMaxDate(days).toISOString().split('T')[0]}
-                                    onChange={(e) => setNearstDay(e.target.value)} />
+                                    max={getMaxDate(days).toLocaleDateString("sv")}
+                                    min={getMinDate(days).toLocaleDateString("sv")}
+                                    value={date.toLocaleDateString("sv")}
+                                    onChange={(e) => setDate(getNearstDay(e.target.value, days))} />
                                 <Button type='button' className='right-change-date-button' onClick={() => {dayIndex === days.length - 1 ? setDayIndex(days.length - 1) : setDayIndex(dayIndex + 1)}} />
                             </Form.Group>
                         </Col>
@@ -217,6 +198,11 @@ const SellPagePrevious: FC = () => {
                 </Form>
             </Col>
             <Container className='sell-page-container'>
+                <Container className='sell-page-item sell-page-full-history-container'>
+                    <Col className='sell-page-item-name'>Товары</Col>
+                    <Col className='sell-page-item-intermediate'>Цена</Col>
+                    <Col className='sell-page-category-sold'>Продажа</Col>
+                </Container>
                 {SoldGoodsList(index > -1 ? snapshots[index] : [])}
             </Container>
             <Form.Group className='snapshots-selector-form' >

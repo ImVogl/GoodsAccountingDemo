@@ -6,6 +6,7 @@ import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { StorageItemInfoDto } from '../../common/utilites/SwaggerClient';
+import { getNearstDay } from './utils';
 
 interface ISnapshot{
     id: string;
@@ -34,14 +35,14 @@ interface ISnapshotCategory{
 // Search function
 export function GetCategories(snapshots: StorageItemInfoDto[], search: string):ISnapshotCategory[]
 {
-    let parts = search.toUpperCase().split(':', 2);
-    let category = (parts.length === 2 ? parts[0] : "").trimStart();
-    let searchPattern = (parts.length === 2 ? parts[1] : search.toUpperCase()).trimStart();
-    let result: ISnapshotCategory[] = []
+    const parts = search.toUpperCase().split(':', 2);
+    const category = (parts.length === 2 ? parts[0] : "").trimStart();
+    const searchPattern = (parts.length === 2 ? parts[1] : search.toUpperCase()).trimStart();
+    const result: ISnapshotCategory[] = [];
     snapshots.forEach(item => {
         if (((category !== "" && category === item.category.toUpperCase()) || category === "") && item.name.toUpperCase().startsWith(searchPattern)){
-            let index = result.findIndex(c => c.category === item.category)
-            let snapahot: ISnapshot = { 
+            const index = result.findIndex(c => c.category === item.category);
+            const snapahot: ISnapshot = { 
                 id: item.id,
                 name: item.name,
                 sold: item.sold,
@@ -83,17 +84,17 @@ function getMinDate(dates:Date[]):Date{
     if (dates.length === 0){
         return new Date();
     }
-
+    
     let locIndex = 0;
     let minDate = dates[0].getTime();
-    for (let i = 0; i < dates.length; i++){
-        let tmp = dates[i].getTime();
+    for (let i = 0; i < dates.length; i++) {
+        const tmp = dates[i].getTime();
         if (minDate > tmp){
             minDate = tmp;
             locIndex = i;
         }
     }
-    
+
     return dates[locIndex];
 }
 
@@ -104,19 +105,19 @@ function getMaxDate(dates:Date[]):Date{
 
     let locIndex = 0;
     let minDate = dates[0].getTime();
-    for (let i = 0; i < dates.length; i++){
-        let tmp = dates[i].getTime();
+    for (let i = 0; i < dates.length; i++) {
+        const tmp = dates[i].getTime();
         if (minDate < tmp){
             minDate = tmp;
             locIndex = i;
         }
     }
-    
+
     return dates[locIndex];
 }
 
 const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]): ReactElement => {
-    let elements = categories.map((snapshot) => 
+    const elements = categories.map((snapshot) => 
     {
         return (
             <div className='sell-page-row-block' key={snapshot.category.concat("-div")}>
@@ -144,7 +145,7 @@ const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]):
                 }
             </div>
         )
-    })
+    });
     return(
         <Container className='sell-page-container'>
             {elements}
@@ -154,19 +155,21 @@ const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]):
 
 const SellAdminHistory: FC = () => {
     const dispatcher = useAppDispatch();
-    let client = new ApiClientWrapper(dispatcher);
+    const client = new ApiClientWrapper(dispatcher);
     const identifier = useAppSelector(selectUserIdentifier);
     const [date, setDate] = useState(new Date());
 
-    const initNames: string[] = [];
-    const initCashValues: number[] = [];
+    const initStringArray: string[] = [];
+    const initNumberArray: number[] = [];
     const initSnapshots: ISnapshotCategory[][] = [];
     const [index, setIndex] = useState(-1);
-    const [names, setNames] = useState(initNames);
-    const [cashValues, setCashValues] = useState(initCashValues);
+    const [names, setNames] = useState(initStringArray);
+    const [cashValues, setCashValues] = useState(initNumberArray);
+    const [writeOff, setWriteOff] = useState(initStringArray);
+    const [soldTotal, setSoldTotal] = useState(initNumberArray);
     const [snapshots, setSnapshots] = useState(initSnapshots);
 
-    let initDays: Date[] = [];
+    const initDays: Date[] = [];
     const [days, setDays] = useState(initDays);
     const [dayIndex, setDayIndex] = useState(-1);
     const [search, setSearch] = useState("");
@@ -176,18 +179,32 @@ const SellAdminHistory: FC = () => {
         };
     
         fetchSnapshots().then((response) => {
-            let locNames: string[] = [];
-            let locCash: number[] = [];
-            let snapshots: ISnapshotCategory[][] = [];
+            const locIncome: number[] = [];
+            const locWriteOff: string[] = [];
+            const locNames: string[] = [];
+            const locCash: number[] = [];
+            const snapshots: ISnapshotCategory[][] = [];
             for (let i = 0; i < response.length; i++){
                 locNames.push(response[i].name);
                 locCash.push(response[i].cash);
                 snapshots.push(GetCategories(response[i].snapshots, search));
+                locIncome.push(0);
+                let locWriteOffRetail = 0;
+                let locWriteOffWhole = 0;
+                response[i].snapshots.forEach(item => {
+                    locIncome[locIncome.length - 1] += item.income;
+                    locWriteOffRetail += item.write_off * item.r_price;
+                    locWriteOffWhole += item.write_off * item.w_price;
+                });
+
+                locWriteOff.push(locWriteOffWhole.toString().concat("/", locWriteOffRetail.toString()))
             }
 
             setNames(locNames);
             setCashValues(locCash);
             setSnapshots(snapshots);
+            setWriteOff(locWriteOff);
+            setSoldTotal(locIncome);
             setIndex(locNames.length > 0 ? 0 : -1);
         })
     }, [date]);
@@ -203,25 +220,10 @@ const SellAdminHistory: FC = () => {
         });
     }, []);
 
-    const setNearstDay = (day: string | Date) =>{
-        if (days.length === 0){
-            setDate(new Date());
-            return;
-        }
+    useEffect(()=>{
+        setDate(getNearstDay(days[dayIndex], days));
+    }, [dayIndex])
 
-        var targetDate = typeof day === "string" ? new Date(day) : day;
-        let min = Math.abs(targetDate.getTime() - days[0].getTime());
-        let locIndex = 0;
-        for (let i = 0; i < days.length; i++){
-            let diff = Math.abs(targetDate.getTime() - days[i].getTime());
-            if (min > diff){
-                min = diff;
-                locIndex = i;
-            }
-        }
-
-        setDate(days[locIndex]);
-    };
     return(
         <div className='reduced-history-page-list-block'>
             <Col className=''>
@@ -242,10 +244,10 @@ const SellAdminHistory: FC = () => {
                                 <Form.Control
                                     type="date"
                                     className='history-snapshot-data'
-                                    max={getMaxDate(days).toISOString().split('T')[0]}
-                                    min={getMinDate(days).toISOString().split('T')[0]}
-                                    value={getMinDate(days).toISOString().split('T')[0]}
-                                    onChange={(e) => setNearstDay(e.target.value)} />
+                                    max={getMaxDate(days).toLocaleDateString("sv")}
+                                    min={getMinDate(days).toLocaleDateString("sv")}
+                                    value={date.toLocaleDateString("sv")}
+                                    onChange={(e) => setDate(getNearstDay(e.target.value, days))} />
                                 <Button type='button' className='right-change-date-button' onClick={() => {dayIndex === days.length - 1 ? setDayIndex(days.length - 1) : setDayIndex(dayIndex + 1)}} />
                             </Form.Group>
                         </Col>
@@ -253,9 +255,17 @@ const SellAdminHistory: FC = () => {
                 </Form>
             </Col>
             <Container className='sell-page-container'>
+                <Container className='sell-page-item-wide sell-page-full-history-container'>
+                    <Col className='sell-page-item-name'>Товары</Col>
+                    <Col className='sell-page-item-intermediate'>Единиц на скаладе</Col>
+                    <Col className='sell-page-item-intermediate'>Списано опт/розн</Col>
+                    <Col className='sell-page-item-intermediate'>Цена опт/розн</Col>
+                    <Col className='sell-page-item-intermediate'>Поставки</Col>
+                    <Col className='sell-page-category-sold'>Продажа</Col>
+                </Container>
                 {SoldGoodsList(index > -1 ? snapshots[index] : [])}
             </Container>
-            <Form.Group className='snapshots-selector-form' >
+            <Form.Group className='snapshots-selector-form snapshots-selector-form-wide' >
                 <Button
                     type='button'
                     className='left-change-date-button'
@@ -268,6 +278,8 @@ const SellAdminHistory: FC = () => {
                     onClick={() => {index === names.length - 1 ? setIndex(0) : setIndex(index + 1)}}
                     disabled={index === names.length - 1} />
                 <Form.Label className='cash-in-cashbox'>Остаток в касе: {index > -1 ? cashValues[index] : 0}</Form.Label>
+                <Form.Label className='cash-in-cashbox'>Списание: {index > -1 ? writeOff[index] : "0/0"}</Form.Label>
+                <Form.Label className='cash-in-cashbox'>Прибыль: {index > -1 ? soldTotal[index] : 0}</Form.Label>
             </Form.Group>
         </div>);
 }
