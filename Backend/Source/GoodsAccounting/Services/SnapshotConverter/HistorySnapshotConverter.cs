@@ -68,7 +68,9 @@ public class HistorySnapshotConverter : ISnapshotConverter
                 ItemName = goodsDictionary.ContainsKey(shift.Key) ? goodsDictionary[shift.Key].Name : string.Empty
             }).ToList();
 
-        dtoList.Add(mergedDto);
+        if (shifts.Count > 1)
+            dtoList.Add(mergedDto);
+
         return dtoList;
     }
 

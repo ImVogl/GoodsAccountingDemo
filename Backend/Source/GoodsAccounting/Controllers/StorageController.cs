@@ -199,7 +199,7 @@ public class StorageController : ControllerBase
         try
         {
             return Ok(await _db.WorkShifts.Where(shift => shift.UserId == id)
-                .Select(shift => shift.IsOpened ? shift.OpenTime : shift.CloseTime).ToListAsync()
+                .Select(shift => shift.IsOpened ? shift.OpenTime : shift.CloseTime.Date).Distinct().ToListAsync()
                 .ConfigureAwait(false));
         }
         catch
