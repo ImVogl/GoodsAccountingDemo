@@ -7,6 +7,7 @@ import { selectUserIsAdmin } from '../../common/redux/UserSlice';
 import WorkingArea from '../base/working/WorkingArea';
 import SellPageCurrent from './SellPageCurrent';
 import SellPagePrevious from './SellPagePrevious';
+import SellAdminHistory from './SellAdminHistory';
 
 const CURRENT: string = "current";
 const PREVIOUS: string = "previous";
@@ -14,7 +15,7 @@ const PREVIOUS: string = "previous";
 const SellPageRoot: FC = () =>{
     const [key, setKey] = useState(CURRENT);
     const admin = useAppSelector(selectUserIsAdmin);
-    const previous = admin ? <></> : <SellPagePrevious />;
+    const previous = admin ? <SellAdminHistory /> : <SellPagePrevious />;
     const component = key === CURRENT ? <SellPageCurrent /> : previous;
     return(
         <WorkingArea>

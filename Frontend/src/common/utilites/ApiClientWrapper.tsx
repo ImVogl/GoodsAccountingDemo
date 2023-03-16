@@ -61,7 +61,7 @@ class ApiClientWrapper{
     private readonly _update: UpdateClient;
     private readonly _tokenService: TokenService;
 
-    constructor(){
+    constructor(dispatcher?: any){
         this._add = new AddClient(getBaseUrl());
         this._base = new Client(getBaseUrl());
         this._close = new CloseClient(getBaseUrl());
@@ -71,7 +71,7 @@ class ApiClientWrapper{
         this._sold = new SoldClient(getBaseUrl());
         this._statistics = new StatisticsClient(getBaseUrl());
         this._update = new UpdateClient(getBaseUrl());
-        this._tokenService = new TokenService();
+        this._tokenService = new TokenService(dispatcher);
     };
 
     public addNewUser(dto: AddUserDto): Promise<NewUserDto>{

@@ -6,7 +6,7 @@ import { ICategory, GetCategories } from '../../common/utilites/Common';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { SoldGoodsDto } from '../../common/utilites/SwaggerClient';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
-import { useAppSelector } from '../../common/redux/hooks';
+import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 
 async function sendSoldAsync(client: ApiClientWrapper, identifier: number, form: HTMLFormElement):Promise<void>{
     let dto = new SoldGoodsDto();
@@ -59,7 +59,8 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
     }
 
     const [sending, setSending] = useState(false);
-    let client = new ApiClientWrapper();
+    const dispatcher = useAppDispatch();
+    let client = new ApiClientWrapper(dispatcher);
     const identifier = useAppSelector(selectUserIdentifier);
     let elements = categories.map((category) => 
     {
@@ -110,7 +111,8 @@ const SellPageCurrent: FC = () => {
     const init: ICategory[] = [];
     const [goods, setGoods] = useState(init);
     const [search, setSearch] = useState("");
-    const client = new ApiClientWrapper();
+    const dispatcher = useAppDispatch();
+    const client = new ApiClientWrapper(dispatcher);
     useEffect(
         () => {
             const fetchData = async () =>{

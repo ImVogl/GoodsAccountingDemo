@@ -71,6 +71,15 @@
     grid-template-columns: 1fr 250px;
 }
 
+.sell-page-category-wide{
+    font-size: larger;
+    font-weight: bold;
+    padding-left: 25px;
+    border-bottom: solid 2px black;
+    display: grid;
+    grid-template-columns: 1fr 150px 150px 150px 150px 150px;
+}
+
 .sell-page-category-sold{
     justify-self: end;
     padding-right: 25px;
@@ -80,6 +89,17 @@
     font-size: large;
     font-weight: bold;
     grid-template-columns: 1fr 250px 250px;
+    display: grid;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    display: grid;
+    border-bottom: solid 2px black;
+}
+
+.sell-page-item-wide{
+    font-size: large;
+    font-weight: bold;
+    grid-template-columns: 1fr 150px 150px 150px 150px 150px;
     display: grid;
     margin-top: 3px;
     margin-bottom: 3px;
@@ -101,6 +121,10 @@
 
 .sell-page-item-name{
     padding-left: 35px;
+}
+
+.sell-page-item-intermediate{
+    justify-self: center;
 }
 
 .sell-page-item-sold{

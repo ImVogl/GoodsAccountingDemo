@@ -5,23 +5,34 @@ import { Container, Form, Col, Button, Row } from 'react-bootstrap';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
-import { IReducedItemInfoDto } from '../../common/utilites/SwaggerClient';
+import { StorageItemInfoDto } from '../../common/utilites/SwaggerClient';
 
 interface ISnapshot{
     id: string;
     name: string;
     sold: number;
-    price: number;
+    write_off: number;
+    receipt: number;
+    storage: number;
+    r_price: number;
+    w_price: number;
+    income: number;
+    wsp_spending: number;
+    wow_los: number;
+    wor_los: number;
 }
 
 interface ISnapshotCategory{
     category:string;
-    sold: number;
+    income: number;
+    wsp_spending: number;
+    wow_los: number;
+    wor_los: number;
     snapshots: ISnapshot[];
 }
 
 // Search function
-export function GetCategories(snapshots: IReducedItemInfoDto[], search: string):ISnapshotCategory[]
+export function GetCategories(snapshots: StorageItemInfoDto[], search: string):ISnapshotCategory[]
 {
     let parts = search.toUpperCase().split(':', 2);
     let category = (parts.length === 2 ? parts[0] : "").trimStart();
@@ -30,12 +41,37 @@ export function GetCategories(snapshots: IReducedItemInfoDto[], search: string):
     snapshots.forEach(item => {
         if (((category !== "" && category === item.category.toUpperCase()) || category === "") && item.name.toUpperCase().startsWith(searchPattern)){
             let index = result.findIndex(c => c.category === item.category)
+            let snapahot: ISnapshot = { 
+                id: item.id,
+                name: item.name,
+                sold: item.sold,
+                write_off: item.write_off,
+                receipt: item.receipt,
+                storage: item.storage,
+                r_price: item.r_price,
+                w_price: item.w_price,
+                income: item.income,
+                wsp_spending: item.wsp_spending,
+                wow_los: item.wow_los,
+                wor_los: item.wor_los
+            };
+
             if (index >= 0){
-                result[index].sold += item.sold;
-                result[index].snapshots.push({ id: item.id, name: item.name, sold: item.sold, price: item.price })
+                result[index].income += item.income;
+                result[index].wsp_spending += item.wsp_spending;
+                result[index].wow_los += item.wow_los;
+                result[index].wor_los += item.wor_los;
+                result[index].snapshots.push(snapahot);
             }
             else{
-                result.push({ category: item.category, sold: item.sold, snapshots: [{ id: item.id, name: item.name, sold: item.sold, price: item.price }] })
+                result.push({ 
+                    category: item.category,
+                    income: item.income,
+                    wsp_spending: item.wsp_spending,
+                    wow_los: item.wow_los,
+                    wor_los: item.wor_los,
+                    snapshots: [snapahot]
+                })
             }
         }
     });
@@ -80,28 +116,28 @@ function getMaxDate(dates:Date[]):Date{
 }
 
 const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]): ReactElement => {
-    let sold: Map<string, number> = new Map<string, number>();
-    for (let i = 0; i < categories.length; i++){
-        for (let j = 0; j < categories[i].snapshots.length; j++){
-            sold.set(categories[i].snapshots[j].id, 0);
-        }
-    }
-    
     let elements = categories.map((snapshot) => 
     {
         return (
             <div className='sell-page-row-block' key={snapshot.category.concat("-div")}>
-                <Row className="sell-page-category" key={snapshot.category}>
+                <Row className="sell-page-category-wide" key={snapshot.category}>
                     <Col>{snapshot.category}</Col>
-                    <Col className='sell-page-category-sold'>{snapshot.sold}</Col>
+                    <Col />
+                    <Col className='sell-page-item-intermediate'>{snapshot.wow_los}/{snapshot.wor_los} руб</Col>
+                    <Col />
+                    <Col className='sell-page-item-intermediate'>{snapshot.wsp_spending} руб</Col>
+                    <Col className='sell-page-category-sold'>{snapshot.income} руб</Col>
                 </Row>
                 {
                     snapshot.snapshots.map((item) => {
                         return(
-                            <Row className='sell-page-item' key = {item.id}>
+                            <Row className='sell-page-item-wide' key = {item.id}>
                                 <Col className='sell-page-item-name'>{item.name}</Col>
-                                <Col>{item.price}</Col>
-                                <Col className='sell-page-item-sold'>{item.sold}</Col>
+                                <Col className='sell-page-item-intermediate'>{item.storage}</Col>
+                                <Col className='sell-page-item-intermediate'>{item.wow_los}/{item.wor_los} руб({item.write_off})</Col>
+                                <Col className='sell-page-item-intermediate'>{item.w_price}/{item.r_price} руб</Col>
+                                <Col className='sell-page-item-intermediate'>{item.wsp_spending} руб({item.receipt})</Col>
+                                <Col className='sell-page-item-sold'>{item.income} руб({item.sold})</Col>
                             </Row>
                         )
                     })
@@ -116,7 +152,7 @@ const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]):
     )
 }
 
-const SellPagePrevious: FC = () => {
+const SellAdminHistory: FC = () => {
     const dispatcher = useAppDispatch();
     let client = new ApiClientWrapper(dispatcher);
     const identifier = useAppSelector(selectUserIdentifier);
@@ -136,7 +172,7 @@ const SellPagePrevious: FC = () => {
     const [search, setSearch] = useState("");
     useEffect(() => {
         const fetchSnapshots = async () => {
-            return await client.getStatistics(identifier, date);
+            return await client.getFullStatistics(identifier, date);
         };
     
         fetchSnapshots().then((response) => {
@@ -208,7 +244,7 @@ const SellPagePrevious: FC = () => {
                                     className='history-snapshot-data'
                                     max={getMaxDate(days).toISOString().split('T')[0]}
                                     min={getMinDate(days).toISOString().split('T')[0]}
-                                    value={getMaxDate(days).toISOString().split('T')[0]}
+                                    value={getMinDate(days).toISOString().split('T')[0]}
                                     onChange={(e) => setNearstDay(e.target.value)} />
                                 <Button type='button' className='right-change-date-button' onClick={() => {dayIndex === days.length - 1 ? setDayIndex(days.length - 1) : setDayIndex(dayIndex + 1)}} />
                             </Form.Group>
@@ -236,4 +272,4 @@ const SellPagePrevious: FC = () => {
         </div>);
 }
 
-export default SellPagePrevious;
+export default SellAdminHistory;
