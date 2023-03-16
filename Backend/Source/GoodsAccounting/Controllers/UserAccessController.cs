@@ -121,7 +121,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find.</response>
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [HttpPost("~/update_token")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> UpdateTokenAsync()
@@ -135,26 +135,63 @@ namespace GoodsAccounting.Controllers
                 }
 
                 var castId = (int)id;
-                Log.Info($"User with identifier \'{castId}\' is trying to change treir password.");
+                Log.Info($"User with identifier \'{castId}\' is trying to access token.");
                 var user = await _db.Users
                     .SingleOrDefaultAsync(u => u.Id == castId)
                     .ConfigureAwait(false);
 
                 if (user == null)
                     return Unauthorized();
+                
+                return Ok(await AuthenticateAsync(user).ConfigureAwait(false));
+            }
+            catch {
+                return BadRequest(_bodyBuilder.UnknownBuild());
+            }
+        }
 
-                var token = await AuthenticateAsync(user).ConfigureAwait(false);
+        /// <summary>
+        /// Update token.
+        /// </summary>
+        /// <returns><see cref="Task"/> for response.</returns>
+        /// <response code="200">Returns value is indicated that user is drinker.</response>
+        /// <response code="400">Returns if requested data is invalid.</response>
+        /// <response code="401">Returns if user didn't find.</response>
+        [HttpPost("~/update_user")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
+        public async Task<IActionResult> UpdateUserInfoAsync()
+        {
+            try
+            {
+                var id = Utils.ExtractUserIdentifierFromToken(HttpContext);
+                if (id == null)
+                {
+                    Log.Warn("Can't extract identifier from token.");
+                    return Unauthorized();
+                }
+
+                var castId = (int)id;
+                Log.Info($"User with identifier \'{castId}\' is trying to information.");
+                var user = await _db.Users
+                    .SingleOrDefaultAsync(u => u.Id == castId)
+                    .ConfigureAwait(false);
+
+                if (user == null)
+                    return Unauthorized();
                 var responseData = new UserInfoDto
                 {
                     UserId = user.Id,
                     IsAdmin = user.Role == UserRole.Administrator,
                     ShiftIsOpened = await _db.GetWorkingShiftStateAsync(user.Id).ConfigureAwait(false),
                     UserDisplayedName = $"{user.Name} {user.Surname}",
-                    AssessToken = token
+                    AssessToken = string.Empty
                 };
                 return Ok(responseData);
             }
-            catch {
+            catch
+            {
                 return BadRequest(_bodyBuilder.UnknownBuild());
             }
         }

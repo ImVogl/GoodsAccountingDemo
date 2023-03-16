@@ -75,7 +75,10 @@ class ApiClientWrapper{
     };
 
     public addNewUser(dto: AddUserDto): Promise<NewUserDto>{
-        return this._add.user(this.getToken(), dto).catch(async error => {
+        return this._add.user(this.getToken(), dto).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -93,7 +96,10 @@ class ApiClientWrapper{
     }
 
     public closeShiftForOtherUser(targetUserId: number, cash: number) : Promise<void>{
-        return this._close.other(targetUserId, cash).catch(async error => {
+        return this._close.other(targetUserId, cash).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -111,7 +117,10 @@ class ApiClientWrapper{
     }
 
     public initWorkingShift(id: number): Promise<void>{
-        return this._init.shift(id, this.getToken()).catch(async error => {
+        return this._init.shift(id, this.getToken()).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -129,7 +138,10 @@ class ApiClientWrapper{
     }
 
     public removeUser(id: number): Promise<void>{
-        return this._remove.user(id, this.getToken()).catch(async error => {
+        return this._remove.user(id, this.getToken()).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -147,7 +159,10 @@ class ApiClientWrapper{
     }
 
     public soldGoods(dto: SoldGoodsDto): Promise<void>{
-        return this._sold.goods(this.getToken(), dto).catch(async error => {
+        return this._sold.goods(this.getToken(), dto).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -165,7 +180,10 @@ class ApiClientWrapper{
     }
 
     public getShiftDays(id: number): Promise<Date[]>{
-        return this._shift.days(id, this.getToken()).catch(async error => {
+        return this._shift.days(id, this.getToken()).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -183,7 +201,10 @@ class ApiClientWrapper{
     }
 
     public getStatistics(id: number, day: Date): Promise<ReducedSnapshotDto[]>{
-        return this._sold.statistics(id, day, this.getToken()).catch(async error => {
+        return this._sold.statistics(id, day, this.getToken()).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -201,7 +222,10 @@ class ApiClientWrapper{
     }
 
     public getFullStatistics(id: number, day: Date): Promise<ShiftSnapshotDto[]>{
-        return this._statistics.full(id, day, this.getToken()).catch(async error => {
+        return this._statistics.full(id, day, this.getToken()).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -218,20 +242,16 @@ class ApiClientWrapper{
         });
     }
 
-    public async updateToken(): Promise<UserInfo>{
-        let response = await this._update.token();
-        let info = new UserInfo();
-        info.id = response.id;
-        info.name = response.name;
-        info.is_admin = response.is_admin;
-        info.shift_opened = response.shift_opened;
-
-        this._tokenService.set(response.token);
-        return info;
+    public async updateToken(): Promise<void>{
+        let token = await this._update.token();
+        this._tokenService.set(token);
     }
 
     public changePassword(oldPassword: string, password: string): Promise<string>{
-        return this._base.change(oldPassword, password, this.getToken()).catch(async error => {
+        return this._base.change(oldPassword, password, this.getToken()).then(async response => {
+            await this._update.user(this.getToken());
+            return response;
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -249,7 +269,10 @@ class ApiClientWrapper{
     }
 
     public closeWorkingShift(userId: number, cash: number): Promise<void>{
-        return this._base.close(userId, cash, this.getToken()).catch(async error => {
+        return this._base.close(userId, cash, this.getToken()).then(async () => {
+            await this._update.user(this.getToken());
+        })
+        .catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -267,7 +290,9 @@ class ApiClientWrapper{
     }
 
     public editGoodsList(dto: EditGoodsListDto): Promise<void>{
-        return this._base.edit(this.getToken(), dto).catch(async error => {
+        return this._base.edit(this.getToken(), dto).then(async () => {
+            await this._update.user(this.getToken());
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -292,7 +317,9 @@ class ApiClientWrapper{
     }
 
     public revision(dto: GoodsRevisionDto): Promise<void>{
-        return this._base.revision(this.getToken(), dto).catch(async error => {
+        return this._base.revision(this.getToken(), dto).then(async () => {
+            await this._update.user(this.getToken());
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
@@ -338,7 +365,9 @@ class ApiClientWrapper{
     }
 
     public updateSupplySate(dto: GoodsSuppliesDto): Promise<void>{
-        return this._base.supplies(this.getToken(), dto).catch(async error => {
+        return this._base.supplies(this.getToken(), dto).then(async () => {
+            await this._update.user(this.getToken());
+        }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);

@@ -1148,7 +1148,7 @@ export class UpdateClient {
      * @param authorization (optional) Header with JWT
      * @return Success
      */
-    token(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<UserInfoDto> {
+    token(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<string> {
         let url_ = this.baseUrl + "/update_token";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1174,7 +1174,83 @@ export class UpdateClient {
         });
     }
 
-    protected processToken(response: AxiosResponse): Promise<UserInfoDto> {
+    protected processToken(response: AxiosResponse): Promise<string> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return result200;
+        } else if (status === 400) {
+            const _responseText = response.data;
+            let result400: any = null;
+            let resultData400  = _responseText;
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<string>(<any>null);
+    }
+
+    /**
+     * @param authorization (optional) Header with JWT
+     * @return Success
+     */
+    user(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<UserInfoDto> {
+        let url_ = this.baseUrl + "/update_user";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <AxiosRequestConfig>{
+            method: "POST",
+            url: url_,
+            headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUser(_response);
+        });
+    }
+
+    protected processUser(response: AxiosResponse): Promise<UserInfoDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {

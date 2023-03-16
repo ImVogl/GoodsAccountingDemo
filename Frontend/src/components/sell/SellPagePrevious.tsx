@@ -61,6 +61,24 @@ function getMinDate(dates:Date[]):Date{
     return dates[locIndex];
 }
 
+function getMaxDate(dates:Date[]):Date{
+    if (dates.length === 0){
+        return new Date();
+    }
+
+    let locIndex = 0;
+    let minDate = dates[0].getTime();
+    for (let i = 0; i < dates.length; i++){
+        let tmp = dates[i].getTime();
+        if (minDate < tmp){
+            minDate = tmp;
+            locIndex = i;
+        }
+    }
+    
+    return dates[locIndex];
+}
+
 const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]): ReactElement => {
     let sold: Map<string, number> = new Map<string, number>();
     for (let i = 0; i < categories.length; i++){
@@ -187,9 +205,9 @@ const SellPagePrevious: FC = () => {
                                 <Form.Control
                                     type="date"
                                     className='history-snapshot-data'
-                                    max={(new Date()).toISOString().split('T')[0]}
+                                    max={getMaxDate(days).toISOString().split('T')[0]}
                                     min={getMinDate(days).toISOString().split('T')[0]}
-                                    value={date.toISOString().split('T')[0]}
+                                    value={getMaxDate(days).toISOString().split('T')[0]}
                                     onChange={(e) => setNearstDay(e.target.value)} />
                                 <Button type='button' className='right-change-date-button' onClick={() => {dayIndex === days.length - 1 ? setDayIndex(days.length - 1) : setDayIndex(dayIndex + 1)}} />
                             </Form.Group>
