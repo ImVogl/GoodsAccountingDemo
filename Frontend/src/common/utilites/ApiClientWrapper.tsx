@@ -13,6 +13,7 @@ import
     AddClient,
     RemoveClient,
     ShiftClient,
+    AllClient,
     GoodsRevisionDto,
     EditGoodsListDto,
     GoodsItemDto,
@@ -50,6 +51,7 @@ export class UserInfo extends Serializable implements IUserInfo{
 const Unauthorized: number = 401;
 
 class ApiClientWrapper{
+    private readonly _all: AllClient;
     private readonly _add: AddClient;
     private readonly _base: Client;
     private readonly _close: CloseClient;
@@ -62,6 +64,7 @@ class ApiClientWrapper{
     private readonly _tokenService: TokenService;
 
     constructor(dispatcher?: any){
+        this._all = new AllClient(getBaseUrl());
         this._add = new AddClient(getBaseUrl());
         this._base = new Client(getBaseUrl());
         this._close = new CloseClient(getBaseUrl());
@@ -73,6 +76,24 @@ class ApiClientWrapper{
         this._update = new UpdateClient(getBaseUrl());
         this._tokenService = new TokenService(dispatcher);
     };
+
+    public getAllUsers(): Promise<string[]>{
+        return this._all.users(this.getToken()).catch(async error => {
+            let apiError  = error as ApiException;
+            if (apiError === null || apiError.status !== Unauthorized){
+                console.error(error);
+                this._tokenService.reset();
+                return [];
+            }
+
+            await this.updateToken().catch(error => {
+                console.error(error);
+                this._tokenService.reset();
+            });
+
+            return await this._all.users(this.getToken());
+        });
+    }
 
     public addNewUser(dto: AddUserDto): Promise<NewUserDto>{
         return this._add.user(this.getToken(), dto).then(async response => {

@@ -8,13 +8,14 @@ import SellPageRoot from '../sell/SellPageRoot';
 import HomePage from '../home/HomePage';
 import ForbiddenPage from '../forbidden/ForbiddenPage';
 import NavigationBar from '../navigation/NavigationBar';
+import AccountPage from '../account/AccountPage';
 import { SELLS, INV, ACCOUNT } from '../../common/utilites/Paths';
 
 const App: FC = () => {
   const logon = useAppSelector(selectUserLogon);
   let sellsComponent = logon ? <SellPageRoot /> : <ForbiddenPage />;
   let inventarisation = <ForbiddenPage />;
-  let account = <ForbiddenPage />;
+  let account = logon ? <AccountPage /> : <ForbiddenPage />;
   return (
     <div className='root'>
       <header><NavigationBar /></header>

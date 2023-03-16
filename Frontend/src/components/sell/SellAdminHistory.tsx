@@ -154,8 +154,7 @@ const SoldGoodsList: FC<ISnapshotCategory[]> = (categories:ISnapshotCategory[]):
 }
 
 const SellAdminHistory: FC = () => {
-    const dispatcher = useAppDispatch();
-    const client = new ApiClientWrapper(dispatcher);
+    const client = new ApiClientWrapper(useAppDispatch());
     const identifier = useAppSelector(selectUserIdentifier);
     const [date, setDate] = useState(new Date());
 

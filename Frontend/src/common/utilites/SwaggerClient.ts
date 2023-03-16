@@ -1298,6 +1298,97 @@ export class UpdateClient {
     }
 }
 
+export class AllClient {
+    private instance: AxiosInstance;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+        this.instance = instance ? instance : axios.create();
+        this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    /**
+     * @param authorization (optional) Header with JWT
+     * @return Success
+     */
+    users(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<string[]> {
+        let url_ = this.baseUrl + "/all_users";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <AxiosRequestConfig>{
+            method: "POST",
+            url: url_,
+            headers: {
+                "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUsers(_response);
+        });
+    }
+
+    protected processUsers(response: AxiosResponse): Promise<string[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            return result200;
+        } else if (status === 400) {
+            const _responseText = response.data;
+            let result400: any = null;
+            let resultData400  = _responseText;
+            if (resultData400) {
+                result400 = {} as any;
+                for (let key in resultData400) {
+                    if (resultData400.hasOwnProperty(key))
+                        result400![key] = resultData400[key];
+                }
+            }
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+        } else if (status === 401) {
+            const _responseText = response.data;
+            let result401: any = null;
+            let resultData401  = _responseText;
+            if (resultData401) {
+                result401 = {} as any;
+                for (let key in resultData401) {
+                    if (resultData401.hasOwnProperty(key))
+                        result401![key] = resultData401[key];
+                }
+            }
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<string[]>(<any>null);
+    }
+}
+
 export class AddClient {
     private instance: AxiosInstance;
     private baseUrl: string;
