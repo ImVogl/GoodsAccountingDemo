@@ -1,4 +1,4 @@
-import { containsSpecSymbol, lengthEnought, containsLetter, containsDigit } from './validation'
+import { containsSpecSymbol, lengthEnought, containsLetter, containsDigit } from './PasswordValidation'
 
 it('Checking expression - length', () => {
     expect(lengthEnought("Az!2.sA")).toEqual(false);

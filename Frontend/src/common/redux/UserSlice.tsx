@@ -13,8 +13,6 @@ export interface IUser{
     shift_opened: boolean;
     name: string;
     logon: boolean;
-    token: string;
-    expired: number;
     error: string;
 }
 
@@ -38,8 +36,6 @@ const initialState: IUser = {
     shift_opened: false,
     name: '',
     logon: false,
-    token: '',
-    expired: 0,
     error: ''
 };
 
@@ -88,20 +84,12 @@ export const userSlice = createSlice({
         state.shift_opened = action.payload.shift_opened;
         state.logon = action.payload.logon;
       },
-      updateToken: (state, action: PayloadAction<IToken>) => {
-        state.token = action.payload.token;
-        state.expired = Date.parse(action.payload.expired.toUTCString());
-      },
-      updateShiftState: (state, action: PayloadAction<boolean>) => {
-        state.shift_opened = action.payload
-      },
       logout:(state) =>{
         state.id = 0;
         state.name = "";
         state.is_admin = false;
         state.shift_opened = false;
         state.logon = false;
-        state.token = "";
       }
     },
     extraReducers: (builder) => {
@@ -113,8 +101,6 @@ export const userSlice = createSlice({
             state.name = info.name;
             state.is_admin = info.is_admin;
             state.shift_opened = info.shift_opened;
-            state.token = info.token;
-            state.expired = info.expired;
             state.logon = true;
             state.error = "";
           })
@@ -139,8 +125,6 @@ export const userSlice = createSlice({
             state.id = info.id;
             state.is_admin = info.is_admin;
             state.shift_opened = info.shift_opened;
-            state.token = info.token;
-            state.expired = info.expired;
             state.name = info.name;
             state.logon = true;
             state.error = "";
@@ -162,12 +146,11 @@ export const userSlice = createSlice({
       }
   });
   
-export const { setUser, updateToken, updateShiftState, logout } = userSlice.actions;
+export const { setUser, logout } = userSlice.actions;
 export const selectUserLogon = (state: RootState) => state.controler.logon;
-export const selectUserToken = (state: RootState) => state.controler.token;
-export const selectUserExpired = (state: RootState) => state.controler.expired;
 export const selectUserError = (state: RootState) => state.controler.error;
 export const selectShiftUser = (state: RootState) => state.controler.shift_opened;
 export const selectUserName = (state: RootState) => state.controler.name;
 export const selectUserIdentifier = (state: RootState) => state.controler.id;
+export const selectUserIsAdmin = (state: RootState) => state.controler.is_admin;
 export default userSlice.reducer;

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Row, Container, Button, Form } from 'react-bootstrap';
 
 import { useAppSelector, useAppDispatch } from '../../../common/redux/hooks';
-import { selectShiftUser, selectUserName, selectUserIdentifier, updateShiftState } from '../../../common/redux/UserSlice'
+import { selectShiftUser, selectUserName, selectUserIdentifier } from '../../../common/redux/UserSlice'
 import { ACCOUNT, INDEX } from '../../../common/utilites/Paths';
 import LayoutBase from '../../layouts/BaseLayout';
 import Modal from '../modal/Modal';
@@ -22,7 +22,7 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
     const identifier = useAppSelector(selectUserIdentifier);
     const [cash, setCash] = useState(0);
     const [active, setActive] = useState(false);
-    let client = new ApiClientWrapper();
+    let client = new ApiClientWrapper(dispatcher);
     let tokenService = new TokenService(dispatcher);
     let shiftButton = opened ? "Закрыть смену" : "Открыть смену";
     useEffect(() => {
@@ -58,7 +58,6 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
     useEffect(() => {
         const fetchData = async () =>{
             await client.initWorkingShift(identifier);
-            dispatcher(updateShiftState(true));
             setLoading(false);
         };
 

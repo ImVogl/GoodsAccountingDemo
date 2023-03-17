@@ -93,6 +93,6 @@ public class PasswordService : IPassword
         for (var i = 0; i < passwordLength; ++i)
             password[i] = (char)random.Next(firstAnsi, lastAnsi);
 
-        return new string(password);
+        return (new string(password)) + "1qQ*";
     }
 }

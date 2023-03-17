@@ -59,6 +59,7 @@
 
 .sell-page-row-block{
     display: grid;
+    grid-auto-flow: row;
 }
 
 .sell-page-category{
@@ -66,9 +67,47 @@
     font-weight: bold;
     padding-left: 25px;
     border-bottom: solid 2px black;
+    display: grid;
+    grid-template-columns: 1fr 250px;
+}
+
+.sell-page-category-wide{
+    font-size: larger;
+    font-weight: bold;
+    padding-left: 25px;
+    border-bottom: solid 2px black;
+    display: grid;
+    grid-template-columns: 1fr 150px 150px 150px 150px 150px;
+}
+
+.sell-page-category-sold{
+    justify-self: end;
+    padding-right: 25px;
 }
 
 .sell-page-item{
+    font-size: large;
+    font-weight: bold;
+    grid-template-columns: 1fr 250px 250px;
+    display: grid;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    display: grid;
+    border-bottom: solid 2px black;
+}
+
+.sell-page-item-wide{
+    font-size: large;
+    font-weight: bold;
+    grid-template-columns: 1fr 150px 150px 150px 150px 150px;
+    display: grid;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    display: grid;
+    border-bottom: solid 2px black;
+}
+
+.sell-page-item-simple{
     font-size: large;
     font-weight: bold;
     grid-template-columns: 1fr 250px;
@@ -79,13 +118,18 @@
     border-bottom: solid 2px black;
 }
 
+
 .sell-page-item-name{
     padding-left: 35px;
 }
 
+.sell-page-item-intermediate{
+    justify-self: center;
+}
+
 .sell-page-item-sold{
     padding-right: 25px;
-    display: grid;
+    justify-self: end;
 }
 
 .sell-page-tabs{
@@ -111,4 +155,120 @@
 
 .sell-page-tab.active{
     background-color: #1ea2ceb0;
+}
+
+.left-change-date-button{
+    background-image: url("../../../public/images/triangle_left_16.png");
+    background-color: transparent;
+    height: 18px;
+    width: 16px;
+    border-width: 0px;
+    background-position: center;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    margin-top: 2px;
+}
+
+.left-change-date-button:active{
+    background-image: url("../../../public/images/triangle_left_16_active.png");
+}
+
+.right-change-date-button{
+    background-image: url("../../../public/images/triangle_right_16.png");
+    background-color: transparent;
+    height: 18px;
+    width: 16px;
+    border-width: 0px;
+    background-position: center;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    margin-top: 2px;
+}
+
+.right-change-date-button:active{
+    background-image: url("../../../public/images/triangle_right_16_active.png");
+}
+
+.history-snapshot-data{
+    height: 18px;
+    margin-top: 0px;
+}
+
+.historysearch-panel-container{
+    grid-template-columns: 1fr 150px;
+    display: grid;
+}
+
+.historysearch-panel-col-right{
+    height: 100%;
+}
+
+.historysearch-panel-col-left{
+    width: 100%;
+}
+
+.historysearch-panel-col-right-form{
+    margin-top: 8px;
+    height: 24px;
+    background-color: transparent;
+    border-radius: 5px;
+    display: grid;
+    gap: normal;
+    align-items: stretch;
+    justify-items: center;
+    align-content: center;
+    grid-auto-flow: column;
+    padding-left: 5px;
+}
+
+.snapshots-selector-form{
+    margin-top: 8px;
+    height: 24px;
+    background-color: transparent;
+    border-radius: 5px;
+    display: grid;
+    gap: normal;
+    align-items: stretch;
+    justify-items: center;
+    align-content: center;
+    grid-auto-flow: column;
+    padding-left: 5px;
+    grid-template-columns: 18px 150px 18px 1fr;
+}
+
+.snapshots-selector-form-wide{
+    grid-template-columns: 18px 150px 18px 250px 220px 1fr;
+}
+.reduced-history-page-list-block{
+    height: 100%;
+    display: grid;
+    grid-template-rows: 50px 1fr 25px;
+}
+
+.sell-page-container{
+    margin-top: 10px;
+    height: 100%;
+}
+
+.cash-in-cashbox{
+    font-size: large;
+    font-weight: bold;
+    justify-self: start;
+    padding-left: 10px;
+}
+
+.snapshot-seller{
+    font-size: large;
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+.sell-page-full-history-container{
+    font-size: medium;
 }

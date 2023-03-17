@@ -6,13 +6,11 @@ import { ICategory, GetCategories } from '../../common/utilites/Common';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { SoldGoodsDto } from '../../common/utilites/SwaggerClient';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
-import { useAppSelector } from '../../common/redux/hooks';
+import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 
 async function sendSoldAsync(client: ApiClientWrapper, identifier: number, form: HTMLFormElement):Promise<void>{
     let dto = new SoldGoodsDto();
     dto.id = identifier;
-
-    debugger;
     for (let i = 0; i < form.length; i++){
         if (form[i].localName !== "input"){
             continue;
@@ -59,7 +57,8 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
     }
 
     const [sending, setSending] = useState(false);
-    let client = new ApiClientWrapper();
+    const dispatcher = useAppDispatch();
+    let client = new ApiClientWrapper(dispatcher);
     const identifier = useAppSelector(selectUserIdentifier);
     let elements = categories.map((category) => 
     {
@@ -69,7 +68,7 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
                 {
                     category.goods.map((item) => {
                         return(
-                            <Row className='sell-page-item' key = {item.id}>
+                            <Row className='sell-page-item-simple' key = {item.id}>
                                 <Col className='sell-page-item-name'>{item.name}</Col>
                                 <Col className='sell-page-item-sold'>
                                     <Form.Group className='sell-page-item-sold'>
@@ -106,17 +105,17 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
     )
 }
 
-
 const SellPageCurrent: FC = () => {
     const init: ICategory[] = [];
     const [goods, setGoods] = useState(init);
     const [search, setSearch] = useState("");
-    const client = new ApiClientWrapper();
+    const dispatcher = useAppDispatch();
+    const client = new ApiClientWrapper(dispatcher);
     useEffect(
         () => {
             const fetchData = async () =>{
-                let goods = await client.getAllGoods();
-                setGoods(GetCategories(goods, search));
+                let goodsDto = await client.getAllGoods();
+                setGoods(GetCategories(goodsDto, search));
             }
             
             fetchData().catch(console.error);

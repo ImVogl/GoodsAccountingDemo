@@ -21,6 +21,8 @@ using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services;
 using GoodsAccounting.Services.TextConverter;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace GoodsAccounting.Controllers
 {
@@ -34,7 +36,7 @@ namespace GoodsAccounting.Controllers
         /// <summary>
         /// Default expired timespan im minutes.
         /// </summary>
-        private const int ExpiredTokenTimeSpan = 1;
+        private const int ExpiredTokenTimeSpan = 15;
 
         /// <summary>
         /// Current class logger.
@@ -117,9 +119,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="200">Returns value is indicated that user is drinker.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
-        [Authorize]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [HttpPost("~/update_token")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> UpdateTokenAsync()
@@ -133,26 +135,94 @@ namespace GoodsAccounting.Controllers
                 }
 
                 var castId = (int)id;
-                Log.Info($"User with identifier \'{castId}\' is trying to change treir password.");
+                Log.Info($"User with identifier \'{castId}\' is trying to access token.");
                 var user = await _db.Users
                     .SingleOrDefaultAsync(u => u.Id == castId)
                     .ConfigureAwait(false);
 
                 if (user == null)
                     return Unauthorized();
+                
+                return Ok(await AuthenticateAsync(user).ConfigureAwait(false));
+            }
+            catch {
+                return BadRequest(_bodyBuilder.UnknownBuild());
+            }
+        }
 
-                var tokenDto = ProcessToken(user, ExpiredTokenTimeSpan);
+        /// <summary>
+        /// Update token.
+        /// </summary>
+        /// <returns><see cref="Task"/> for response.</returns>
+        /// <response code="200">Returns value is indicated that user is drinker.</response>
+        /// <response code="400">Returns if requested data is invalid.</response>
+        /// <response code="401">Returns if user didn't find.</response>
+        [HttpPost("~/update_user")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
+        public async Task<IActionResult> UpdateUserInfoAsync()
+        {
+            try
+            {
+                var id = Utils.ExtractUserIdentifierFromToken(HttpContext);
+                if (id == null)
+                {
+                    Log.Warn("Can't extract identifier from token.");
+                    return Unauthorized();
+                }
+
+                var castId = (int)id;
+                Log.Info($"User with identifier \'{castId}\' is trying to information.");
+                var user = await _db.Users
+                    .SingleOrDefaultAsync(u => u.Id == castId)
+                    .ConfigureAwait(false);
+
+                if (user == null)
+                    return Unauthorized();
                 var responseData = new UserInfoDto
                 {
                     UserId = user.Id,
                     IsAdmin = user.Role == UserRole.Administrator,
                     ShiftIsOpened = await _db.GetWorkingShiftStateAsync(user.Id).ConfigureAwait(false),
                     UserDisplayedName = $"{user.Name} {user.Surname}",
-                    TokenDto = tokenDto
+                    AssessToken = string.Empty
                 };
                 return Ok(responseData);
             }
-            catch {
+            catch
+            {
+                return BadRequest(_bodyBuilder.UnknownBuild());
+            }
+        }
+
+        /// <summary>
+        /// Adding new user.
+        /// </summary>
+        /// <returns><see cref="Task"/> for response.</returns>
+        /// <response code="200">Returns value is indicated that adding is success.</response>
+        /// <response code="400">Returns if requested data is invalid.</response>
+        /// <response code="401">Returns if user didn't find or password is invalid.</response>
+        [Authorize(Roles = UserRole.Administrator)]
+        [HttpPost("~/all_users")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<UserLoginDto>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
+        public async Task<IActionResult> GetAllLogins()
+        {
+            Log.Info(@"User requested all users list");
+            try
+            {
+                var logins = await _db.Users
+                    .Where(user => user.Role == UserRole.RegisteredUser)
+                    .Select(user => new UserLoginDto { Id = user.Id, Login = user.UserLogin })
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                return Ok(logins);
+            }
+            catch (Exception exception) {
+                Log.Error(exception);
                 return BadRequest(_bodyBuilder.UnknownBuild());
             }
         }
@@ -202,8 +272,7 @@ namespace GoodsAccounting.Controllers
                 var newUserDto = new NewUserDto
                 {
                     Login = login,
-                    Password = password,
-                    Token = ProcessToken(newUser, ExpiredTokenTimeSpan)
+                    Password = password
                 };
 
                 return Ok(newUserDto);
@@ -228,13 +297,15 @@ namespace GoodsAccounting.Controllers
         /// <returns><see cref="Task"/> for response.</returns>
         /// <response code="200">Returns value is indicated that removing is success.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
+        /// <response code="401">Returns if token expired.</response>
         [Authorize(Roles = UserRole.Administrator)]
         [HttpDelete("~/remove_user/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> RemoveUserAsync(int id)
         {
-            if (await _db.Users.AnyAsync(user => user.Id == id).ConfigureAwait(false))
+            if (!await _db.Users.AnyAsync(user => user.Id == id).ConfigureAwait(false))
                 return BadRequest(_bodyBuilder.EntityNotFoundBuild());
 
             try {
@@ -258,7 +329,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize]
         [HttpPost("~/change/{oldPassword}/{password}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> ChangePasswordAsync(string oldPassword, string password)
@@ -334,14 +405,14 @@ namespace GoodsAccounting.Controllers
                 }
                 
                 if (!_passwordService.VerifyPassword(user.Hash, dto.Password, user.Salt)) return Unauthorized();
-                var tokenDto = ProcessToken(user, ExpiredTokenTimeSpan);
+                var token = await AuthenticateAsync(user).ConfigureAwait(false);
                 var responseData = new UserInfoDto
                     {
                         UserId = user.Id,
                         IsAdmin = user.Role == UserRole.Administrator,
                         ShiftIsOpened = await _db.GetWorkingShiftStateAsync(user.Id).ConfigureAwait(false),
                         UserDisplayedName = $"{user.Name} {user.Surname}",
-                        TokenDto = tokenDto
+                        AssessToken = token
                     };
 
                 return Ok(responseData);
@@ -362,9 +433,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="200">Returns value is indicated that user signed out.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
-        [Authorize]
         [HttpPost("~/signout/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenDto))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> SignOutUserAsync(int id)
@@ -384,8 +455,8 @@ namespace GoodsAccounting.Controllers
                 if (user == null)
                     return Unauthorized();
 
-                var tokenDto = ProcessToken(user, 0);
-                return Ok(tokenDto);
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return Ok();
             }
             catch {
                 return BadRequest(_bodyBuilder.UnknownBuild());
@@ -397,9 +468,9 @@ namespace GoodsAccounting.Controllers
         /// </summary>
         /// <param name="user"><see cref="User"/>.</param>
         /// <param name="minutes">Expired time.</param>
-        /// <returns><see cref="TokenDto"/>.</returns>
+        /// <returns>Access token.</returns>
         [NotNull]
-        private TokenDto ProcessToken(User user, int minutes)
+        private string ProcessToken(User user, int minutes)
         {
             var credentials = new SigningCredentials(_keyExtractor.Extract(), SecurityAlgorithms.HmacSha256);
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -414,11 +485,7 @@ namespace GoodsAccounting.Controllers
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return new TokenDto
-            {
-                Token = tokenHandler.WriteToken(token),
-                ExpiredTime = expiredTime.ToUniversalTime()
-            };
+            return tokenHandler.WriteToken(token);
         }
 
         /// <summary>
@@ -438,6 +505,19 @@ namespace GoodsAccounting.Controllers
                     new Claim(ClaimTypes.Role, user.Role)
                 }
             );
+        }
+
+        /// <summary>
+        /// Authenticate user with cookie.
+        /// </summary>
+        /// <param name="user"><see cref="User"/>.</param>
+        /// <returns><see cref="Task"/> with access token.</returns>
+        private async Task<string> AuthenticateAsync(User user)
+        {
+            var claims = new List<Claim> { new (ClaimsIdentity.DefaultNameClaimType, user.UserLogin) };
+            var id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+            return ProcessToken(user, ExpiredTokenTimeSpan);
         }
     }
 }

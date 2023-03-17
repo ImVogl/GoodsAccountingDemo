@@ -122,15 +122,12 @@ public class PostgresProxy : DbContext, IEfContext
         // We decided that all working shifts, that were closed till 6 am, refer to the previous day.
         var lowDateTime = date.ToDateTime(new TimeOnly(6, 0));
         var heightDateTime = date.AddDays(1).ToDateTime(new TimeOnly(6, 0));
-        return id < 1 
-            ? await WorkShifts
-                .Where(shift => shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime)
-                .Include(shift => shift.GoodItemStates)
-                .ToListAsync().ConfigureAwait(false)
-            : await WorkShifts
-                .Where(shift => shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime && shift.UserId == id)
-                .Include(shift => shift.GoodItemStates)
-                .ToListAsync().ConfigureAwait(false);
+        var shifts = id < 1
+            ? WorkShifts.Include(shift => shift.GoodItemStates)
+            : WorkShifts.Where(shift => shift.UserId == id).Include(shift => shift.GoodItemStates);
+
+        var dateShifts = shifts.Where(shift => (shift.CloseTime > lowDateTime && shift.CloseTime < heightDateTime) || shift.IsOpened);
+        return await dateShifts.ToListAsync().ConfigureAwait(false);
     }
 
     /// <inheritdoc />

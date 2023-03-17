@@ -206,14 +206,16 @@ public class AdminStorageController : ControllerBase
     /// <returns><see cref="Task"/>.</returns>
     /// <response code="200">Response data saved.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if token expired.</response>
     [HttpGet("~/sold_statistics_full/{id}/{day}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<ShiftSnapshotDto>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetDayStatistics(int id, DateTime day)
     {
         try
         {
-            var goods = await _db.Goods.Where(item => item.Actives).ToListAsync().ConfigureAwait(false);
+            var goods = await _db.Goods.ToListAsync().ConfigureAwait(false);
             return Ok(_converter.Convert(await _db.GetWorkShiftSnapshotsAsync(id, DateOnly.FromDateTime(day)).ConfigureAwait(false), goods));
         }
         catch
@@ -230,9 +232,11 @@ public class AdminStorageController : ControllerBase
     /// <returns><see cref="Task"/>.</returns>
     /// <response code="200">Working shift was closed.</response>
     /// <response code="400">Returns if unknown exception was thrown.</response>
+    /// <response code="401">Returns if token expired.</response>
     [HttpGet("~/close_other/{targetUserId}/{cash}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CloseWorkShiftForTargetUserAsync(int targetUserId, int cash)
     {
         var opened = await _db.WorkShifts.AnyAsync(shift => shift.IsOpened && shift.UserId == targetUserId).ConfigureAwait(false);

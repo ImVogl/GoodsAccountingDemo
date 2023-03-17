@@ -2,15 +2,21 @@ import './SellPage.css'
 import { FC, useState } from 'react';
 import { ButtonGroup, Button, Col } from 'react-bootstrap';
 
+import { useAppSelector } from '../../common/redux/hooks';
+import { selectUserIsAdmin } from '../../common/redux/UserSlice';
 import WorkingArea from '../base/working/WorkingArea';
 import SellPageCurrent from './SellPageCurrent';
+import SellPagePrevious from './SellPagePrevious';
+import SellAdminHistory from './SellAdminHistory';
 
 const CURRENT: string = "current";
 const PREVIOUS: string = "previous";
 
 const SellPageRoot: FC = () =>{
     const [key, setKey] = useState(CURRENT);
-    const component = key === CURRENT ? <SellPageCurrent /> : <></>
+    const admin = useAppSelector(selectUserIsAdmin);
+    const previous = admin ? <SellAdminHistory /> : <SellPagePrevious />;
+    const component = key === CURRENT ? <SellPageCurrent /> : previous;
     return(
         <WorkingArea>
             <div className='sell-page-root'>
