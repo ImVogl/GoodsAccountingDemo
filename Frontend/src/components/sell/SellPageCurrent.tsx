@@ -11,8 +11,6 @@ import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 async function sendSoldAsync(client: ApiClientWrapper, identifier: number, form: HTMLFormElement):Promise<void>{
     let dto = new SoldGoodsDto();
     dto.id = identifier;
-
-    debugger;
     for (let i = 0; i < form.length; i++){
         if (form[i].localName !== "input"){
             continue;

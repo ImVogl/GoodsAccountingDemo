@@ -568,7 +568,9 @@ export class Client {
             method: "POST",
             url: url_,
             withCredentials: true,
+            credentials: 'include',
             headers: {
+                'X-Requested-With': 'XMLHttpRequest',
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
             cancelToken
@@ -1156,7 +1158,9 @@ export class UpdateClient {
             method: "POST",
             url: url_,
             withCredentials: true,
+            credentials: 'include',
             headers: {
+                'X-Requested-With': 'XMLHttpRequest',
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Accept": "text/plain"
             },
@@ -1312,7 +1316,7 @@ export class AllClient {
      * @param authorization (optional) Header with JWT
      * @return Success
      */
-    users(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<string[]> {
+    users(authorization?: any | undefined , cancelToken?: CancelToken | undefined): Promise<UserLoginDto[]> {
         let url_ = this.baseUrl + "/all_users";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1337,7 +1341,7 @@ export class AllClient {
         });
     }
 
-    protected processUsers(response: AxiosResponse): Promise<string[]> {
+    protected processUsers(response: AxiosResponse): Promise<UserLoginDto[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1354,7 +1358,7 @@ export class AllClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(item);
+                    result200!.push(UserLoginDto.fromJS(item));
             }
             return result200;
         } else if (status === 400) {
@@ -1385,7 +1389,7 @@ export class AllClient {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<string[]>(<any>null);
+        return Promise.resolve<UserLoginDto[]>(<any>null);
     }
 }
 
@@ -2418,6 +2422,46 @@ export interface IUserInfoDto {
     shift_opened: boolean;
     name: string;
     token: string;
+}
+
+export class UserLoginDto implements IUserLoginDto {
+    id!: number;
+    login!: string;
+
+    constructor(data?: IUserLoginDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.login = _data["login"];
+        }
+    }
+
+    static fromJS(data: any): UserLoginDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserLoginDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["login"] = this.login;
+        return data; 
+    }
+}
+
+export interface IUserLoginDto {
+    id: number;
+    login: string;
 }
 
 export class ApiException extends Error {

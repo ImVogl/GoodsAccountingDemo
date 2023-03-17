@@ -2,6 +2,7 @@ import { jsonProperty, Serializable } from "ts-serializable";
 import 'reflect-metadata'       // It's nessesary for "jsonProperty" function
 import { getBaseUrl } from './Common'
 import TokenService from '../utilites/TokenService';
+import { AxiosError } from 'axios';
 import 
 { 
     Client,
@@ -24,6 +25,7 @@ import
     SoldGoodsDto,
     ReducedSnapshotDto,
     ShiftSnapshotDto,
+    UserLoginDto,
     ApiException
 } from './SwaggerClient';
 
@@ -49,6 +51,7 @@ export class UserInfo extends Serializable implements IUserInfo{
 }
 
 const Unauthorized: number = 401;
+const ERROR_CODE: string = "ERR_NETWORK";
 
 class ApiClientWrapper{
     private readonly _all: AllClient;
@@ -77,10 +80,11 @@ class ApiClientWrapper{
         this._tokenService = new TokenService(dispatcher);
     };
 
-    public getAllUsers(): Promise<string[]>{
+    public getAllUsers(): Promise<UserLoginDto[]>{
         return this._all.users(this.getToken()).catch(async error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== Unauthorized) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return [];
@@ -95,12 +99,14 @@ class ApiClientWrapper{
         });
     }
 
-    public addNewUser(dto: AddUserDto): Promise<NewUserDto>{
+    public addNewUser(id: number, name: string, surname: string, date: Date): Promise<NewUserDto>{
+        let dto = new AddUserDto({ id: id, name: name, surname: surname, date: date });
         return this._add.user(this.getToken(), dto).then(async response => {
             await this._update.user(this.getToken());
             return response;
         }).catch(async error => {
             let apiError  = error as ApiException;
+
             if (apiError === null || apiError.status !== Unauthorized){
                 console.error(error);
                 this._tokenService.reset();
@@ -164,7 +170,8 @@ class ApiClientWrapper{
             return response;
         }).catch(async error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== Unauthorized) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;

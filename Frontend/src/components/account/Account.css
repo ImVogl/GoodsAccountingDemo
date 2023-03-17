@@ -52,7 +52,15 @@
     margin-right: 25px;
 }
 
-
 .main-account-row-remove{
     grid-template-columns: 200px 1fr;
+}
+
+.input-control-error{
+    border: red 1.5px;
+}
+
+.form-text{
+    color: rgb(119, 36, 36);
+    font-size: small;
 }

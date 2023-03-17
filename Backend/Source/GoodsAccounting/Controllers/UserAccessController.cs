@@ -205,7 +205,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
         [HttpPost("~/all_users")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<UserLoginDto>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> GetAllLogins()
@@ -215,7 +215,7 @@ namespace GoodsAccounting.Controllers
             {
                 var logins = await _db.Users
                     .Where(user => user.Role == UserRole.RegisteredUser)
-                    .Select(user => user.UserLogin)
+                    .Select(user => new UserLoginDto { Id = user.Id, Login = user.UserLogin })
                     .ToListAsync()
                     .ConfigureAwait(false);
 
@@ -305,7 +305,7 @@ namespace GoodsAccounting.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> RemoveUserAsync(int id)
         {
-            if (await _db.Users.AnyAsync(user => user.Id == id).ConfigureAwait(false))
+            if (!await _db.Users.AnyAsync(user => user.Id == id).ConfigureAwait(false))
                 return BadRequest(_bodyBuilder.EntityNotFoundBuild());
 
             try {
