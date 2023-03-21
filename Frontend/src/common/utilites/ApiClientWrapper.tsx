@@ -2,7 +2,7 @@ import { jsonProperty, Serializable } from "ts-serializable";
 import 'reflect-metadata'       // It's nessesary for "jsonProperty" function
 import { getBaseUrl } from './Common'
 import TokenService from '../utilites/TokenService';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import 
 { 
     Client,
@@ -90,7 +90,7 @@ class ApiClientWrapper{
                 return [];
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -113,7 +113,7 @@ class ApiClientWrapper{
                 return new NewUserDto();
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -123,9 +123,8 @@ class ApiClientWrapper{
     }
 
     public closeShiftForOtherUser(targetUserId: number, cash: number) : Promise<void>{
-        return this._close.other(targetUserId, cash).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._close.other(targetUserId, cash).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -134,7 +133,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -144,9 +143,8 @@ class ApiClientWrapper{
     }
 
     public initWorkingShift(id: number): Promise<void>{
-        return this._init.shift(id, this.getToken()).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._init.shift(id, this.getToken()).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -155,7 +153,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -165,9 +163,8 @@ class ApiClientWrapper{
     }
 
     public removeUser(id: number): Promise<void>{
-        return this._remove.user(id, this.getToken()).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._remove.user(id, this.getToken()).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             let axiosError = error as AxiosError;
@@ -177,7 +174,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -187,9 +184,8 @@ class ApiClientWrapper{
     }
 
     public soldGoods(dto: SoldGoodsDto): Promise<void>{
-        return this._sold.goods(this.getToken(), dto).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._sold.goods(this.getToken(), dto).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -198,7 +194,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -208,9 +204,8 @@ class ApiClientWrapper{
     }
 
     public getShiftDays(id: number): Promise<Date[]>{
-        return this._shift.days(id, this.getToken()).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._shift.days(id, this.getToken()).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -219,7 +214,7 @@ class ApiClientWrapper{
                 return [];
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -230,9 +225,8 @@ class ApiClientWrapper{
 
     public getStatistics(id: number, day: Date): Promise<ReducedSnapshotDto[]>{
         let locDate = new Date(day.getFullYear(), day.getMonth(), day.getDay());
-        return this._sold.statistics(id, locDate, this.getToken()).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._sold.statistics(id, locDate, this.getToken()).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -241,7 +235,7 @@ class ApiClientWrapper{
                 return [];
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -252,9 +246,8 @@ class ApiClientWrapper{
 
     public getFullStatistics(id: number, day: Date): Promise<ShiftSnapshotDto[]>{
         let locDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 4);
-        return this._statistics.full(id, locDate, this.getToken()).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._statistics.full(id, locDate, this.getToken()).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -263,7 +256,7 @@ class ApiClientWrapper{
                 return [];
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -272,15 +265,23 @@ class ApiClientWrapper{
         });
     }
 
-    public async updateToken(): Promise<void>{
-        let token = await this._update.token();
-        this._tokenService.set(token);
+    public updateToken(): Promise<void>{
+        axios.defaults.withCredentials = true;
+        return this._update.token()
+            .then(token => {
+                axios.defaults.withCredentials = false;
+                this._tokenService.set(token);
+            })
+            .catch(error => {
+                console.error(error);
+                this._tokenService.reset();
+                axios.defaults.withCredentials = false;
+            });
     }
 
     public changePassword(oldPassword: string, password: string): Promise<string>{
-        return this._base.change(oldPassword, password, this.getToken()).then(async response => {
-            await this._update.user(this.getToken());
-            return response;
+        return this._base.change(oldPassword, password, this.getToken()).then(response => {
+            return this._update.user(this.getToken()).then(() => response);
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -289,7 +290,7 @@ class ApiClientWrapper{
                 return "";
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -299,8 +300,8 @@ class ApiClientWrapper{
     }
 
     public closeWorkingShift(userId: number, cash: number): Promise<void>{
-        return this._base.close(userId, cash, this.getToken()).then(async () => {
-            await this._update.user(this.getToken());
+        return this._base.close(userId, cash, this.getToken()).then(() => {
+            return this._update.user(this.getToken()).then(() => {});
         })
         .catch(async error => {
             let apiError  = error as ApiException;
@@ -310,7 +311,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -320,8 +321,8 @@ class ApiClientWrapper{
     }
 
     public editGoodsList(dto: EditGoodsListDto): Promise<void>{
-        return this._base.edit(this.getToken(), dto).then(async () => {
-            await this._update.user(this.getToken());
+        return this._base.edit(this.getToken(), dto).then(() => {
+            return this._update.user(this.getToken()).then(() => {});
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -330,7 +331,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -347,8 +348,8 @@ class ApiClientWrapper{
     }
 
     public revision(dto: GoodsRevisionDto): Promise<void>{
-        return this._base.revision(this.getToken(), dto).then(async () => {
-            await this._update.user(this.getToken());
+        return this._base.revision(this.getToken(), dto).then(() => {
+            return this._update.user(this.getToken()).then(() => {});
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -357,7 +358,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });
@@ -370,7 +371,9 @@ class ApiClientWrapper{
         let dto = new SignInDto()
         dto.login = login;
         dto.password = password;
+        axios.defaults.withCredentials = true;
         return await this._base.signin("", dto).then((response) => {
+            axios.defaults.withCredentials = false;
             this._tokenService.set(response.token);
             let info = new UserInfo();
             info.id = response.id;
@@ -379,6 +382,7 @@ class ApiClientWrapper{
             info.shift_opened = response.shift_opened;
             return info;
         }).catch(error =>{
+            axios.defaults.withCredentials = false;
             console.error(error);
             this._tokenService.reset();
             return new UserInfo();
@@ -386,17 +390,20 @@ class ApiClientWrapper{
     }
 
     public signout(id: number): Promise<void>{
+        axios.defaults.withCredentials = true;
         return this._base.signout(id).then(() =>{
+            axios.defaults.withCredentials = false;
             this._tokenService.reset();
         }).catch(error => {
+            axios.defaults.withCredentials = false;
             console.error(error);
             this._tokenService.reset();
         });
     }
 
     public updateSupplySate(dto: GoodsSuppliesDto): Promise<void>{
-        return this._base.supplies(this.getToken(), dto).then(async () => {
-            await this._update.user(this.getToken());
+        return this._base.supplies(this.getToken(), dto).then(() => {
+            return this._update.user(this.getToken()).then(() => {});
         }).catch(async error => {
             let apiError  = error as ApiException;
             if (apiError === null || apiError.status !== Unauthorized){
@@ -405,7 +412,7 @@ class ApiClientWrapper{
                 return;
             }
 
-            await this.updateToken().catch(error => {
+            this.updateToken().catch(error => {
                 console.error(error);
                 this._tokenService.reset();
             });

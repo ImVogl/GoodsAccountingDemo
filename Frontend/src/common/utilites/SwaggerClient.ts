@@ -567,10 +567,7 @@ export class Client {
         let options_ = <AxiosRequestConfig>{
             method: "POST",
             url: url_,
-            withCredentials: true,
-            credentials: 'include',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
             cancelToken
@@ -1155,12 +1152,9 @@ export class UpdateClient {
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ = <AxiosRequestConfig>{
-            method: "POST",
+            method: "GET",
             url: url_,
-            withCredentials: true,
-            credentials: 'include',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Accept": "text/plain"
             },
