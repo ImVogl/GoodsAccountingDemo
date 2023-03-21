@@ -19,6 +19,7 @@ using GoodsAccounting.Services.SnapshotConverter;
 using GoodsAccounting.HeaderFilters;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
+using System.Reflection;
 
 namespace GoodsAccounting
 {
@@ -79,10 +80,11 @@ namespace GoodsAccounting
                 throw new NullReferenceException();
 
             var policyBuilder = new CorsPolicyBuilder();
-            policyBuilder.AllowAnyHeader();
-            policyBuilder.AllowAnyMethod();
-            policyBuilder.WithOrigins(origin);
-            policyBuilder.AllowCredentials();
+            policyBuilder.WithOrigins(origin)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+
             serviceCollection.AddCors(options => { options.AddPolicy(CorsName, policyBuilder.Build()); });
             serviceCollection.AddRouting(r => r.SuppressCheckForUnhandledSecurityMetadata = true);
         }
@@ -138,6 +140,11 @@ namespace GoodsAccounting
                 .AddJwtBearer(options => options.TokenValidationParameters = GenerateValidationParameters(section.ValidIssuer, section.ValidAudience, keyExtractor))
                 .AddCookie(option =>
                 {
+                    option.Cookie.IsEssential = true;
+                    option.Cookie.HttpOnly = true;
+                    option.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    option.Cookie.SameSite = SameSiteMode.None;
+                    option.Cookie.Name = "Cookie";
                     option.LoginPath = "/signin";
                     option.LogoutPath = "/signout";
                     option.ExpireTimeSpan = TimeSpan.FromDays(15);
@@ -217,7 +224,23 @@ namespace GoodsAccounting
             serviceCollection.AddScoped<IStorageContext>(provider => provider.GetRequiredService<PostgresProxy>());
             serviceCollection.AddScoped<IAdminStorageContext>(provider => provider.GetRequiredService<PostgresProxy>());
             AddDataBaseContext(serviceCollection);
-            serviceCollection.AddScoped<ISecurityKeyExtractor>(_ => new SecurityKeyExtractor());
+            serviceCollection.AddScoped<ISecurityKeyExtractor>(provider =>
+            {
+                var section = provider.GetRequiredService<IOptions<BearerSection>>().Value;
+                if (string.IsNullOrWhiteSpace(section.PathToPem))
+                    throw new ArgumentNullException(nameof(section.PathToPem));
+
+                var assemblyPath = Assembly.GetAssembly(typeof(Program))?.Location;
+                var binaryFolder = Path.GetDirectoryName(assemblyPath);
+                if (string.IsNullOrWhiteSpace(binaryFolder) || !Directory.Exists(binaryFolder))
+                    throw new DirectoryNotFoundException(binaryFolder);
+
+                var keyFilePath = Path.GetFullPath(Path.Combine(binaryFolder, section.PathToPem));
+                if (!File.Exists(keyFilePath))
+                    throw new FileNotFoundException("File with key isn't found", keyFilePath);
+
+                return new SecurityKeyExtractor(keyFilePath);
+            });
             serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
             serviceCollection.AddScoped<ISnapshotConverter>(provider => new HistorySnapshotConverter(provider.GetRequiredService<IMapper>()));
             serviceCollection.AddScoped<IResponseBodyBuilder>(_ => new ResponseBodyBuilder());
