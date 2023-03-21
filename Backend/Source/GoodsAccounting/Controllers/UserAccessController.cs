@@ -119,9 +119,9 @@ namespace GoodsAccounting.Controllers
         /// <response code="200">Returns value is indicated that user is drinker.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-        [HttpPost("~/update_token")]
+        [HttpGet("~/update_token")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> UpdateTokenAsync()
@@ -142,7 +142,7 @@ namespace GoodsAccounting.Controllers
 
                 if (user == null)
                     return Unauthorized();
-                
+
                 return Ok(await AuthenticateAsync(user).ConfigureAwait(false));
             }
             catch {
@@ -514,7 +514,7 @@ namespace GoodsAccounting.Controllers
         /// <returns><see cref="Task"/> with access token.</returns>
         private async Task<string> AuthenticateAsync(User user)
         {
-            var claims = new List<Claim> { new (ClaimsIdentity.DefaultNameClaimType, user.UserLogin) };
+            var claims = new List<Claim> { new (ClaimsIdentity.DefaultNameClaimType, user.UserLogin), new ("Id", user.Id.ToString()) };
             var id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
             return ProcessToken(user, ExpiredTokenTimeSpan);

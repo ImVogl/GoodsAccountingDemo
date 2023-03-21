@@ -29,7 +29,8 @@ const NEW_PASSWORD_ID: string = 'new-password-group-form';
 const CONFIRM_ID: string = 'confirm-password-group-form';
 const SURNAME_ID: string = 'surname-password-group-form';
 const NAME_ID: string = 'name-password-group-form'
-const handleCreateNewUser = (identifier: number, client: ApiClientWrapper, form: HTMLFormElement, date: Date) => {
+
+const handleCreateNewUser = async (identifier: number, client: ApiClientWrapper, form: HTMLFormElement, date: Date): Promise<string> => {
     let name:string = "";
     let surname: string = "";
     for (let i = 0; i < form.length; i++){
@@ -47,15 +48,13 @@ const handleCreateNewUser = (identifier: number, client: ApiClientWrapper, form:
         }
     };
 
-    client.addNewUser(identifier, name, surname, date)
-        .then(response => `Login: ${response.login}; Password: ${response.password}`)
-        .then(message => navigator.clipboard.writeText(message)
-            .then(() => alert("Логин и пароль скопированы в буфер обмена!"))
-            .catch(exception => { console.error(exception); alert(message);}))
-        .catch(exception => {
-                console.error(exception);
-                alert("Не удалось создать нового пользователея");
-            });
+    try {
+        const response = await client.addNewUser(identifier, name, surname, date);
+        return `Login: ${response.login}; Password: ${response.password}`;
+    } catch (exception) {
+        console.error(exception);
+        return "";
+    }
 };
 
 const handleChangePassword = async (client: ApiClientWrapper, form: HTMLFormElement, setErrors: Function): Promise<void> => {
@@ -134,14 +133,29 @@ const handleRemoveUser = async (client: ApiClientWrapper, id:number): Promise<vo
 const AddUser: FC = () => {
     const [date, setDate] = useState(new Date());
     const [submitting, setSubmitting] = useState(false);
+    const [message, setMessage] = useState("");
+    useEffect(() => {
+        if (message !== ""){
+            navigator.clipboard.writeText(message);
+        }
+    }, [message]);
     const client = new ApiClientWrapper(useAppDispatch());
     const identifier = useAppSelector(selectUserIdentifier);
     return(
-        <Form className='main-account-container' onSubmit={async event => {
+        <Form 
+            className='main-account-container'
+            autoComplete="off"
+            onSubmit={event => {
                 setSubmitting(true);
                 let form = event.target as HTMLFormElement;
-                handleCreateNewUser(identifier, client, form, date);
-                setSubmitting(false);}}
+                handleCreateNewUser(identifier, client, form, date)
+                    .then(message => { 
+                        setMessage(message);
+                        setSubmitting(false);
+                        })
+                    .catch(error => console.error(error));
+                    }
+                }
             >
             <Form.Group className='main-account-container'>
                 <Form.Label className='main-account-sublabel'>Добавить продавца</Form.Label>
@@ -196,7 +210,9 @@ const RemoveUser: FC = () => {
     }, [user.login, user.id]);
 
     return(
-        <Form className='main-account-container' onSubmit={async () => {
+        <Form
+            className='main-account-container'
+            onSubmit={async () => {
                 setSubmitting(true);
                 await handleRemoveUser(client, user.id);
                 setSubmitting(false);}}

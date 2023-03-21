@@ -487,6 +487,7 @@ export class Client {
             data: content_,
             method: "POST",
             url: url_,
+            withCredentials: true,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
@@ -567,6 +568,7 @@ export class Client {
         let options_ = <AxiosRequestConfig>{
             method: "POST",
             url: url_,
+            withCredentials: true,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
@@ -1154,6 +1156,7 @@ export class UpdateClient {
         let options_ = <AxiosRequestConfig>{
             method: "GET",
             url: url_,
+            withCredentials: true,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Accept": "text/plain"
