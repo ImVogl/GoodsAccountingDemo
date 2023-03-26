@@ -71,6 +71,7 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
         item.id = identifier;
         item.price = grouppedValues[identifier][PRICE_POSTFIX];
         item.receipt = grouppedValues[identifier][SUPPLY_POSTFIX];
+        dto.items.push(item);
     }
 
     try{

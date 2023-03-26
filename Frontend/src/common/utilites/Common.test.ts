@@ -3,13 +3,13 @@ import { IGoodsItemDto } from './SwaggerClient';
 import { expect, test } from '@jest/globals'
 
 describe('Get categories tests.', () => {
-    const activeCatFruitsFirst: IGoodsItemDto = {category: "Fruits", id: "1", name: "Apple", price: 10, active: true };
-    const activeCatVegetablesFirst: IGoodsItemDto = {category: "Vegetables", id: "2", name: "Carrot", price: 10, active: true };
-    const activeCatVegetablesSecond: IGoodsItemDto = {category: "Vegetables", id: "3", name: "Cabbage", price: 10, active: true };
-    const notActiveCatFruits: IGoodsItemDto = {category: "Fruits", id: "4", name: "Watermellow", price: 10, active: false };
-    const notActiveCatVegetables: IGoodsItemDto = {category: "Vegetables", id: "5", name: "Сucumber", price: 10, active: false };
-    const activeCatFruitsSecond: IGoodsItemDto = {category: "Fruits", id: "6", name: "Cantaloupe", price: 10, active: true };
-    const activeCatVegetablesThree: IGoodsItemDto = {category: "Vegetables", id: "7", name: "Potatos", price: 10, active: true };
+    const activeCatFruitsFirst: IGoodsItemDto = {category: "Fruits", id: "1", name: "Apple", price: 10, active: true, storage: 10 };
+    const activeCatVegetablesFirst: IGoodsItemDto = {category: "Vegetables", id: "2", name: "Carrot", price: 10, active: true, storage: 10 };
+    const activeCatVegetablesSecond: IGoodsItemDto = {category: "Vegetables", id: "3", name: "Cabbage", price: 10, active: true, storage: 10 };
+    const notActiveCatFruits: IGoodsItemDto = {category: "Fruits", id: "4", name: "Watermellow", price: 10, active: false, storage: 10 };
+    const notActiveCatVegetables: IGoodsItemDto = {category: "Vegetables", id: "5", name: "Сucumber", price: 10, active: false, storage: 10 };
+    const activeCatFruitsSecond: IGoodsItemDto = {category: "Fruits", id: "6", name: "Cantaloupe", price: 10, active: true, storage: 10 };
+    const activeCatVegetablesThree: IGoodsItemDto = {category: "Vegetables", id: "7", name: "Potatos", price: 10, active: true, storage: 10 };
     const testData: IGoodsItemDto[] =
     [
         activeCatFruitsFirst,
