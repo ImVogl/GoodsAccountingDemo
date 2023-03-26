@@ -34,7 +34,14 @@ public class GoodsItemDto
     [JsonRequired]
     [JsonProperty("price")]
     public float Price { get; set; }
-    
+
+    /// <summary>
+    /// Get or set goods in storage.
+    /// </summary>
+    [JsonRequired]
+    [JsonProperty("storage")]
+    public int Storage { get; set; }
+
     /// <summary>
     /// Get or set value is indicating that item is on the market.
     /// </summary>

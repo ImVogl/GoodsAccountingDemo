@@ -1687,6 +1687,7 @@ export class GoodsItemDto implements IGoodsItemDto {
     name!: string;
     category!: string;
     price!: number;
+    storage!: number;
     active!: boolean;
 
     constructor(data?: IGoodsItemDto) {
@@ -1704,6 +1705,7 @@ export class GoodsItemDto implements IGoodsItemDto {
             this.name = _data["name"];
             this.category = _data["category"];
             this.price = _data["price"];
+            this.storage = _data["storage"];
             this.active = _data["active"];
         }
     }
@@ -1721,6 +1723,7 @@ export class GoodsItemDto implements IGoodsItemDto {
         data["name"] = this.name;
         data["category"] = this.category;
         data["price"] = this.price;
+        data["storage"] = this.storage;
         data["active"] = this.active;
         return data; 
     }
@@ -1731,6 +1734,7 @@ export interface IGoodsItemDto {
     name: string;
     category: string;
     price: number;
+    storage: number;
     active: boolean;
 }
 
