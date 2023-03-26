@@ -100,6 +100,12 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
 }
 
 const RevisionGoodsList: FC<IGoodsItemDto[]> = (goods:IGoodsItemDto[]): ReactElement => {
+    let editedGoods:IGoodsItemDto[] = [];
+    for (let i = 0; i < goods.length; i++){
+        if (goods[i].active){
+            editedGoods.push(goods[i]);
+        }
+    }
     const [sending, setSending] = useState(false);
     let client = new ApiClientWrapper(useAppDispatch());
     const identifier = useAppSelector(selectUserIdentifier);
@@ -110,7 +116,7 @@ const RevisionGoodsList: FC<IGoodsItemDto[]> = (goods:IGoodsItemDto[]): ReactEle
             setSending(false);
         }}>
             {
-                goods.map(item => {
+                editedGoods.map(item => {
                         return(
                             <Form.Group className='investition-table-row-revision' key = {item.id}>
                                 <Form.Label className='sell-page-item-name investition-table-item'>{item.name}</Form.Label>

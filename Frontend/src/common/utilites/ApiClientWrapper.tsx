@@ -27,7 +27,8 @@ import
     ReducedSnapshotDto,
     ShiftSnapshotDto,
     UserLoginDto,
-    ApiException
+    ApiException,
+    IEditGoodsListDto
 } from './SwaggerClient';
 
 interface IUserInfo{
@@ -327,26 +328,49 @@ class ApiClientWrapper{
         });
     }
 
-    public editGoodsList(dto: EditGoodsListDto): Promise<void>{
-        return this._base.edit(this.getToken(), dto).then(() => {
-            return this.updateUser().then(() => {});
-        }).catch(error => {
-            let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
-                console.error(error);
-                this._tokenService.reset();
-                return;
-            }
+    public addNewGoodsItem(user_id: number, itemName: string, category: string, storage: number, w_price: number, r_price: number): Promise<void>{
+        let data: IEditGoodsListDto = {
+            user_id: user_id,
+            new: true,
+            remove: false,
+            restore: false,
+            name: itemName,
+            category: category,
+            store: storage,
+            r_price: r_price,
+            w_price: w_price
+        }
 
-            return this.updateToken()
-                .then(() => this._base.edit(this.getToken(), dto))
-                .catch(error => {
-                    console.error(error);
-                    this._tokenService.reset();
-                });
-        });
+        const dto = new EditGoodsListDto(data);
+        return this.editGoodsList(dto);
     }
+    
+    public removeGoodsItem(user_id: number, itemId: string): Promise<void>{
+        let data: IEditGoodsListDto = {
+            user_id: user_id,
+            id: itemId,
+            new: false,
+            remove: true,
+            restore: false
+        }
 
+        const dto = new EditGoodsListDto(data);
+        return this.editGoodsList(dto);
+    }
+    
+    public restoreGoodsItem(user_id: number, itemId: string): Promise<void>{
+        let data: IEditGoodsListDto = {
+            user_id: user_id,
+            id: itemId,
+            new: false,
+            remove: false,
+            restore: true
+        }
+
+        const dto = new EditGoodsListDto(data);
+        return this.editGoodsList(dto);
+    }
+    
     public getAllGoods(): Promise<GoodsItemDto[]>{
         return this._base.goods().catch(error => {
             console.error(error);
@@ -451,6 +475,26 @@ class ApiClientWrapper{
                         console.error(error);
                         this._tokenService.reset();
                     });
+        });
+    }
+
+    private editGoodsList(dto: EditGoodsListDto): Promise<void>{
+        return this._base.edit(this.getToken(), dto).then(() => {
+            return this.updateUser().then(() => {});
+        }).catch(error => {
+            let apiError  = error as ApiException;
+            if (apiError === null || apiError.status !== Unauthorized){
+                console.error(error);
+                this._tokenService.reset();
+                return;
+            }
+
+            return this.updateToken()
+                .then(() => this._base.edit(this.getToken(), dto))
+                .catch(error => {
+                    console.error(error);
+                    this._tokenService.reset();
+                });
         });
     }
 

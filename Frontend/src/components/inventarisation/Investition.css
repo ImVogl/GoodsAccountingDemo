@@ -39,7 +39,8 @@
 .investition-table-item{
     font-weight: bold;
     font-size:medium;
-    margin-bottom: 5px;
+    margin-top: 2px;
+    margin-bottom: 2px;
     padding-left: 45px;
 }
 
@@ -75,4 +76,37 @@
 
 .investition-table-sold{
     margin-right: 15px;
+}
+
+.investition-table-full-button{
+    border-radius: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    font-weight: bolder;
+    font-size: medium;
+}
+
+.investition-group-button{
+    display: grid;
+    grid-template-rows: auto;
+    margin-top: 10px;
+}
+
+.investition-table-row-editing{
+    display: grid;
+    border-bottom: solid 2px black;
+    grid-template-columns: 1fr 250px;
+}
+
+.investition-table-button-editing{
+    width: 150px;
+    border-radius: 5px;
+    justify-content: center;
+    padding-left: 25px;
+    display:flex;
+}
+
+.investition-table-strikethrough{
+    text-decoration-line: line-through;
+    text-decoration-thickness: 0.25rem;
 }

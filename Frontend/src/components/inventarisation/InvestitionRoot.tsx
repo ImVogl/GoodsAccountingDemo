@@ -5,6 +5,7 @@ import { Container, Col, Row, Form, Button } from 'react-bootstrap';
 import WorkingArea from '../base/working/WorkingArea';
 import InvestitionSupply from './InvestitionSupply';
 import InvestitionRevision from './InvestitionRevision';
+import InvestitionEditing from './InvestitionEditing';
 
 const SUPPLY:string = "Поставки";
 const REVISION:string = "Ревизия";
@@ -40,7 +41,7 @@ function GetCurrentArea(current: string){
     }
 
     if (current === EDITING){
-        return <div></div>
+        return <InvestitionEditing />
     }
 
     return <InvestitionSupply />
