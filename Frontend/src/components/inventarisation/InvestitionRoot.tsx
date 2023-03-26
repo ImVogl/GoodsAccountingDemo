@@ -4,6 +4,7 @@ import { Container, Col, Row, Form, Button } from 'react-bootstrap';
 
 import WorkingArea from '../base/working/WorkingArea';
 import InvestitionSupply from './InvestitionSupply';
+import InvestitionRevision from './InvestitionRevision';
 
 const SUPPLY:string = "Поставки";
 const REVISION:string = "Ревизия";
@@ -35,7 +36,7 @@ function GetPrevious(current: string): string{
 
 function GetCurrentArea(current: string){
     if (current === REVISION){
-        return <div></div>
+        return <InvestitionRevision />
     }
 
     if (current === EDITING){

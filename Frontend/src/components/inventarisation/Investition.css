@@ -26,6 +26,11 @@
     grid-template-columns: 200px 175px 1fr;
 }
 
+.investition-table-row-revision{
+    display: grid;
+    grid-template-columns: 225px 125px 125px 125px 1fr;
+}
+
 .investition-table-category{
     font-weight: bolder;
     font-size: larger;
@@ -49,6 +54,16 @@
 .investition-table-form::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.investition-table-form-revision{
+    width: 85px;
+    padding-left: 0px;
+}
+
+.investition-table-form-revision-category{
+    width: 105px;
+    padding-left: 0px;
 }
 
 .investition-table-button{
