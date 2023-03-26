@@ -79,7 +79,7 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
                     <Container className="mb-3">
                         <Form.Group className="form-group" controlId="cash">
                             <Form.Label>Остаток в кассе:</Form.Label>
-                            <Form.Control type="number" onChange={event => setCash(parseInt(event.target.value))} />
+                            <Form.Control type='number' onChange={event => setCash(parseInt(event.target.value))} />
                         </Form.Group>
                         <Button className='working-area-button' variant="success" type="submit" disabled={closing} onClick={() => setClosing(true)}>Закрыть смену</Button>
                     </Container>

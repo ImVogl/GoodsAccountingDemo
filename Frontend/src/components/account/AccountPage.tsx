@@ -144,7 +144,6 @@ const AddUser: FC = () => {
     return(
         <Form 
             className='main-account-container'
-            autoComplete="off"
             onSubmit={event => {
                 setSubmitting(true);
                 let form = event.target as HTMLFormElement;

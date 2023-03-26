@@ -265,7 +265,7 @@ class ApiClientWrapper{
             }
 
             return this.updateToken()
-                .then(() => this._statistics.full(id, day, this.getToken()))
+                .then(() => this._statistics.full(id, locDate, this.getToken()))
                 .catch(error => {
                     console.error(error);
                     this._tokenService.reset();
