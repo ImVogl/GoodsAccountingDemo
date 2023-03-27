@@ -84,7 +84,7 @@ public class AdminStorageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> StorageRevisionAsync([FromBody] GoodsRevisionDto dto)
     {
-        if (_validator.Validate(dto)) {
+        if (!_validator.Validate(dto)) {
             Log.Error($"DTO \"{typeof(GoodsRevisionDto)}\" is invalid.");
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
         }
@@ -119,7 +119,7 @@ public class AdminStorageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> SuppliesAsync([FromBody] GoodsSuppliesDto dto)
     {
-        if (_validator.Validate(dto))
+        if (!_validator.Validate(dto))
         {
             Log.Error($"DTO \"{typeof(GoodsRevisionDto)}\" is invalid.");
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
@@ -156,7 +156,7 @@ public class AdminStorageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> EditGoodsListAsync([FromBody] EditGoodsListDto dto)
     {
-        if (_validator.Validate(dto))
+        if (!_validator.Validate(dto))
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
 
         try {
