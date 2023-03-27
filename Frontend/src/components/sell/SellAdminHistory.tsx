@@ -7,6 +7,7 @@ import { selectUserIdentifier } from '../../common/redux/UserSlice';
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { StorageItemInfoDto } from '../../common/utilites/SwaggerClient';
 import { getNearstDay } from './utils';
+import { badRequestProcessor } from '../../common/utilites/Common';
 
 interface ISnapshot{
     id: string;
@@ -205,6 +206,10 @@ const SellAdminHistory: FC = () => {
             setWriteOff(locWriteOff);
             setSoldTotal(locIncome);
             setIndex(locNames.length > 0 ? 0 : -1);
+        }).catch(exception => {
+            if (!badRequestProcessor(exception)){
+                console.error(exception);
+            }
         })
     }, [date]);
 

@@ -1,10 +1,11 @@
-import './Investition.css';
+import './Inventarisation.css';
 import { FC, ReactElement, useEffect, useState } from 'react';
 import { Container, Col, Row, Form, Button, ButtonGroup } from 'react-bootstrap';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { useAppDispatch, useAppSelector } from '../../common/redux/hooks';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
 import { GoodsRevisionDto, RevisionGoodsItemDto, IGoodsItemDto } from '../../common/utilites/SwaggerClient';
+import { badRequestProcessor } from '../../common/utilites/Common';
 
 const GROUP_POSTFIX: string = '.category';
 const STORAGE_POSTFIX: string = '.storage';
@@ -93,9 +94,11 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
     try{
         await client.revision(dto);
     }
-    catch (error){
-        console.error(error);
-        alert("Не удалось отправить сведения о проданных товарах.");
+    catch (exception){
+        if (!badRequestProcessor(exception)){
+            console.error(exception);
+            alert("Не удалось отправить сведения о проданных товарах.");
+        }
     }
 }
 
@@ -107,7 +110,7 @@ const RevisionGoodsList: FC<IGoodsItemDto[]> = (goods:IGoodsItemDto[]): ReactEle
         }
     }
     const [sending, setSending] = useState(false);
-    let client = new ApiClientWrapper(useAppDispatch());
+    const client = new ApiClientWrapper(useAppDispatch());
     const identifier = useAppSelector(selectUserIdentifier);
     return (
         <Form className='investition-table-base' onSubmit={async (event) => {
@@ -154,7 +157,7 @@ const RevisionGoodsList: FC<IGoodsItemDto[]> = (goods:IGoodsItemDto[]): ReactEle
     )
 }
 
-const InvestitionRevision: FC = () =>{
+const InventarisationRevision: FC = () =>{
     const init: IGoodsItemDto[] = [];
     const [goods, setGoods] = useState(init);
     const client = new ApiClientWrapper(useAppDispatch());
@@ -165,7 +168,11 @@ const InvestitionRevision: FC = () =>{
                 setGoods(goodsDto);
             }
             
-            fetchData().catch(console.error);
+            fetchData().catch(exception => {
+                if (!badRequestProcessor(exception)){
+                    console.error(exception);
+                }
+            });
         }, []
     )
     return(
@@ -182,4 +189,4 @@ const InvestitionRevision: FC = () =>{
     )
 }
 
-export default InvestitionRevision;
+export default InventarisationRevision;

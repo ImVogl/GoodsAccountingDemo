@@ -1,3 +1,4 @@
+import { BadRequest } from './exceptions';
 import { IGoodsItemDto } from './SwaggerClient'
 
 // Getting base url fron config.
@@ -43,4 +44,15 @@ export function GetCategories(goods: IGoodsItemDto[], search: string):ICategory[
     });
 
     return result;
+}
+
+export function badRequestProcessor(error: any): boolean{
+    if (error instanceof BadRequest){
+        let converted = error as BadRequest;
+        alert(converted.message);
+        console.error(converted.message);
+        return true;
+    }
+
+    return false;
 }

@@ -4,6 +4,7 @@ import { getBaseUrl } from './Common'
 import TokenService from '../utilites/TokenService';
 import { IUser, setUser } from '../../common/redux/UserSlice';
 import { AxiosError } from 'axios';
+import { BadRequest } from'./exceptions';
 import 
 { 
     Client,
@@ -52,7 +53,8 @@ export class UserInfo extends Serializable implements IUserInfo{
     name!: string;
 }
 
-const Unauthorized: number = 401;
+const BAD_REQUEST: number = 400;
+const UNAUTHORIZED: number = 401;
 const ERROR_CODE: string = "ERR_NETWORK";
 
 class ApiClientWrapper{
@@ -87,9 +89,13 @@ class ApiClientWrapper{
     public getAllUsers(): Promise<UserLoginDto[]>{
         return this._all.users(this.getToken())
             .catch(error => {
-                let apiError  = error as ApiException;
+                let apiError = error as ApiException;
+                if (apiError !== null && apiError.status === BAD_REQUEST){
+                    throw new BadRequest("Не удалось получить список пользователей: некорректные данные.")
+                }
+
                 let axiosError = error as AxiosError;
-                if ((apiError === null || apiError.status !== Unauthorized) && (axiosError === null || axiosError.code !== ERROR_CODE)){
+                if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                     console.error(error);
                     this._tokenService.reset();
                     return [];
@@ -112,8 +118,11 @@ class ApiClientWrapper{
             .then(response => this.updateUser().then(() => response))
             .catch(error => {
                 let apiError  = error as ApiException;
+                if (apiError !== null && apiError.status === BAD_REQUEST){
+                    throw new BadRequest("Не удалось нового пользователя: некорректные данные.")
+                }
 
-                if (apiError === null || apiError.status !== Unauthorized){
+                if (apiError === null || apiError.status !== UNAUTHORIZED){
                     console.error(error);
                     this._tokenService.reset();
                     return new NewUserDto();
@@ -134,7 +143,11 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось закрыть чужую смену: некорректные данные.")
+            }
+
+            if (apiError === null || apiError.status !== UNAUTHORIZED){
                 console.error(error);
                 this._tokenService.reset();
                 return;
@@ -154,7 +167,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось открыть новую смену: некорректные данные.")
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;
@@ -174,8 +192,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось удалить продавца: некорректные данные.")
+            }
+
             let axiosError = error as AxiosError;
-            if ((apiError === null || apiError.status !== Unauthorized) && (axiosError === null || axiosError.code !== ERROR_CODE)){
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;
@@ -195,7 +217,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось отправить список проданных товаров: некорректные данные.")
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;
@@ -215,7 +242,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось получить список дней, когда работали пользователи: некорректные данные.")
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return [];
@@ -237,7 +269,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest(`Не удалось получить статистику на ${day}: некорректные данные.`)
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return [];
@@ -259,7 +296,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest(`Не удалось получить статистику на ${day}: некорректные данные.`);
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return [];
@@ -291,7 +333,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => response);
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось изменить пароль: некорректные данные.");
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return "";
@@ -313,7 +360,12 @@ class ApiClientWrapper{
         })
         .catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось закрыть рабочую смену: некорректные данные.")
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;
@@ -342,7 +394,13 @@ class ApiClientWrapper{
         }
 
         const dto = new EditGoodsListDto(data);
-        return this.editGoodsList(dto);
+        return this.editGoodsList(dto).catch(error => {
+            if (error instanceof BadRequest){
+                throw new BadRequest("Не удалось добавить товар: некорректные данные.");
+            }
+
+            throw error;
+        });
     }
     
     public removeGoodsItem(user_id: number, itemId: string): Promise<void>{
@@ -351,11 +409,22 @@ class ApiClientWrapper{
             id: itemId,
             new: false,
             remove: true,
-            restore: false
+            restore: false,
+            name: '',
+            category: '',
+            store: 0,
+            r_price: 0,
+            w_price: 0
         }
 
         const dto = new EditGoodsListDto(data);
-        return this.editGoodsList(dto);
+        return this.editGoodsList(dto).catch(error => {
+            if (error instanceof BadRequest){
+                throw new BadRequest("Не удалось удалить товар: некорректные данные.");
+            }
+
+            throw error;
+        });
     }
     
     public restoreGoodsItem(user_id: number, itemId: string): Promise<void>{
@@ -364,11 +433,22 @@ class ApiClientWrapper{
             id: itemId,
             new: false,
             remove: false,
-            restore: true
+            restore: true,
+            name: '',
+            category: '',
+            store: 0,
+            r_price: 0,
+            w_price: 0
         }
 
         const dto = new EditGoodsListDto(data);
-        return this.editGoodsList(dto);
+        return this.editGoodsList(dto).catch(error => {
+            if (error instanceof BadRequest){
+                throw new BadRequest("Не удалось восстановить товар: некорректные данные.");
+            }
+
+            throw error;
+        });
     }
     
     public getAllGoods(): Promise<GoodsItemDto[]>{
@@ -383,7 +463,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => {});
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось отправить сведения по результатами ревизии: некорректные данные.")
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;
@@ -432,7 +517,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => {});
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest("Не удалось обновить сведения по поставкам: некорректные данные.")
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;
@@ -455,7 +545,12 @@ class ApiClientWrapper{
             })
             .catch(error => {
                 let apiError  = error as ApiException;
-                if (apiError === null || apiError.status !== Unauthorized){
+                if (apiError !== null && apiError.status === BAD_REQUEST){
+                    throw new BadRequest("Не удалось обновить сведения о пользователе: некорректные данные.")
+                }
+
+                let axiosError = error as AxiosError;
+                if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                     console.error(error);
                     this._tokenService.reset();
                     return;
@@ -464,7 +559,15 @@ class ApiClientWrapper{
                 return this.updateToken()
                     .then(() => this._update.user(this.getToken())
                         .then(response => {
-                            let info: IUser = { id: response.id, is_admin: response.is_admin, shift_opened: response.shift_opened, name: response.name, logon: true, error: "" }
+                            let info: IUser = {
+                                id: response.id,
+                                is_admin: response.is_admin,
+                                shift_opened: response.shift_opened,
+                                name: response.name,
+                                logon: true,
+                                error: ""
+                            }
+
                             this._dispatcher(setUser(info));
                         })
                         .catch(error => {
@@ -483,7 +586,12 @@ class ApiClientWrapper{
             return this.updateUser().then(() => {});
         }).catch(error => {
             let apiError  = error as ApiException;
-            if (apiError === null || apiError.status !== Unauthorized){
+            if (apiError !== null && apiError.status === BAD_REQUEST){
+                throw new BadRequest('')
+            }
+
+            let axiosError = error as AxiosError;
+            if ((apiError === null || apiError.status !== UNAUTHORIZED) && (axiosError === null || axiosError.code !== ERROR_CODE)){
                 console.error(error);
                 this._tokenService.reset();
                 return;

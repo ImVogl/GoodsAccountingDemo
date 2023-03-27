@@ -1,11 +1,11 @@
-import './Investition.css';
+import './Inventarisation.css';
 import { FC, useState } from 'react';
 import { Container, Col, Row, Form, Button } from 'react-bootstrap';
 
 import WorkingArea from '../base/working/WorkingArea';
-import InvestitionSupply from './InvestitionSupply';
-import InvestitionRevision from './InvestitionRevision';
-import InvestitionEditing from './InvestitionEditing';
+import InvestitionSupply from './InventarisationSupply';
+import InvestitionRevision from './InventarisationRevision';
+import InvestitionEditing from './InventarisationEditing';
 
 const SUPPLY:string = "Поставки";
 const REVISION:string = "Ревизия";
@@ -47,7 +47,7 @@ function GetCurrentArea(current: string){
     return <InvestitionSupply />
 }
 
-const InvestitionRoot: FC = () => {
+const InventarisationRoot: FC = () => {
     const [title, setTitle] = useState(SUPPLY);
     return(
         <WorkingArea>
@@ -70,4 +70,4 @@ const InvestitionRoot: FC = () => {
     )
 }
 
-export default InvestitionRoot;
+export default InventarisationRoot;

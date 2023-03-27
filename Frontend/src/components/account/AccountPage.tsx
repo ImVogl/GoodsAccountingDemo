@@ -7,6 +7,7 @@ import WorkingArea from '../base/working/WorkingArea';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import Schema from './validator'
 import { ValidationError } from 'yup';
+import { badRequestProcessor } from '../../common/utilites/Common';
 
 interface IUser{
     id: number;
@@ -52,6 +53,10 @@ const handleCreateNewUser = async (identifier: number, client: ApiClientWrapper,
         const response = await client.addNewUser(identifier, name, surname, date);
         return `Login: ${response.login}; Password: ${response.password}`;
     } catch (exception) {
+        if (badRequestProcessor(exception)){
+            return "";
+        }
+
         console.error(exception);
         return "";
     }
@@ -115,8 +120,10 @@ const handleChangePassword = async (client: ApiClientWrapper, form: HTMLFormElem
         await client.changePassword(values.password, values.newPassword);
     }
     catch (exception){
-        console.error(exception);
-        alert("Не удалось изменить пароль!");
+        if (!badRequestProcessor(exception)){
+            console.error(exception);
+            alert("Не удалось изменить пароль!");
+        }
     }
 };
 
@@ -125,8 +132,10 @@ const handleRemoveUser = async (client: ApiClientWrapper, id:number): Promise<vo
         await client.removeUser(id);
     }
     catch (exception){
-        console.error(exception);
-        alert("Не удалось удалить пользователя")
+        if (!badRequestProcessor(exception)){
+            console.error(exception);
+            alert("Не удалось удалить пользователя");
+        }
     };
 }
 
@@ -205,7 +214,7 @@ const RemoveUser: FC = () => {
             locUser.id = users.length > 0 ? users[0].id :-1;
             locUser.login = users.length > 0 ? users[0].login : "";
             setUser(locUser);
-        });
+        }).catch(exception => badRequestProcessor(exception))
     }, [user.login, user.id]);
 
     return(

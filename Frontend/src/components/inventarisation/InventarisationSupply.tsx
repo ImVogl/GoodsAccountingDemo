@@ -1,7 +1,7 @@
-import './Investition.css';
+import './Inventarisation.css';
 import { FC, ReactElement, useEffect, useState } from 'react';
 import { Container, Col, Row, Form, Button, ButtonGroup } from 'react-bootstrap';
-import { ICategory, GetCategories } from '../../common/utilites/Common';
+import { ICategory, GetCategories, badRequestProcessor } from '../../common/utilites/Common';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { useAppDispatch, useAppSelector } from '../../common/redux/hooks';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
@@ -77,15 +77,17 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
     try{
         await client.updateSupplySate(dto);
     }
-    catch (error){
-        console.error(error);
-        alert("Не удалось отправить сведения о проданных товарах.");
+    catch (exception){
+        if (!badRequestProcessor(exception)){
+            console.error(exception);
+            alert("Не удалось отправить сведения о проданных товарах.");
+        }
     }
 }
 
 const SupplyGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement => {
     const [sending, setSending] = useState(false);
-    let client = new ApiClientWrapper(useAppDispatch());
+    const client = new ApiClientWrapper(useAppDispatch());
     const identifier = useAppSelector(selectUserIdentifier);
     return (
         <Form className='investition-table-base' onSubmit={async (event) => {
@@ -134,7 +136,7 @@ const SupplyGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement 
     )
 }
 
-const InvestitionSupply: FC = () =>{
+const InventarisationSupply: FC = () =>{
     const init: ICategory[] = [];
     const [goods, setGoods] = useState(init);
     const client = new ApiClientWrapper(useAppDispatch());
@@ -145,7 +147,11 @@ const InvestitionSupply: FC = () =>{
                 setGoods(GetCategories(goodsDto, ""));
             }
             
-            fetchData().catch(console.error);
+            fetchData().catch(exception => {
+                if (!badRequestProcessor(exception)){
+                    console.error(exception);
+                }
+            });
         }, []
     )
     return(
@@ -160,4 +166,4 @@ const InvestitionSupply: FC = () =>{
     )
 }
 
-export default InvestitionSupply;
+export default InventarisationSupply;

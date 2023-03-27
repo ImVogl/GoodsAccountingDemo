@@ -1,4 +1,4 @@
-import './Investition.css';
+import './Inventarisation.css';
 import { FC, useEffect, useState } from 'react';
 import { Form, Button, ButtonGroup } from 'react-bootstrap';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
@@ -8,6 +8,7 @@ import { IGoodsItemDto } from '../../common/utilites/SwaggerClient';
 import Modal from '../base/modal/Modal';
 import { useFormik, FormikHelpers } from 'formik';
 import Schema from './validation';
+import { badRequestProcessor } from '../../common/utilites/Common';
 
 export interface INewItem{
     item: string;
@@ -18,20 +19,24 @@ export interface INewItem{
 }
 
 async function removeAsync(client: ApiClientWrapper, identifier: number, itemIdentifier: string):Promise<void>{
-    client.removeGoodsItem(identifier, itemIdentifier).catch(error => {
-        console.error(error);
-        alert("Не удалось удалить позицию.");
+    client.removeGoodsItem(identifier, itemIdentifier).catch(exception => {
+        if (!badRequestProcessor(exception)){
+            console.error(exception);
+            alert("Не удалось удалить позицию.");
+        }
     })
 }
 
 async function restoreAsync(client: ApiClientWrapper, identifier: number, itemIdentifier: string):Promise<void>{
-    client.restoreGoodsItem(identifier, itemIdentifier).catch(error => {
-        console.error(error);
-        alert("Не удалось восстановить позицию.");
+    client.restoreGoodsItem(identifier, itemIdentifier).catch(exception => {
+        if (!badRequestProcessor(exception)){
+            console.error(exception);
+            alert("Не удалось восстановить позицию.");
+        }
     })
 }
 
-const InvestitionEditing: FC = () =>{
+const InventarisationEditing: FC = () =>{
     const init: IGoodsItemDto[] = [];
     const [goods, setGoods] = useState(init);
     const [sending, setSending] = useState(false);
@@ -45,7 +50,9 @@ const InvestitionEditing: FC = () =>{
             setActive(false);
         }
         catch (exception){
-          alert(exception)
+            if (!badRequestProcessor(exception)){
+                alert(exception);
+            }
         }
         finally{
           actions.resetForm();
@@ -67,8 +74,12 @@ const InvestitionEditing: FC = () =>{
                 setGoods(goodsDto);
             }
             
-            fetchData().catch(console.error);
-        }, [sending]
+            fetchData().catch(exception => {
+                if (!badRequestProcessor(exception)){
+                    console.error(exception);
+                }
+            });
+        }, [sending, handleSubmit]
     )
     return(
         <div className='investition-table-base'>
@@ -157,4 +168,4 @@ const InvestitionEditing: FC = () =>{
     )
 }
 
-export default InvestitionEditing;
+export default InventarisationEditing;

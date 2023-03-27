@@ -7,6 +7,7 @@ import { selectUserIdentifier } from '../../common/redux/UserSlice';
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { IReducedItemInfoDto } from '../../common/utilites/SwaggerClient';
 import { getNearstDay } from './utils';
+import { badRequestProcessor } from '../../common/utilites/Common';
 
 interface ISnapshot{
     id: string;
@@ -154,6 +155,10 @@ const SellPagePrevious: FC = () => {
             setCashValues(locCash);
             setSnapshots(snapshots);
             setIndex(locNames.length > 0 ? 0 : -1);
+        }).catch(exception => {
+            if (!badRequestProcessor(exception)){
+                console.error(exception);
+            }
         })
     }, [date]);
 
@@ -165,6 +170,10 @@ const SellPagePrevious: FC = () => {
         shiftDays().then(dates => {
             setDays(dates);
             setDayIndex(dates.length > 0 ? 0 : -1);
+        }).catch(exception => {
+            if (!badRequestProcessor(exception)){
+                console.error(exception);
+            }
         });
     }, []);
     return(

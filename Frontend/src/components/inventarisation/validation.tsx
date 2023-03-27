@@ -1,5 +1,5 @@
 import { ObjectSchema, object, string, number } from 'yup'
-import { INewItem } from './InvestitionEditing'
+import { INewItem } from './InventarisationEditing'
 
 const Schema: ObjectSchema<INewItem> = object({
     item: string()

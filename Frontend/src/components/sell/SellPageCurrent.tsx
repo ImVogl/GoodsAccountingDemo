@@ -2,7 +2,7 @@ import './SellPage.css'
 import { FC, useState, useEffect, ReactElement } from 'react';
 import { Form, Container, Row, Col, ButtonGroup, Button } from 'react-bootstrap';
 
-import { ICategory, GetCategories } from '../../common/utilites/Common';
+import { ICategory, GetCategories, badRequestProcessor } from '../../common/utilites/Common';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { SoldGoodsDto } from '../../common/utilites/SwaggerClient';
 import { selectUserIdentifier } from '../../common/redux/UserSlice';
@@ -42,9 +42,11 @@ async function sendSoldAsync(client: ApiClientWrapper, identifier: number, form:
     try{
         await client.soldGoods(dto);
     }
-    catch (error){
-        console.error(error);
-        alert("Не удалось отправить сведения о проданных товарах.");
+    catch (exception){
+        if (!badRequestProcessor(exception)){
+            console.error(exception);
+            alert("Не удалось отправить сведения о проданных товарах.");
+        }
     }
 }
 
@@ -58,7 +60,7 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
 
     const [sending, setSending] = useState(false);
     const dispatcher = useAppDispatch();
-    let client = new ApiClientWrapper(dispatcher);
+    const client = new ApiClientWrapper(dispatcher);
     const identifier = useAppSelector(selectUserIdentifier);
     let elements = categories.map((category) => 
     {
@@ -114,8 +116,15 @@ const SellPageCurrent: FC = () => {
     useEffect(
         () => {
             const fetchData = async () =>{
-                let goodsDto = await client.getAllGoods();
-                setGoods(GetCategories(goodsDto, search));
+                try{
+                    let goodsDto = await client.getAllGoods();
+                    setGoods(GetCategories(goodsDto, search));
+                }
+                catch (exception){
+                    if (!badRequestProcessor(exception)){
+                        console.error(exception);
+                    }
+                }
             }
             
             fetchData().catch(console.error);
