@@ -83,35 +83,35 @@ public class ValidatorTests
         Assert.That(
             DtoValidator.Validate(new GoodsRevisionDto
             {
-                Id = 1, Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = -1, Name = "123", RetailPrice = 10F, WriteOff = 1, Category = "123" } }
+                Id = 1, Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = -1, RetailPrice = 10F, WriteOff = 1, Category = "123" } }
             }), Is.False);
 
         Assert.That(
             DtoValidator.Validate(new GoodsRevisionDto
             {
                 Id = 1,
-                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = string.Empty, RetailPrice = 10F, WriteOff = 1, Category = "123" } }
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, RetailPrice = 10F, WriteOff = 1, Category = "123" } }
             }), Is.False);
 
         Assert.That(
             DtoValidator.Validate(new GoodsRevisionDto
             {
                 Id = 1,
-                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = "123", RetailPrice = -1F, WriteOff = 1, Category = "123" } }
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, RetailPrice = -1F, WriteOff = 1, Category = "123" } }
             }), Is.False);
 
         Assert.That(
             DtoValidator.Validate(new GoodsRevisionDto
             {
                 Id = 1,
-                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = "123", RetailPrice = 10F, WriteOff = -1, Category = "123" } }
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, RetailPrice = 10F, WriteOff = -1, Category = "123" } }
             }), Is.False);
 
         Assert.That(
             DtoValidator.Validate(new GoodsRevisionDto
             {
                 Id = 1,
-                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, Name = "123", RetailPrice = 10F, WriteOff = 1, Category = string.Empty } }
+                Items = new List<RevisionGoodsItemDto> { new() { Id = Guid.NewGuid(), Storage = 1, RetailPrice = 10F, WriteOff = 1, Category = string.Empty } }
             }), Is.False);
     }
 

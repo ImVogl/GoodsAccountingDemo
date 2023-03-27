@@ -15,13 +15,6 @@ public class RevisionGoodsItemDto
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Get or set name of item.
-    /// </summary>
-    [JsonRequired]
-    [JsonProperty("name")]
-    public string Name { get; set; } = null!;
-
-    /// <summary>
     /// Get or set name of category.
     /// </summary>
     [JsonRequired]

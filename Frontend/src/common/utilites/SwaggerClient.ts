@@ -2085,7 +2085,6 @@ export interface IReducedSnapshotDto {
 
 export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
     id!: string;
-    name!: string;
     category!: string;
     storage!: number;
     price!: number;
@@ -2103,7 +2102,6 @@ export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.name = _data["name"];
             this.category = _data["category"];
             this.storage = _data["storage"];
             this.price = _data["price"];
@@ -2121,7 +2119,6 @@ export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["name"] = this.name;
         data["category"] = this.category;
         data["storage"] = this.storage;
         data["price"] = this.price;
@@ -2132,7 +2129,6 @@ export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
 
 export interface IRevisionGoodsItemDto {
     id: string;
-    name: string;
     category: string;
     storage: number;
     price: number;

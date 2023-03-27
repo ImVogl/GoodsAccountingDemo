@@ -72,6 +72,10 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
                 number = 0;
             }
 
+            if (!grouppedValues.hasOwnProperty(extractItemId(form[i].id))){
+                grouppedValues[extractItemId(form[i].id)] = {}
+            }
+            
             grouppedValues[extractItemId(form[i].id)][postfix] = number;
         } 
         catch (error){

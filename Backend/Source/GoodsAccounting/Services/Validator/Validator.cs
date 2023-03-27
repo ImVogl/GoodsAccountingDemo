@@ -49,7 +49,6 @@ public class Validator : IPasswordValidator, IDtoValidator
         foreach (var item in dto.Items)
         {
             if (item.Storage < 0) return false;
-            if (string.IsNullOrWhiteSpace(item.Name)) return false;
             if (item.RetailPrice < 0) return false;
             if (item.WriteOff < 0) return false;
             if (string.IsNullOrWhiteSpace(item.Category)) return false;

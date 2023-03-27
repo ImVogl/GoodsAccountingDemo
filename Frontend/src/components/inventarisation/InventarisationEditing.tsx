@@ -79,8 +79,9 @@ const InventarisationEditing: FC = () =>{
                     console.error(exception);
                 }
             });
-        }, [sending, handleSubmit, active]
-    )
+        }, [sending, active]
+    );
+
     return(
         <div className='investition-table-base'>
             <Modal active={active} setActive={setActive}>
@@ -149,11 +150,17 @@ const InventarisationEditing: FC = () =>{
                                     <Button
                                         className='sell-page-category-sold investition-table-item investition-table-button-editing investition-table-sold'
                                         type='button'
-                                        onClick={async () => {
+                                        onClick={() => {
                                             setSending(true);
-                                            if (item.active){ await removeAsync(client, identifier, item.id); }
-                                            else { await restoreAsync(client, identifier, item.id); }
-                                            setSending(false);
+                                            if (item.active){ 
+                                                removeAsync(client, identifier, item.id)
+                                                    .then(() => setSending(false))
+                                                    .catch(exception => { if (!badRequestProcessor(exception)){ console.error(exception); } });
+                                            } else { 
+                                                restoreAsync(client, identifier, item.id)
+                                                    .then(() => setSending(false))
+                                                    .catch(exception => { if (!badRequestProcessor(exception)){ console.error(exception); } });
+                                            }
                                         }}
                                         disabled={sending}>{item.active ? "Удалить" : "Восстановить"}</Button>
                                 </Form.Group>

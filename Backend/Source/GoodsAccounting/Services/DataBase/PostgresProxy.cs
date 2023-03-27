@@ -136,12 +136,19 @@ public class PostgresProxy : DbContext, IEfContext
         if (!await IsUserAdminAsync(userId).ConfigureAwait(false))
             throw new TableAccessException();
 
-        var workingShift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        var workingShift = await WorkShifts
+            .Include(shift => shift.GoodItemStates)
+            .SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId)
+            .ConfigureAwait(false);
+
         if (workingShift == null)
             throw new EntityNotFoundException();
         
-        foreach (var item in Goods.Where(item => changing.ContainsKey(item.Id)))
+        foreach (var item in Goods)
         {
+            if (!changing.ContainsKey(item.Id))
+                continue;
+
             var diff = changing[item.Id].Storage - item.Storage;
             item.Storage = diff == 0 ? item.Storage - changing[item.Id].WriteOff + changing[item.Id].Receipt : changing[item.Id].Storage;
             item.WholeScalePrice = changing[item.Id].WholeScalePrice == 0F ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
@@ -149,8 +156,11 @@ public class PostgresProxy : DbContext, IEfContext
             item.Category = changing[item.Id].Category;
         }
 
-        foreach (var item in workingShift.GoodItemStates.Where(item => changing.ContainsKey(item.Id)))
+        foreach (var item in workingShift.GoodItemStates)
         {
+            if (!changing.ContainsKey(item.Id))
+                continue;
+
             var diff = changing[item.Id].Storage - item.GoodsInStorage;
             item.GoodsInStorage = diff == 0 ? item.GoodsInStorage - changing[item.Id].WriteOff + changing[item.Id].Receipt : changing[item.Id].Storage;
             item.WholeScalePrice = changing[item.Id].WholeScalePrice == 0F ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
