@@ -110,3 +110,23 @@
     text-decoration-line: line-through;
     text-decoration-thickness: 0.25rem;
 }
+
+.inventarisation-popup-form-group{
+    display: grid;
+    grid-auto-flow: row;
+}
+
+.inventarisation-popup-button-group{
+    justify-content: center;
+    display: flex;
+}
+
+.investition-table-form-number{
+    text-align: start;
+}
+
+.investition-table-form-number::-webkit-outer-spin-button,
+.investition-table-form-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
