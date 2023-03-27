@@ -276,9 +276,9 @@ class ApiClientWrapper{
         });
     }
 
-    public getFullStatistics(id: number, day: Date): Promise<ShiftSnapshotDto[]>{
+    public getFullStatistics(day: Date): Promise<ShiftSnapshotDto[]>{
         let locDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 4);
-        return this._statistics.full(id, locDate, this.getToken()).then(response => {
+        return this._statistics.full(-1, locDate, this.getToken()).then(response => {
             return this.updateUser().then(() => response);
         }).catch(error => {
             if (this.isBadRequest(error)){
@@ -292,7 +292,7 @@ class ApiClientWrapper{
             }
 
             return this.updateToken()
-                .then(() => this._statistics.full(id, locDate, this.getToken()))
+                .then(() => this._statistics.full(-1, locDate, this.getToken()))
                 .catch(error => {
                     console.error(error);
                     this._tokenService.reset();

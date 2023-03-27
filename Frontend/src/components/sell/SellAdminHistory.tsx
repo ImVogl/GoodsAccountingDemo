@@ -175,7 +175,7 @@ const SellAdminHistory: FC = () => {
     const [search, setSearch] = useState("");
     useEffect(() => {
         const fetchSnapshots = async () => {
-            return await client.getFullStatistics(identifier, date);
+            return await client.getFullStatistics(date);
         };
     
         fetchSnapshots().then((response) => {
