@@ -46,8 +46,9 @@ public class PostgresProxy : DbContext, IEfContext
         if (currentShift == null)
             throw new EntityNotFoundException();
 
-        foreach (var state in currentShift.GoodItemStates.Where(state => soldGoods.ContainsKey(state.Id)))
-            state.Sold += soldGoods[state.Id];
+        foreach (var state in currentShift.GoodItemStates)
+            if (soldGoods.ContainsKey(state.Id))
+                state.Sold += soldGoods[state.Id];
         
         foreach(var item in Goods.Where(i => i.Actives))
             if (soldGoods.ContainsKey(item.Id))

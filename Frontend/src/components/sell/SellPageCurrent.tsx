@@ -5,7 +5,7 @@ import { Form, Container, Row, Col, ButtonGroup, Button } from 'react-bootstrap'
 import { ICategory, GetCategories, badRequestProcessor } from '../../common/utilites/Common';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { SoldGoodsDto } from '../../common/utilites/SwaggerClient';
-import { selectUserIdentifier } from '../../common/redux/UserSlice';
+import { selectUserIdentifier, selectShiftUser } from '../../common/redux/UserSlice';
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 
 async function sendSoldAsync(client: ApiClientWrapper, identifier: number, form: HTMLFormElement):Promise<void>{
@@ -50,11 +50,16 @@ async function sendSoldAsync(client: ApiClientWrapper, identifier: number, form:
     }
 }
 
-const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement => {
+interface ISoldGoodsProps{
+    shift: boolean;
+    categories:ICategory[]
+}
+
+const SoldGoodsList: FC<ISoldGoodsProps> = (props: ISoldGoodsProps): ReactElement => {
     let sold: Map<string, number> = new Map<string, number>();
-    for (let i = 0; i < categories.length; i++){
-        for (let j = 0; j < categories[i].goods.length; j++){
-            sold.set(categories[i].goods[j].id, 0);
+    for (let i = 0; i < props.categories.length; i++){
+        for (let j = 0; j < props.categories[i].goods.length; j++){
+            sold.set(props.categories[i].goods[j].id, 0);
         }
     }
 
@@ -62,7 +67,7 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
     const dispatcher = useAppDispatch();
     const client = new ApiClientWrapper(dispatcher);
     const identifier = useAppSelector(selectUserIdentifier);
-    let elements = categories.map((category) => 
+    let elements = props.categories.map((category) => 
     {
         return (
             <div className='sell-page-row-block' key={category.name.concat("-div")}>
@@ -74,7 +79,7 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
                                 <Col className='sell-page-item-name'>{item.name}</Col>
                                 <Col className='sell-page-item-sold'>
                                     <Form.Group className='sell-page-item-sold'>
-                                        <Form.Control id = {item.id} className='cash-form-control' type='number' />
+                                        <Form.Control id = {item.id} className='cash-form-control' type='number' disabled={!props.shift} />
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -99,7 +104,7 @@ const SoldGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement =>
                 <Row>
                     <ButtonGroup className='sell-button-group-accept'>
                         <Col/>
-                        <Button className='sell-button-accept' type='submit' disabled={sending} >Принять</Button>
+                        <Button className='sell-button-accept' type='submit' disabled={sending || !props.shift} >Принять</Button>
                     </ButtonGroup>
                 </Row>
             </Container>
@@ -113,6 +118,7 @@ const SellPageCurrent: FC = () => {
     const [search, setSearch] = useState("");
     const dispatcher = useAppDispatch();
     const client = new ApiClientWrapper(dispatcher);
+    const shift = useAppSelector(selectShiftUser);
     useEffect(
         () => {
             const fetchData = async () =>{
@@ -142,7 +148,7 @@ const SellPageCurrent: FC = () => {
                 </Form.Group>
             </Form>
             <div className='list-blok'>
-                {SoldGoodsList(goods)}
+                {SoldGoodsList({ shift: shift, categories: goods })}
             </div>
         </div>
     )
