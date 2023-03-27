@@ -14,8 +14,8 @@ export interface INewItem{
     item: string;
     category: string;
     storage: number;
-    w_price: number;
-    r_price: number;
+    whole: number;
+    retail: number;
 }
 
 async function removeAsync(client: ApiClientWrapper, identifier: number, itemIdentifier: string):Promise<void>{
@@ -46,7 +46,7 @@ const InventarisationEditing: FC = () =>{
 
     const AddNewItemAsync = async (values: INewItem, actions: FormikHelpers<INewItem> ) => { 
         try{
-            await client.addNewGoodsItem(identifier, values.item, values.category, values.storage, values.w_price, values.r_price);
+            await client.addNewGoodsItem(identifier, values.item, values.category, values.storage, values.whole, values.retail);
             setActive(false);
         }
         catch (exception){
@@ -59,14 +59,14 @@ const InventarisationEditing: FC = () =>{
         }
       }
     
-    const initialValues: INewItem = { item: "Новый товар", category: "Категория", storage: 0, w_price: 0, r_price: 0 };
+    const initialValues: INewItem = { item: "Новый товар", category: "Категория", storage: 0, whole: 0, retail: 0 };
     const { values, errors, touched, isSubmitting, handleBlur, handleChange, handleSubmit, } = useFormik(
         {
-            initialValues,
+            initialValues: initialValues,
             validationSchema: Schema,
             onSubmit: async (values, actions) => await AddNewItemAsync(values, actions)
         });
-
+        
     useEffect(
         () => {
             const fetchData = async () =>{
@@ -79,13 +79,13 @@ const InventarisationEditing: FC = () =>{
                     console.error(exception);
                 }
             });
-        }, [sending, handleSubmit]
+        }, [sending, handleSubmit, active]
     )
     return(
         <div className='investition-table-base'>
             <Modal active={active} setActive={setActive}>
                 <Form onSubmit={values => handleSubmit(values)} autoComplete='off' >
-                    <Form.Group className="form-group" controlId="item">
+                    <Form.Group className="form-group inventarisation-popup-form-group" controlId="item">
                         <Form.Control
                             type='text'
                             value={values.item}
@@ -95,7 +95,7 @@ const InventarisationEditing: FC = () =>{
                             placeholder='Товар...' />
                         <Form.Text>{errors.item}</Form.Text>
                     </Form.Group>
-                    <Form.Group className="form-group" controlId="category">
+                    <Form.Group className="form-group inventarisation-popup-form-group" controlId="category">
                         <Form.Control
                             type='text'
                             value={values.category}
@@ -105,37 +105,39 @@ const InventarisationEditing: FC = () =>{
                             placeholder='Группа...' />
                         <Form.Text>{errors.category}</Form.Text>
                     </Form.Group>
-                    <Form.Group className="form-group" controlId="storage">
+                    <Form.Group className="form-group inventarisation-popup-form-group" controlId="storage">
                         <Form.Control
                             type='number'
                             value={values.storage}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={errors.storage && touched.storage ? "input-error" : "form-control-pass"}
+                            className={errors.storage && touched.storage ? "input-error investition-table-form-number" : "form-control-pass investition-table-form-number"}
                             placeholder='Единиц на складе...' />
                         <Form.Text>{errors.storage}</Form.Text>
                     </Form.Group>
-                    <Form.Group className="form-group" controlId="whole_price">
+                    <Form.Group className="form-group inventarisation-popup-form-group" controlId="whole">
                         <Form.Control
                             type='number'
-                            value={values.w_price}
+                            value={values.whole}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={errors.w_price && touched.w_price ? "input-error" : "form-control-pass"}
+                            className={errors.whole && touched.whole ? "input-error investition-table-form-number" : "form-control-pass investition-table-form-number"}
                             placeholder='Оптовая цена...' />
-                        <Form.Text>{errors.w_price}</Form.Text>
+                        <Form.Text>{errors.whole}</Form.Text>
                     </Form.Group>
-                    <Form.Group className="form-group" controlId="retail_price">
+                    <Form.Group className="form-group inventarisation-popup-form-group" controlId="retail">
                         <Form.Control
                             type='number'
-                            value={values.r_price}
+                            value={values.retail}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={errors.r_price && touched.r_price ? "input-error" : "form-control-pass"}
+                            className={errors.retail && touched.retail ? "input-error investition-table-form-number" : "form-control-pass investition-table-form-number"}
                             placeholder='Розничная цена...' />
-                        <Form.Text>{errors.r_price}</Form.Text>
+                        <Form.Text>{errors.retail}</Form.Text>
                     </Form.Group>
-                    <Button className='working-area-button' variant="success" type="submit" disabled={isSubmitting}>Добавить</Button>
+                    <Form.Group className="form-group inventarisation-popup-button-group">
+                        <Button className='working-area-button' variant="success" type="submit" disabled={isSubmitting}>Добавить</Button>
+                    </Form.Group>
                 </Form>
             </Modal>
             <Form className='investition-table-base'>
@@ -149,8 +151,8 @@ const InventarisationEditing: FC = () =>{
                                         type='button'
                                         onClick={async () => {
                                             setSending(true);
-                                            if (item.active){ await removeAsync(client, identifier, item.id) }
-                                            else { await restoreAsync(client, identifier, item.id) }
+                                            if (item.active){ await removeAsync(client, identifier, item.id); }
+                                            else { await restoreAsync(client, identifier, item.id); }
                                             setSending(false);
                                         }}
                                         disabled={sending}>{item.active ? "Удалить" : "Восстановить"}</Button>
