@@ -18,7 +18,7 @@ const GoodsList: FC<ICategory[]> = (goods:ICategory[]): ReactElement => {
                         return(
                             <Row className='item' key = {item.id}>
                                 <Col className='item-name'>{item.name}</Col>
-                                <Col className='item-price'>{item.price} Руб</Col>
+                                <Col className='item-price'>{item.retail} Руб</Col>
                             </Row>
                         )
                     })

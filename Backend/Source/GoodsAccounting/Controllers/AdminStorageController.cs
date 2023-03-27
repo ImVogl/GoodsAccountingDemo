@@ -126,7 +126,10 @@ public class AdminStorageController : ControllerBase
         }
 
         try {
-            await _db.UpdateGoodsStorageAsync(dto.Id, _mapper.Map<Dictionary<Guid, GoodsItemStateChanging>>(dto.Items))
+            await _db.UpdateGoodsStorageAsync(dto.Id,
+                    dto.Items.ToDictionary(item => item.Id,
+                        item => new GoodsItemStateChanging
+                            { Receipt = item.Receipt, WholeScalePrice = item.WholeScalePrice, WriteOff = 0, RetailPrice = 0F, Category = string.Empty, Storage = -1 }))
                 .ConfigureAwait(false);
             return Ok();
         }

@@ -149,11 +149,14 @@ public class PostgresProxy : DbContext, IEfContext
             if (!changing.ContainsKey(item.Id))
                 continue;
 
-            var diff = changing[item.Id].Storage - item.Storage;
+            var diff = changing[item.Id].Storage != -1
+                ? changing[item.Id].Storage - item.Storage 
+                : 0;
+
             item.Storage = diff == 0 ? item.Storage - changing[item.Id].WriteOff + changing[item.Id].Receipt : changing[item.Id].Storage;
-            item.WholeScalePrice = changing[item.Id].WholeScalePrice == 0F ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
-            item.RetailPrice = changing[item.Id].RetailPrice == 0F ? item.RetailPrice : changing[item.Id].RetailPrice;
-            item.Category = changing[item.Id].Category;
+            item.WholeScalePrice = changing[item.Id].WholeScalePrice <= float.Epsilon ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
+            item.RetailPrice = changing[item.Id].RetailPrice <= float.Epsilon ? item.RetailPrice : changing[item.Id].RetailPrice;
+            item.Category = string.IsNullOrWhiteSpace(changing[item.Id].Category) ? item.Category : changing[item.Id].Category;
         }
 
         foreach (var item in workingShift.GoodItemStates)
@@ -161,10 +164,13 @@ public class PostgresProxy : DbContext, IEfContext
             if (!changing.ContainsKey(item.Id))
                 continue;
 
-            var diff = changing[item.Id].Storage - item.GoodsInStorage;
+            var diff = changing[item.Id].Storage != -1
+                ? changing[item.Id].Storage - item.GoodsInStorage
+                : 0;
+
             item.GoodsInStorage = diff == 0 ? item.GoodsInStorage - changing[item.Id].WriteOff + changing[item.Id].Receipt : changing[item.Id].Storage;
-            item.WholeScalePrice = changing[item.Id].WholeScalePrice == 0F ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
-            item.RetailPrice = changing[item.Id].RetailPrice == 0F ? item.RetailPrice : changing[item.Id].RetailPrice;
+            item.WholeScalePrice = changing[item.Id].WholeScalePrice <= float.Epsilon ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
+            item.RetailPrice = changing[item.Id].RetailPrice <= float.Epsilon ? item.RetailPrice : changing[item.Id].RetailPrice;
             item.WriteOff = changing[item.Id].WriteOff;
             item.Receipt = changing[item.Id].Receipt;
         }

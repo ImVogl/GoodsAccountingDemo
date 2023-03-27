@@ -32,8 +32,15 @@ public class GoodsItemDto
     /// Get or set retail price of item.
     /// </summary>
     [JsonRequired]
-    [JsonProperty("price")]
-    public float Price { get; set; }
+    [JsonProperty("r_price")]
+    public float RetailPrice { get; set; }
+
+    /// <summary>
+    /// Get or set wholescale price of item.
+    /// </summary>
+    [JsonRequired]
+    [JsonProperty("w_price")]
+    public float WholeScalePrice { get; set; }
 
     /// <summary>
     /// Get or set goods in storage.

@@ -44,8 +44,9 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
         }
 
         let value = (form[i] as HTMLInputElement).value;
+        let defaultValue = (form[i] as HTMLInputElement).defaultValue;
         if (value === null || value === undefined || value === ""){
-            continue;
+            value = defaultValue;
         }
 
         try{
@@ -57,7 +58,12 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
                 number = 0;
             }
 
-            grouppedValues[extractItemId(form[i].id)][isSupply(form[i].id) ? SUPPLY_POSTFIX : PRICE_POSTFIX] = number;
+            let identifier = form[i].id;
+            if (!grouppedValues.hasOwnProperty(extractItemId(identifier))){
+                grouppedValues[extractItemId(identifier)] = {}
+            }
+
+            grouppedValues[extractItemId(identifier)][isSupply(identifier) ? SUPPLY_POSTFIX : PRICE_POSTFIX] = number;
         } 
         catch (error){
             console.error(error);
@@ -111,12 +117,14 @@ const SupplyGoodsList: FC<ICategory[]> = (categories:ICategory[]): ReactElement 
                                                             <Form.Label className='sell-page-item-name investition-table-item'>{item.name}</Form.Label>
                                                             <Form.Control
                                                                 type='number'
-                                                                id={item.id.concat(SUPPLY_POSTFIX)}
-                                                                className='sell-page-item-intermediate investition-table-item investition-table-form' />
+                                                                id={item.id.concat(PRICE_POSTFIX)}
+                                                                className='sell-page-item-intermediate investition-table-item investition-table-form'
+                                                                defaultValue={item.whole} />
                                                             <Form.Control
                                                                 type='number'
-                                                                id={item.id.concat(PRICE_POSTFIX)}
-                                                                className='sell-page-category-sold investition-table-item investition-table-form investition-table-sold' />
+                                                                id={item.id.concat(SUPPLY_POSTFIX)}
+                                                                className='sell-page-category-sold investition-table-item investition-table-form investition-table-sold'
+                                                                defaultValue={0} />
                                                         </Form.Group>
                                                     )
                                                 }
@@ -158,8 +166,8 @@ const InventarisationSupply: FC = () =>{
         <Container className='investition-table-base'>
             <Row className='investition-table-row-base'>
                 <Col className='sell-page-item-name'>Товары</Col>
-                <Col className='sell-page-item-intermediate'>Единиц поставлено</Col>
-                <Col className='sell-page-category-sold'>Оптовая цена</Col>
+                <Col className='sell-page-item-intermediate'>Оптовая цена</Col>
+                <Col className='sell-page-category-sold'>Единиц поставлено</Col>
             </Row>
             {SupplyGoodsList(goods)}
         </Container>

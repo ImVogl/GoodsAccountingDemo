@@ -75,7 +75,7 @@ export async function sendSupplyAsync(client: ApiClientWrapper, identifier: numb
             if (!grouppedValues.hasOwnProperty(extractItemId(form[i].id))){
                 grouppedValues[extractItemId(form[i].id)] = {}
             }
-            
+
             grouppedValues[extractItemId(form[i].id)][postfix] = number;
         } 
         catch (error){
@@ -141,7 +141,7 @@ const RevisionGoodsList: FC<IGoodsItemDto[]> = (goods:IGoodsItemDto[]): ReactEle
                                     type='number'
                                     id={item.id.concat(PRICE_POSTFIX)}
                                     className='sell-page-item-intermediate investition-table-item investition-table-form investition-table-form-revision'
-                                    defaultValue={item.price} />
+                                    defaultValue={item.r_price} />
                                 <Form.Control
                                     type='number'
                                     id={item.id.concat(WRITE_OFF_POSTFIX)}
