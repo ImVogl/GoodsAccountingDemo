@@ -241,11 +241,16 @@ namespace GoodsAccounting
 
                 return new SecurityKeyExtractor(keyFilePath);
             });
-            serviceCollection.AddScoped<ITextConverter>(_ => new TextConverter());
-            serviceCollection.AddScoped<ISnapshotConverter>(provider => new HistorySnapshotConverter(provider.GetRequiredService<IMapper>()));
-            serviceCollection.AddScoped<IResponseBodyBuilder>(_ => new ResponseBodyBuilder());
-            serviceCollection.AddScoped<IPasswordValidator>(_ => new Validator());
-            serviceCollection.AddScoped<IDtoValidator>(_ => new Validator());
+
+            serviceCollection.AddScoped<DisplayNamesUpdater>();
+            serviceCollection.AddScoped<ITextConverter, TextConverter>();
+            serviceCollection.AddScoped<ISnapshotConverter>(provider =>
+                new HistorySnapshotConverter(provider.GetRequiredService<IMapper>(),
+                    provider.GetRequiredService<DisplayNamesUpdater>()));
+
+            serviceCollection.AddScoped<IResponseBodyBuilder, ResponseBodyBuilder>();
+            serviceCollection.AddScoped<IPasswordValidator, Validator>();
+            serviceCollection.AddScoped<IDtoValidator, Validator>();
             serviceCollection.AddScoped<IPassword>(provider => new PasswordService(provider.GetRequiredService<IPasswordValidator>()));
 
             serviceCollection.AddAutoMapper(typeof(WorkShiftProfile));
