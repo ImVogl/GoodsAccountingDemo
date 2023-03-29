@@ -2,7 +2,7 @@ import './HomePage.css'
 import React, { FC, ReactElement } from 'react';
 import { Row, Container, Col, Form } from 'react-bootstrap';
 
-import { ICategory, GetCategories } from '../../common/utilites/Common'
+import { ICategory, GetCategories, badRequestProcessor } from '../../common/utilites/Common'
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper'
 
 import LayoutBase from '../layouts/BaseLayout'
@@ -18,7 +18,7 @@ const GoodsList: FC<ICategory[]> = (goods:ICategory[]): ReactElement => {
                         return(
                             <Row className='item' key = {item.id}>
                                 <Col className='item-name'>{item.name}</Col>
-                                <Col className='item-price'>{item.price} Руб</Col>
+                                <Col className='item-price'>{item.retail} Руб</Col>
                             </Row>
                         )
                     })
@@ -42,7 +42,11 @@ const HomePage: FC = () => {
                 setGoods(GetCategories(goods, search));
             }
             
-            fetchData().catch(console.error);
+            fetchData().catch(exception => {
+                if (!badRequestProcessor(exception)){
+                    console.error(exception);
+                }
+            });
         }, [search]
     )
     

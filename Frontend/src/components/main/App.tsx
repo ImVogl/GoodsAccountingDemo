@@ -3,18 +3,20 @@ import { FC } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import { useAppSelector } from '../../common/redux/hooks';
-import { selectUserLogon } from '../../common/redux/UserSlice';
+import { selectUserLogon, selectUserIsAdmin } from '../../common/redux/UserSlice';
 import SellPageRoot from '../sell/SellPageRoot';
 import HomePage from '../home/HomePage';
 import ForbiddenPage from '../forbidden/ForbiddenPage';
 import NavigationBar from '../navigation/NavigationBar';
 import AccountPage from '../account/AccountPage';
+import InventarisationPage from '../inventarisation/InventarisationRoot';
 import { SELLS, INV, ACCOUNT } from '../../common/utilites/Paths';
 
 const App: FC = () => {
   const logon = useAppSelector(selectUserLogon);
+  const admin = useAppSelector(selectUserIsAdmin);
   let sellsComponent = logon ? <SellPageRoot /> : <ForbiddenPage />;
-  let inventarisation = <ForbiddenPage />;
+  let inventarisation = logon && admin ? <InventarisationPage /> : <ForbiddenPage />;
   let account = logon ? <AccountPage /> : <ForbiddenPage />;
   return (
     <div className='root'>

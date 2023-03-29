@@ -487,6 +487,7 @@ export class Client {
             data: content_,
             method: "POST",
             url: url_,
+            withCredentials: true,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Content-Type": "application/json-patch+json",
@@ -568,9 +569,7 @@ export class Client {
             method: "POST",
             url: url_,
             withCredentials: true,
-            credentials: 'include',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
             },
             cancelToken
@@ -1155,12 +1154,10 @@ export class UpdateClient {
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ = <AxiosRequestConfig>{
-            method: "POST",
+            method: "GET",
             url: url_,
             withCredentials: true,
-            credentials: 'include',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
                 "Accept": "text/plain"
             },
@@ -1689,7 +1686,9 @@ export class GoodsItemDto implements IGoodsItemDto {
     id!: string;
     name!: string;
     category!: string;
-    price!: number;
+    r_price!: number;
+    w_price!: number;
+    storage!: number;
     active!: boolean;
 
     constructor(data?: IGoodsItemDto) {
@@ -1706,7 +1705,9 @@ export class GoodsItemDto implements IGoodsItemDto {
             this.id = _data["id"];
             this.name = _data["name"];
             this.category = _data["category"];
-            this.price = _data["price"];
+            this.r_price = _data["r_price"];
+            this.w_price = _data["w_price"];
+            this.storage = _data["storage"];
             this.active = _data["active"];
         }
     }
@@ -1723,7 +1724,9 @@ export class GoodsItemDto implements IGoodsItemDto {
         data["id"] = this.id;
         data["name"] = this.name;
         data["category"] = this.category;
-        data["price"] = this.price;
+        data["r_price"] = this.r_price;
+        data["w_price"] = this.w_price;
+        data["storage"] = this.storage;
         data["active"] = this.active;
         return data; 
     }
@@ -1733,7 +1736,9 @@ export interface IGoodsItemDto {
     id: string;
     name: string;
     category: string;
-    price: number;
+    r_price: number;
+    w_price: number;
+    storage: number;
     active: boolean;
 }
 
@@ -2084,7 +2089,6 @@ export interface IReducedSnapshotDto {
 
 export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
     id!: string;
-    name!: string;
     category!: string;
     storage!: number;
     price!: number;
@@ -2102,7 +2106,6 @@ export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.name = _data["name"];
             this.category = _data["category"];
             this.storage = _data["storage"];
             this.price = _data["price"];
@@ -2120,7 +2123,6 @@ export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["name"] = this.name;
         data["category"] = this.category;
         data["storage"] = this.storage;
         data["price"] = this.price;
@@ -2131,7 +2133,6 @@ export class RevisionGoodsItemDto implements IRevisionGoodsItemDto {
 
 export interface IRevisionGoodsItemDto {
     id: string;
-    name: string;
     category: string;
     storage: number;
     price: number;

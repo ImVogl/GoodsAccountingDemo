@@ -56,7 +56,9 @@
 }
 
 .input-error{
-    margin: auto;
+    width:100%;
+    height: fit-content;
+    font-size: large;
     border-color: rgb(119, 36, 36);
     border-width: 2pt;
 }

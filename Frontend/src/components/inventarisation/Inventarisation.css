@@ -1,0 +1,132 @@
+.inventarisation-page-root{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 40px 1fr;
+}
+
+.inventarisation-page-row{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 155px 1fr;
+}
+
+.inventarisation-page-part{
+    width: 110px;
+    text-align: center;
+}
+
+.investition-table-base{
+    width: 100%;
+}
+
+.investition-table-row-base{
+    display: grid;
+    grid-template-columns: 200px 175px 1fr;
+}
+
+.investition-table-row-revision{
+    display: grid;
+    grid-template-columns: 225px 125px 125px 125px 1fr;
+}
+
+.investition-table-category{
+    font-weight: bolder;
+    font-size: larger;
+}
+
+.investition-table-item{
+    font-weight: bold;
+    font-size:medium;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 45px;
+}
+
+.investition-table-form{
+    width: 75px;
+    border-radius: 5px;
+    text-align: end;
+    padding-right: 2px;
+}
+
+.investition-table-form::-webkit-outer-spin-button,
+.investition-table-form::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.investition-table-form-revision{
+    width: 85px;
+    padding-left: 0px;
+}
+
+.investition-table-form-revision-category{
+    width: 105px;
+    padding-left: 0px;
+}
+
+.investition-table-button{
+    width: 125px;
+    border-radius: 5px;
+    justify-content: right;
+    display:flex;
+}
+
+.investition-table-sold{
+    margin-right: 15px;
+}
+
+.investition-table-full-button{
+    border-radius: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    font-weight: bolder;
+    font-size: medium;
+}
+
+.investition-group-button{
+    display: grid;
+    grid-template-rows: auto;
+    margin-top: 10px;
+}
+
+.investition-table-row-editing{
+    display: grid;
+    border-bottom: solid 2px black;
+    grid-template-columns: 1fr 250px;
+}
+
+.investition-table-button-editing{
+    width: 150px;
+    border-radius: 5px;
+    justify-content: center;
+    padding-left: 25px;
+    display:flex;
+}
+
+.investition-table-strikethrough{
+    text-decoration-line: line-through;
+    text-decoration-thickness: 0.25rem;
+}
+
+.inventarisation-popup-form-group{
+    display: grid;
+    grid-auto-flow: row;
+}
+
+.inventarisation-popup-button-group{
+    justify-content: center;
+    display: flex;
+}
+
+.investition-table-form-number{
+    text-align: start;
+}
+
+.investition-table-form-number::-webkit-outer-spin-button,
+.investition-table-form-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

@@ -18,5 +18,10 @@ public class BearerSection
     /// <summary>
     /// Get or set origin.
     /// </summary>
-    public string? Origin { get; set; } = null!;   
+    public string? Origin { get; set; } = null!;
+
+    /// <summary>
+    /// Get or set path to .pem file with secret key
+    /// </summary>
+    public string? PathToPem { get; set; } = null!;
 }

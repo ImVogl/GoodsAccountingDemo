@@ -10,7 +10,7 @@ import Col from 'react-bootstrap/Col';
 
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { selectTitle } from '../../common/redux/TitleSlice';
-import { selectUserLogon, selectUserError, signInAsync } from '../../common/redux/UserSlice';
+import { selectUserLogon, selectUserIsAdmin, selectUserError, signInAsync } from '../../common/redux/UserSlice';
 import { SignIn } from '../../common/redux/UserSlice';
 import { INDEX, SELLS, INV } from '../../common/utilites/Paths';
 
@@ -18,7 +18,8 @@ import Modal from '../base/modal/Modal';
 import Schema from './validation';
 
 const NavigationPanel: FC = () => {
-    const title = useAppSelector(selectTitle)
+    const title = useAppSelector(selectTitle);
+    const admin = useAppSelector(selectUserIsAdmin);
     return(
         <div>
             <Navbar>
@@ -26,7 +27,7 @@ const NavigationPanel: FC = () => {
                     <Nav>
                         <Nav.Link className='nav-link' href={INDEX}>{title}</Nav.Link>
                         <Nav.Link className='nav-link' href={SELLS}>Продажи</Nav.Link>
-                        <Nav.Link className='nav-link' href={INV}>Инвентаризация</Nav.Link>
+                        { admin ? <Nav.Link className='nav-link' href={INV}>Инвентаризация</Nav.Link> : <div></div> }
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>         

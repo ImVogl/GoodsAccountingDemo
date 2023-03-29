@@ -10,6 +10,7 @@ import LayoutBase from '../../layouts/BaseLayout';
 import Modal from '../modal/Modal';
 import ApiClientWrapper from '../../../common/utilites/ApiClientWrapper';
 import TokenService from '../../../common/utilites/TokenService';
+import { badRequestProcessor } from '../../../common/utilites/Common';
 
 interface Children { }
 const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<Children>): ReactElement => {
@@ -38,9 +39,11 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
                 tokenService.reset();
                 navigate(INDEX);
             }
-            catch (error){
-                alert(error);
-                console.error(error)
+            catch (exception){
+                if (!badRequestProcessor(exception)){
+                    alert(exception);
+                    console.error(exception);
+                }
             }
             finally{
                 setActive(false);
@@ -67,7 +70,11 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
                 setLoading(false);
             }
             else{
-                fetchData().catch(console.error);
+                fetchData().catch(exception => {
+                    if (!badRequestProcessor(exception)){
+                        console.error(exception);
+                    }
+                });
             }
         }
       }, [loading]);
@@ -79,9 +86,11 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
                     <Container className="mb-3">
                         <Form.Group className="form-group" controlId="cash">
                             <Form.Label>Остаток в кассе:</Form.Label>
-                            <Form.Control type="number" onChange={event => setCash(parseInt(event.target.value))} />
+                            <Form.Control type='number' className='form-control-pass investition-table-form-number' onChange={event => setCash(parseInt(event.target.value))} />
                         </Form.Group>
-                        <Button className='working-area-button' variant="success" type="submit" disabled={closing} onClick={() => setClosing(true)}>Закрыть смену</Button>
+                        <Form.Group className="form-group inventarisation-popup-button-group">
+                            <Button className='working-area-button' variant="success" type="submit" disabled={closing} onClick={() => setClosing(true)}>Закрыть смену</Button>
+                        </Form.Group>
                     </Container>
                 </Form>
             </Modal>

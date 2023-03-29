@@ -84,7 +84,7 @@ public class AdminStorageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> StorageRevisionAsync([FromBody] GoodsRevisionDto dto)
     {
-        if (_validator.Validate(dto)) {
+        if (!_validator.Validate(dto)) {
             Log.Error($"DTO \"{typeof(GoodsRevisionDto)}\" is invalid.");
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
         }
@@ -119,14 +119,17 @@ public class AdminStorageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> SuppliesAsync([FromBody] GoodsSuppliesDto dto)
     {
-        if (_validator.Validate(dto))
+        if (!_validator.Validate(dto))
         {
             Log.Error($"DTO \"{typeof(GoodsRevisionDto)}\" is invalid.");
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
         }
 
         try {
-            await _db.UpdateGoodsStorageAsync(dto.Id, _mapper.Map<Dictionary<Guid, GoodsItemStateChanging>>(dto.Items))
+            await _db.UpdateGoodsStorageAsync(dto.Id,
+                    dto.Items.ToDictionary(item => item.Id,
+                        item => new GoodsItemStateChanging
+                            { Receipt = item.Receipt, WholeScalePrice = item.WholeScalePrice, WriteOff = 0, RetailPrice = 0F, Category = string.Empty, Storage = -1 }))
                 .ConfigureAwait(false);
             return Ok();
         }
@@ -156,7 +159,7 @@ public class AdminStorageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
     public async Task<IActionResult> EditGoodsListAsync([FromBody] EditGoodsListDto dto)
     {
-        if (_validator.Validate(dto))
+        if (!_validator.Validate(dto))
             return BadRequest(_bodyBuilder.InvalidDtoBuild());
 
         try {

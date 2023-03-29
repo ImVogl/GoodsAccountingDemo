@@ -1,3 +1,4 @@
+import { BadRequest } from './exceptions';
 import { IGoodsItemDto } from './SwaggerClient'
 
 // Getting base url fron config.
@@ -12,7 +13,8 @@ export const sleep_ms = (ms:number) => new Promise(res => setTimeout(res, ms));
 export interface IGoodsItem{
     id: string;
     name: string;
-    price: number;
+    retail: number;
+    whole: number;
 }
 
 export interface ICategory{
@@ -33,14 +35,25 @@ export function GetCategories(goods: IGoodsItemDto[], search: string):ICategory[
                 let index = result.findIndex(c => c.name === item.category)
                 if (index >= 0){
                     result[index].name = item.category;
-                    result[index].goods.push({ id: item.id, name: item.name, price: item.price })
+                    result[index].goods.push({ id: item.id, name: item.name, retail: item.r_price, whole: item.w_price })
                 }
                 else{
-                    result.push({ name: item.category, goods: [{ id: item.id, name: item.name, price: item.price }] })
+                    result.push({ name: item.category, goods: [{ id: item.id, name: item.name, retail: item.r_price, whole: item.w_price }] })
                 }
             }
         }
     });
 
     return result;
+}
+
+export function badRequestProcessor(error: any): boolean{
+    if (error instanceof BadRequest){
+        let converted = error as BadRequest;
+        alert(converted.message);
+        console.error(converted.message);
+        return true;
+    }
+
+    return false;
 }

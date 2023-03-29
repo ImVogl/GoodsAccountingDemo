@@ -30,7 +30,7 @@ public class HistorySnapshotConverter : ISnapshotConverter
             return new List<ShiftSnapshotDto>();
 
         var goodsDictionary = goods.ToDictionary(item => item.Id, item => item);
-        var mergedDto = new ShiftSnapshotDto { Cash = 0, UserDisplayName = string.Empty, StorageItems = new List<StorageItemInfoDto>() };
+        var mergedDto = new ShiftSnapshotDto { Cash = 0, UserDisplayName = "Общая история", StorageItems = new List<StorageItemInfoDto>() };
         var dtoList = new List<ShiftSnapshotDto>();
         foreach (var shift in shifts)
         {
@@ -51,7 +51,6 @@ public class HistorySnapshotConverter : ISnapshotConverter
             dtoList.Add(dto);
 
             mergedDto.Cash += shift.Cash;
-            mergedDto.UserDisplayName += $"{shift.UserDisplayName};{Environment.NewLine}";
         }
 
         mergedDto.StorageItems = shifts.SelectMany(shift => shift.GoodItemStates).GroupBy(shift => shift.Id).Select(
