@@ -1,0 +1,46 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    command: ["bash", "-c", "/sql/Init.sh"]
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      # - POSTGRES_PASSWORD=qwerty123
+      # - POSTGRES_DB=goods_account
+      # - SCHEMA=public
+
+    expose:
+      - 5432
+
+    ports:
+      - 5460:5432
+
+    volumes:
+      - ./Backend:/sql/:ro
+
+  backend:
+    depends_on:
+      - db
+    image: goods.accounts:0.1.0
+    restart: always
+    volumes:
+      - ./Certificate:/https/:ro
+
+    ports:
+      - 7192:7192
+
+  frontend:
+    depends_on:
+      - backend
+
+    image: goods.accounts.front:0.1.0
+    volumes:
+      - ./Certificate:/https/:ro
+
+    ports:
+      - 3001:80
+      - 3000:443
