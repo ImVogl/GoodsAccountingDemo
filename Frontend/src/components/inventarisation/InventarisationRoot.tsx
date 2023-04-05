@@ -1,5 +1,5 @@
 import './Inventarisation.css';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { Container, Col, Row, Form, Button } from 'react-bootstrap';
 
 import WorkingArea from '../base/working/WorkingArea';
@@ -7,6 +7,7 @@ import InvestitionSupply from './InventarisationSupply';
 import InvestitionRevision from './InventarisationRevision';
 import InvestitionEditing from './InventarisationEditing';
 
+const KEY: string = "inventarisation_current_area"
 const SUPPLY:string = "Поставки";
 const REVISION:string = "Ревизия";
 const EDITING:string = "Редактирование";
@@ -48,7 +49,11 @@ function GetCurrentArea(current: string){
 }
 
 const InventarisationRoot: FC = () => {
-    const [title, setTitle] = useState(SUPPLY);
+    const [title, setTitle] = useState(localStorage.getItem(KEY) ?? SUPPLY);
+    useEffect(() => {
+        localStorage.setItem(KEY, title)
+    }, [title]);
+    
     return(
         <WorkingArea>
             <Container className='inventarisation-page-root'>

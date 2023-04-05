@@ -3,7 +3,7 @@ import { FC, ReactElement, useEffect, useState } from 'react';
 import { Container, Col, Row, Form, Button, ButtonGroup } from 'react-bootstrap';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { useAppDispatch, useAppSelector } from '../../common/redux/hooks';
-import { selectUserIdentifier } from '../../common/redux/UserSlice';
+import { selectUserIdentifier, selectShiftUser } from '../../common/redux/UserSlice';
 import { GoodsRevisionDto, RevisionGoodsItemDto, IGoodsItemDto } from '../../common/utilites/SwaggerClient';
 import { badRequestProcessor } from '../../common/utilites/Common';
 
@@ -113,9 +113,11 @@ const RevisionGoodsList: FC<IGoodsItemDto[]> = (goods:IGoodsItemDto[]): ReactEle
             editedGoods.push(goods[i]);
         }
     }
+
     const [sending, setSending] = useState(false);
     const client = new ApiClientWrapper(useAppDispatch());
     const identifier = useAppSelector(selectUserIdentifier);
+    const shift = useAppSelector(selectShiftUser);
     return (
         <Form className='investition-table-base' onSubmit={async (event) => {
             let form = event.target as HTMLFormElement;
@@ -155,7 +157,7 @@ const RevisionGoodsList: FC<IGoodsItemDto[]> = (goods:IGoodsItemDto[]): ReactEle
             <ButtonGroup className='investition-table-row-base'>
                 <Col/>
                 <Col/>
-                <Button className='sell-page-category-sold investition-table-item investition-table-button investition-table-sold' type='submit' disabled={sending}>Принять</Button>
+                <Button className='sell-page-category-sold investition-table-item investition-table-button investition-table-sold' type='submit' disabled={sending || !shift}>Принять</Button>
             </ButtonGroup>
         </Form>
     )
