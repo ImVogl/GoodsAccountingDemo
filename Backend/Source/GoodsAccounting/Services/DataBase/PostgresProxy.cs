@@ -45,10 +45,14 @@ public class PostgresProxy : DbContext, IEfContext
 
         if (currentShift == null)
             throw new EntityNotFoundException();
-
+        
+        currentShift.GoodItemStates.AddRange(GetMissedStates(soldGoods.Keys, currentShift.GoodItemStates.Select(s => s.Id)));
         foreach (var state in currentShift.GoodItemStates)
             if (soldGoods.ContainsKey(state.Id))
+            {
                 state.Sold += soldGoods[state.Id];
+                state.GoodsInStorage -= soldGoods[state.Id];
+            }
         
         foreach(var item in Goods.Where(i => i.Actives))
             if (soldGoods.ContainsKey(item.Id))
@@ -75,7 +79,8 @@ public class PostgresProxy : DbContext, IEfContext
             RetailPrice = item.RetailPrice,
             Receipt = 0,
             WholeScalePrice = item.WholeScalePrice,
-            WriteOff = 0
+            WriteOff = 0,
+            GoodsInStorage = item.Storage
         }).ToList();
         
         var currentShift = new WorkShift
@@ -104,7 +109,9 @@ public class PostgresProxy : DbContext, IEfContext
         if (shift == null)
             throw new EntityNotFoundException();
         
-        shift.CloseTime = DateTime.Now;
+        var closingTime = DateTime.Now;
+        shift.CloseTime = closingTime;
+        shift.UserDisplayName += $" {closingTime:HH:mm}";
         shift.IsOpened = false;
         shift.Cash = cash;
         if (!string.IsNullOrWhiteSpace(comment))
@@ -159,7 +166,8 @@ public class PostgresProxy : DbContext, IEfContext
             item.RetailPrice = changing[item.Id].RetailPrice <= float.Epsilon ? item.RetailPrice : changing[item.Id].RetailPrice;
             item.Category = string.IsNullOrWhiteSpace(changing[item.Id].Category) ? item.Category : changing[item.Id].Category;
         }
-
+        
+        workingShift.GoodItemStates.AddRange(GetMissedStates(changing.Keys, workingShift.GoodItemStates.Select(state => state.Id)));
         foreach (var item in workingShift.GoodItemStates)
         {
             if (!changing.ContainsKey(item.Id))
@@ -172,8 +180,8 @@ public class PostgresProxy : DbContext, IEfContext
             item.GoodsInStorage = diff == 0 ? item.GoodsInStorage - changing[item.Id].WriteOff + changing[item.Id].Receipt : changing[item.Id].Storage;
             item.WholeScalePrice = changing[item.Id].WholeScalePrice <= float.Epsilon ? item.WholeScalePrice : changing[item.Id].WholeScalePrice;
             item.RetailPrice = changing[item.Id].RetailPrice <= float.Epsilon ? item.RetailPrice : changing[item.Id].RetailPrice;
-            item.WriteOff = changing[item.Id].WriteOff;
-            item.Receipt = changing[item.Id].Receipt;
+            item.WriteOff += changing[item.Id].WriteOff;
+            item.Receipt += changing[item.Id].Receipt;
         }
 
         workingShift.Comments = AddCommentSourceMessage(workingShift.Comments, "Задано новое состояние для хранилища товаров");
@@ -206,7 +214,11 @@ public class PostgresProxy : DbContext, IEfContext
         if (!await IsUserAdminAsync(userId).ConfigureAwait(false))
             throw new TableAccessException();
 
-        var shift = await WorkShifts.SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId).ConfigureAwait(false);
+        var shift = await WorkShifts
+            .Include(shift => shift.GoodItemStates)
+            .SingleOrDefaultAsync(shift => shift.IsOpened && shift.UserId == userId)
+            .ConfigureAwait(false);
+
         if (shift == null)
             throw new EntityNotFoundException();
 
@@ -214,6 +226,17 @@ public class PostgresProxy : DbContext, IEfContext
             throw new EntityExistsException();
 
         await Goods.AddAsync(newItem).ConfigureAwait(false);
+        shift.GoodItemStates.Add(new GoodsItemStorage
+        {
+            Id = newItem.Id,
+            GoodsInStorage = newItem.Storage,
+            RetailPrice = newItem.RetailPrice,
+            WholeScalePrice = newItem.WholeScalePrice,
+            WriteOff = 0,
+            Receipt = 0,
+            Sold = 0
+        });
+
         shift.Comments = AddCommentSourceMessage(shift.Comments, $"Добавлен товар с именем {newItem.Name} добавлен");
         await SaveChangesAsync().ConfigureAwait(false);
     }
@@ -392,5 +415,26 @@ public class PostgresProxy : DbContext, IEfContext
         return string.IsNullOrWhiteSpace(source)
             ? $"{DateTime.Now:g}: {additional}"
             : $"{source}{Environment.NewLine}{DateTime.Now:g}: {additional}";
+    }
+
+    /// <summary>
+    /// Get identifiers of missed sates.
+    /// </summary>
+    /// <param name="source">Identifiers of editable goods.</param>
+    /// <param name="stateIds">Target working shifts snapshots identifiers.</param>
+    /// <returns>Collection of missed<see cref="GoodsItemStorage"/>.</returns>
+    private IEnumerable<GoodsItemStorage> GetMissedStates(IEnumerable<Guid> source, IEnumerable<Guid> stateIds)
+    {
+        var missedIds = source.Except(stateIds);
+        return Goods.ToList().Where(item => missedIds.Any(id => item.Id == id)).Select(item => new GoodsItemStorage
+        {
+            Id = item.Id,
+            RetailPrice = item.RetailPrice,
+            WholeScalePrice = item.WholeScalePrice,
+            GoodsInStorage = item.Storage,
+            WriteOff = 0,
+            Receipt = 0,
+            Sold = 0
+        });
     }
 }
