@@ -3,7 +3,7 @@ import { FC, useEffect, useState } from 'react';
 import { Form, Button, ButtonGroup } from 'react-bootstrap';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import { useAppDispatch, useAppSelector } from '../../common/redux/hooks';
-import { selectUserIdentifier } from '../../common/redux/UserSlice';
+import { selectUserIdentifier, selectShiftUser } from '../../common/redux/UserSlice';
 import { IGoodsItemDto } from '../../common/utilites/SwaggerClient';
 import Modal from '../base/modal/Modal';
 import { useFormik, FormikHelpers } from 'formik';
@@ -38,10 +38,13 @@ async function restoreAsync(client: ApiClientWrapper, identifier: number, itemId
 
 const InventarisationEditing: FC = () =>{
     const init: IGoodsItemDto[] = [];
+    const initCategories: string [] = [];
     const [goods, setGoods] = useState(init);
+    const [categories, setCategories] = useState(initCategories);
     const [sending, setSending] = useState(false);
     const [active, setActive] = useState(false);
     const identifier = useAppSelector(selectUserIdentifier);
+    const shift = useAppSelector(selectShiftUser);
     const client = new ApiClientWrapper(useAppDispatch());
 
     const AddNewItemAsync = async (values: INewItem, actions: FormikHelpers<INewItem> ) => { 
@@ -70,8 +73,16 @@ const InventarisationEditing: FC = () =>{
     useEffect(
         () => {
             const fetchData = async () =>{
-                let goodsDto = await client.getAllGoods();
+                const goodsDto = await client.getAllGoods();
                 setGoods(goodsDto);
+                const categories: string [] = [];
+                for (let item of goodsDto){
+                    if (categories.indexOf(item.category) === -1){
+                        categories.push(item.category);
+                    }
+                }
+
+                setCategories(categories);
             }
             
             fetchData().catch(exception => {
@@ -98,12 +109,16 @@ const InventarisationEditing: FC = () =>{
                     </Form.Group>
                     <Form.Group className="form-group inventarisation-popup-form-group" controlId="category">
                         <Form.Control
+                            list='categories'
                             type='text'
                             value={values.category}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             className={errors.category && touched.category ? "input-error" : "form-control-pass"}
                             placeholder='Группа...' />
+                            <datalist id="categories" >
+                                {categories.map(value => <option key={value + '_id'} value={value} />)}
+                            </datalist>
                         <Form.Text>{errors.category}</Form.Text>
                     </Form.Group>
                     <Form.Group className="form-group inventarisation-popup-form-group" controlId="storage">
@@ -137,7 +152,7 @@ const InventarisationEditing: FC = () =>{
                         <Form.Text>{errors.retail}</Form.Text>
                     </Form.Group>
                     <Form.Group className="form-group inventarisation-popup-button-group">
-                        <Button className='working-area-button' variant="success" type="submit" disabled={isSubmitting}>Добавить</Button>
+                        <Button className='working-area-button' variant="success" type="submit" disabled={isSubmitting || !shift}>Добавить</Button>
                     </Form.Group>
                 </Form>
             </Modal>
@@ -162,14 +177,14 @@ const InventarisationEditing: FC = () =>{
                                                     .catch(exception => { if (!badRequestProcessor(exception)){ console.error(exception); } });
                                             }
                                         }}
-                                        disabled={sending}>{item.active ? "Удалить" : "Восстановить"}</Button>
+                                        disabled={sending || !shift}>{item.active ? "Удалить" : "Восстановить"}</Button>
                                 </Form.Group>
                             )
                         }
                     )
                 }
                 <ButtonGroup className='investition-group-button'>
-                    <Button className='investition-table-full-button' onClick={() => setActive(true)} type='button' disabled={sending}>Добавить</Button>
+                    <Button className='investition-table-full-button' onClick={() => setActive(true)} type='button' disabled={sending || !shift}>Добавить</Button>
                 </ButtonGroup>
             </Form>
         </div>

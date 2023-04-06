@@ -57,7 +57,7 @@ public class EditGoodsListDto
     /// Get or set goods item store.
     /// </summary>
     [JsonProperty("store")]
-    public int Store { get; set; }
+    public int Storage { get; set; }
 
     /// <summary>
     /// Get or set retail price.

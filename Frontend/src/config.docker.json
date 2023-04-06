@@ -1,0 +1,5 @@
+{
+    "use_tls": true,
+    "server_url": "http://backend:80",
+    "server_url_ssl" : "https://backend:443"
+}

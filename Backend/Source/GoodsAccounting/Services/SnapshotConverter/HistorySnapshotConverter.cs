@@ -15,12 +15,19 @@ public class HistorySnapshotConverter : ISnapshotConverter
     private readonly IMapper _mapper;
 
     /// <summary>
+    /// <see cref="DisplayNamesUpdater"/>.
+    /// </summary>
+    private readonly DisplayNamesUpdater _updater;
+
+    /// <summary>
     /// Create new instance of <see cref="HistorySnapshotConverter"/>.
     /// </summary>
     /// <param name="mapper">Instance of <see cref="IMapper"/>.</param>
-    public HistorySnapshotConverter(IMapper mapper)
+    /// <param name="updater"><see cref="DisplayNamesUpdater"/>.</param>
+    public HistorySnapshotConverter(IMapper mapper, DisplayNamesUpdater updater)
     {
         _mapper = mapper;
+        _updater = updater;
     }
 
     /// <inheritdoc />
@@ -67,9 +74,11 @@ public class HistorySnapshotConverter : ISnapshotConverter
                 ItemName = goodsDictionary.ContainsKey(shift.Key) ? goodsDictionary[shift.Key].Name : string.Empty
             }).ToList();
 
-        if (shifts.Count > 1)
-            dtoList.Add(mergedDto);
+        if (shifts.Count == 1)
+            return dtoList;
 
+        _updater.UpdateSnapshots(dtoList);
+        dtoList.Add(mergedDto);
         return dtoList;
     }
 
@@ -111,9 +120,11 @@ public class HistorySnapshotConverter : ISnapshotConverter
                 ItemName = goodsDictionary.ContainsKey(shift.Key) ? goodsDictionary[shift.Key].Name : string.Empty
             }).ToList();
 
-        if (shifts.Count > 1)
-            dtoList.Add(mergedDto);
-        
+        if (shifts.Count <= 1)
+            return dtoList;
+
+        _updater.UpdateSnapshots(dtoList);
+        dtoList.Add(mergedDto);
         return dtoList;
     }
 }

@@ -21,7 +21,10 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+/build/**
 CreateImage.cmd
 RunDocker.txt
+SwaggerClient.nswag
+/maket/**
 LICENSE
 README.md

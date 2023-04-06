@@ -1,0 +1,52 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+  db:
+    container_name: postgres_database
+    image: postgres:latest
+    restart: always
+    working_dir: /sql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+    expose:
+      - 5432
+
+    volumes:
+      - ./Backend/Init.sh:/docker-entrypoint-initdb.d/Init.sh
+      - ./Backend:/sql/:ro
+
+  backend:
+    container_name: back_container
+    depends_on:
+      - db
+      
+    image: goods.accounts:0.1.0
+    restart: always
+    volumes:
+      - ./Certificate:/https/:ro
+
+    expose:
+      - 443
+
+    ports:
+      - 7192:443
+
+  frontend:
+    container_name: front_container
+    depends_on:
+      - backend
+
+    image: goods.accounts.front:0.1.0
+    volumes:
+      - ./Certificate:/https/:ro
+
+    expose:
+      - 80
+      - 443
+
+    ports:
+      - 3001:80
+      - 3002:443
