@@ -24,3 +24,5 @@ API description.txt
 /Frontend/yarn-error.log*
 
 /Certificate/*
+!/Certificate/CertivicateConverterFromPfx.ps1
+!/Certificate/GenerateCertificates.ps1
