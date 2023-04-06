@@ -21,7 +21,7 @@ COPY --from=publish /app/publish .
 COPY --from=publish ["/app/publish/appsettings.docker.json", "./appsettings.json"]
 
 ENV ASPNETCORE_URLS "https://+;http://+"
-ENV ASPNETCORE_HTTPS_PORT 7192
+ENV ASPNETCORE_HTTPS_PORT 443
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password "TGwc04cUx0W764uFcw8Lug=="
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path "/https/server.pfx"
 

@@ -22,13 +22,17 @@ services:
     container_name: back_container
     depends_on:
       - db
+      
     image: goods.accounts:0.1.0
     restart: always
     volumes:
       - ./Certificate:/https/:ro
 
+    expose:
+      - 443
+
     ports:
-      - 7192:5001
+      - 7192:443
 
   frontend:
     container_name: front_container
@@ -39,6 +43,10 @@ services:
     volumes:
       - ./Certificate:/https/:ro
 
+    expose:
+      - 80
+      - 443
+
     ports:
       - 3001:80
-      - 3000:443
+      - 3002:443

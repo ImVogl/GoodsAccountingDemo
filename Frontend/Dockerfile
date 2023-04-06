@@ -2,6 +2,7 @@
 FROM node:latest
 WORKDIR /app
 COPY . .
+COPY ["src/config.docker.json", "src/config.json"]
 
 # ==== BUILD =====
 RUN npm ci
