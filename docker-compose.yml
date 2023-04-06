@@ -3,26 +3,23 @@ version: '3.1'
 
 services:
   db:
+    container_name: postgres_database
     image: postgres:latest
     restart: always
-    command: ["bash", "-c", "/sql/Init.sh"]
+    working_dir: /sql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      # - POSTGRES_PASSWORD=qwerty123
-      # - POSTGRES_DB=goods_account
-      # - SCHEMA=public
 
     expose:
       - 5432
 
-    ports:
-      - 5460:5432
-
     volumes:
+      - ./Backend/Init.sh:/docker-entrypoint-initdb.d/Init.sh
       - ./Backend:/sql/:ro
 
   backend:
+    container_name: back_container
     depends_on:
       - db
     image: goods.accounts:0.1.0
@@ -31,9 +28,10 @@ services:
       - ./Certificate:/https/:ro
 
     ports:
-      - 7192:7192
+      - 7192:5001
 
   frontend:
+    container_name: front_container
     depends_on:
       - backend
 
