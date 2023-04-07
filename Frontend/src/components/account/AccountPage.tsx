@@ -31,7 +31,7 @@ const CONFIRM_ID: string = 'confirm-password-group-form';
 const SURNAME_ID: string = 'surname-password-group-form';
 const NAME_ID: string = 'name-password-group-form'
 
-const handleCreateNewUser = async (identifier: number, client: ApiClientWrapper, form: HTMLFormElement, date: Date): Promise<string> => {
+const handleCreateNewUser = (identifier: number, client: ApiClientWrapper, form: HTMLFormElement, date: Date): Promise<string> => {
     let name:string = "";
     let surname: string = "";
     for (let i = 0; i < form.length; i++){
@@ -49,17 +49,16 @@ const handleCreateNewUser = async (identifier: number, client: ApiClientWrapper,
         }
     };
 
-    try {
-        const response = await client.addNewUser(identifier, name, surname, date);
-        return `Login: ${response.login}; Password: ${response.password}`;
-    } catch (exception) {
-        if (badRequestProcessor(exception)){
+    return client.addNewUser(identifier, name, surname, date)
+        .then(response => `Login: ${response.login}; Password: ${response.password}`)
+        .catch(exception => {
+            if (badRequestProcessor(exception)){
+                return "";
+            }
+    
+            console.error(exception);
             return "";
-        }
-
-        console.error(exception);
-        return "";
-    }
+        });
 };
 
 const handleChangePassword = async (client: ApiClientWrapper, form: HTMLFormElement, setErrors: Function): Promise<void> => {
@@ -145,7 +144,16 @@ const AddUser: FC = () => {
     const [message, setMessage] = useState("");
     useEffect(() => {
         if (message !== ""){
-            navigator.clipboard.writeText(message);
+            navigator.clipboard.writeText(message)
+                .then(() => {
+                    alert("Логин и пароль были скопированы в буфер обмена");
+                    window.location.reload();
+                })
+                .catch(() => {
+                    alert(message);
+                    window.location.reload();
+                });
+            
         }
     }, [message]);
     const client = new ApiClientWrapper(useAppDispatch());
@@ -154,14 +162,20 @@ const AddUser: FC = () => {
         <Form 
             className='main-account-container'
             onSubmit={event => {
+                event.preventDefault();
                 setSubmitting(true);
                 let form = event.target as HTMLFormElement;
                 handleCreateNewUser(identifier, client, form, date)
                     .then(message => { 
                         setMessage(message);
+                        form.reset();
                         setSubmitting(false);
                         })
-                    .catch(error => console.error(error));
+                    .catch(error => {
+                        console.error(error);
+                        form.reset();
+                        setSubmitting(false);
+                    });
                     }
                 }
             >
