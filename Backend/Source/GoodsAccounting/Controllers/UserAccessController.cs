@@ -197,14 +197,14 @@ namespace GoodsAccounting.Controllers
         }
 
         /// <summary>
-        /// Adding new user.
+        /// Getting all user.
         /// </summary>
         /// <returns><see cref="Task"/> for response.</returns>
         /// <response code="200">Returns value is indicated that adding is success.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
-        [HttpPost("~/all_users")]
+        [HttpGet("~/all_users")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<UserLoginDto>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]

@@ -1318,7 +1318,7 @@ export class AllClient {
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ = <AxiosRequestConfig>{
-            method: "POST",
+            method: "GET",
             url: url_,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
@@ -1357,6 +1357,8 @@ export class AllClient {
                 for (let item of resultData200)
                     result200!.push(UserLoginDto.fromJS(item));
             }
+
+            debugger;
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
