@@ -1,6 +1,5 @@
 #!/bin/bash
 
-postgres
 apt-get update && apt-get -y dist-upgrade
 apt install -y netcat
 
