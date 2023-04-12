@@ -9,8 +9,8 @@ const MainStack = () => {
     return(
         <NavigationContainer>
             <Stack.Navigator>
-                <Stack.Screen name="Login" component={LoginScreen} options={ {title: 'Welcome'} } />
-                <Stack.Screen name="Selling" component={SellScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} options={ { title: 'Авторизация' } } />
+                <Stack.Screen name="Selling" component={SellScreen} options={ { title: 'Продажа', gestureEnabled: false, headerShown: true, headerLeft: () => <></> } } />
             </Stack.Navigator>
         </NavigationContainer>
     )
