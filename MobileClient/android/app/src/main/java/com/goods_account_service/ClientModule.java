@@ -13,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -38,10 +40,6 @@ import java.security.cert.X509Certificate;
 import java.security.NoSuchAlgorithmException;
 import java.security.KeyManagementException;
 
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -80,44 +78,8 @@ public class ClientModule extends ReactContextBaseJavaModule {
         _secretKeyPath = secretKeyPath;
         _cookieManager = new java.net.CookieManager();
         _initialized = true;
-        _dubug = false;
 
         Log.d(this.getClass().getCanonicalName(), "Module was initialized");
-    }
-
-    /**
-     * Initialization of module for debug mode.
-     * @param baseUrl - base api server url.
-     * @param certificatePath - full path to certificate.
-     * @param secretKeyPath - full path to secret key.
-     */
-    @ReactMethod
-    public void init_debug(String baseUrl, String certificatePath, String secretKeyPath)
-    {
-        _baseUrl = baseUrl;
-        _certificatePath = certificatePath;
-        _secretKeyPath = secretKeyPath;
-        _cookieManager = new java.net.CookieManager();
-        _logger = Logger.getLogger(this.getClass().getCanonicalName());
-        _initialized = true;
-        _dubug = true;
-        
-        try {
-            SimpleFormatter formatter = new SimpleFormatter();
-            String path_to_log = "X:\\TEMP\\ClientNative.log"; // System.getProperty("java.io.tmpdir").concat("\\ClientNative.log");
-            
-            FileHandler logFileHandler = new FileHandler(path_to_log);  
-            logFileHandler.setFormatter(formatter);
-            _logger.addHandler(logFileHandler);
-            _logger.setLevel(Level.SEVERE);
-        } catch (SecurityException exception) {
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-        } catch (IOException exception) {
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-        }  
-
-        Log.d(this.getClass().getCanonicalName(), "Module was initialized");
-        _logger.info("Module was initialized");
     }
 
     /**
@@ -128,6 +90,7 @@ public class ClientModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void signin(String login, String password, Promise response)
     {
+        String errorMessage;
         if (!_initialized){
             response.resolve(new IllegalStateException("Module was not initialized!"));
             Log.d(this.getClass().getCanonicalName(), "Module was not initialized!");
@@ -140,20 +103,14 @@ public class ClientModule extends ReactContextBaseJavaModule {
             sslContext.init(null, manager, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
         } catch (NoSuchAlgorithmException exception) {
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
-
+            errorMessage = convertException("NoSuchAlgorithmException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
             return;
         } catch (KeyManagementException exception){
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
-
+            errorMessage = convertException("KeyManagementException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
             return;
         }
 
@@ -179,7 +136,9 @@ public class ClientModule extends ReactContextBaseJavaModule {
                 try {
                     response.resolve(EmptyJson);
                 } catch (IllegalViewOperationException exception) {
-                    response.resolve(exception.getMessage());
+                    errorMessage = convertException("IllegalViewOperationException", exception);
+                    response.resolve(errorMessage);
+                    Log.d(this.getClass().getCanonicalName(), errorMessage);
                 }
             }
 
@@ -199,41 +158,29 @@ public class ClientModule extends ReactContextBaseJavaModule {
             in.close();
             response.resolve(local_response.toString());
         } catch (MalformedURLException exception) {
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
+            errorMessage = convertException("MalformedURLException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
         } catch (IllegalViewOperationException exception) {
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
+            errorMessage = convertException("IllegalViewOperationException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
         } catch (ProtocolException exception) {
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
+            errorMessage = convertException("ProtocolException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
         } catch (UnsupportedEncodingException exception){
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
+            errorMessage = convertException("UnsupportedEncodingException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
         } catch (URISyntaxException exception){
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
+            errorMessage = convertException("URISyntaxException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
         } catch (IOException exception) {
-            response.resolve(exception.getMessage());
-            Log.d(this.getClass().getCanonicalName(), exception.getMessage());
-            if (_dubug){
-                _logger.log(Level.SEVERE, exception.getMessage());
-            }
+            errorMessage = convertException("IOException", exception);
+            response.resolve(errorMessage);
+            Log.d(this.getClass().getCanonicalName(), errorMessage);
         }
     }
     
@@ -263,9 +210,6 @@ public class ClientModule extends ReactContextBaseJavaModule {
 
     // Cookie manager. 
     private static CookieManager _cookieManager;
-
-    // Logger.
-    private Logger _logger;
 
     /**
      * @param crtPath - path to certificate file.
@@ -302,5 +246,19 @@ public class ClientModule extends ReactContextBaseJavaModule {
         }
 
         return new TrustManager[0];
+     }
+
+     /**
+      * Converting exception call stack to string.
+     * @param exceptionName - exception name.
+     * @param exception - Exception for converting.
+     * @return Converted call stack.
+     */
+    private String convertException(String exceptionName, Exception exception)
+     {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        exception.printStackTrace(pw);
+        return String.format("Name: %s;\n StackTrace: %s", exceptionName, sw.toString());
      }
 }

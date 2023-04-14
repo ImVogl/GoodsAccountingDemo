@@ -14,7 +14,7 @@ class ApiClient{
     constructor(){
         this._baseUrl = getBaseUrl();
         this._client = NativeModules["ApiClientModule"];
-        this._client.init_debug(getBaseUrl(), "I:\Visual Studio 2017\DemostrationProjects\GoodsAccountingDemo\Certificate\server.crt", "I:\Visual Studio 2017\DemostrationProjects\GoodsAccountingDemo\Certificate\server.key");
+        this._client.init(getBaseUrl(), "I:\Visual Studio 2017\DemostrationProjects\GoodsAccountingDemo\Certificate\server.crt", "I:\Visual Studio 2017\DemostrationProjects\GoodsAccountingDemo\Certificate\server.key");
     }
 
     // Siging in user
