@@ -2,11 +2,6 @@ import { NativeModules } from 'react-native';
 import { getBaseUrl } from './Utilites';
 import { UserInfoDto } from './types/UserInfoDto';
 
-const SUCCESS: number = 200;
-const UNAUTORIZE: number = 401;
-const BAD_REQUEST: number = 400;
-const TIMEOUT: number = 10000;
-
 class ApiClient{
     private readonly _client: any;
 
@@ -22,8 +17,8 @@ class ApiClient{
             let result = UserInfoDto.fromJS(response);
             console.log(result);
             return true;
-        }).catch(() => {
-            console.error();
+        }).catch((error:any) => {
+            console.error(error);
             return false;
         });
     }
