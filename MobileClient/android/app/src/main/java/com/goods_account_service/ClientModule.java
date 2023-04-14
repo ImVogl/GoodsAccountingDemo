@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.uimanager.IllegalViewOperationException;
 
 import com.goods_account_service.ClientResponse;
+import com.goods_account_service.AccessService;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -21,9 +22,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import java.lang.IllegalStateException;
+import java.lang.NullPointerException;
 
-import java.net.CookieManager;
-import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -55,6 +55,7 @@ public class ClientModule extends ReactContextBaseJavaModule {
         super(context);
         _reactContext = context;
         _loggerName = this.getClass().getCanonicalName();
+        _accessService = AccessService.getInstance();
         _initialized = false;
         _dubug = false;
     }
@@ -79,13 +80,13 @@ public class ClientModule extends ReactContextBaseJavaModule {
         _baseUrl = baseUrl;
         _certificatePath = certificatePath;
         _secretKeyPath = secretKeyPath;
-        _cookieManager = new java.net.CookieManager();
         _initialized = true;
 
         Log.d(_loggerName, "Module was initialized");
     }
 
     /**
+     * Authentification any user.
      * @param login - user's login
      * @param password - user's password
      * @param promise is a promise with response body in JSON.
@@ -99,8 +100,63 @@ public class ClientModule extends ReactContextBaseJavaModule {
             return;
         }
 
+        _accessService.removeJWT();
         String json = String.format("{\"login\": \"%s\", \"password\": \"%s\"}", login, password);
         ClientResponse response = post("/signin", json);
+        if (response.get_exception() == null){
+            promise.resolve(_accessService.sustractAndSaveJWT(response.get_response()));
+        } else{
+            promise.reject(response.get_response(), response.get_exception());
+        }
+    }
+
+    /**
+     * Logout user.
+     * @param id - user identificator.
+     */
+    public void signout(int id, Promise promise)
+    {
+        if (!_initialized){
+            Log.d(_loggerName, "Module was not initialized!");
+            promise.reject(new IllegalStateException("Module was not initialized!"));
+            return;
+        }
+
+        String path = String.format("/signout/%n", id); 
+        ClientResponse response = post(path, null);
+        if (response.get_exception() == null){
+            promise.resolve(response.get_response());
+            _accessService.removeJWT();
+        } else{
+            promise.reject(response.get_response(), response.get_exception());
+        }
+    }
+    
+    /**
+     * Selling item.
+     * @param id - user identificator.
+     * @param item - item identificator.
+     */
+    public void sell(int id, String item, Promise promise)
+    {
+        if (!_initialized){
+            Log.d(_loggerName, "Module was not initialized!");
+            promise.reject(new IllegalStateException("Module was not initialized!"));
+            return;
+        }
+        
+        String json = String.format("{\"id\": %n, \"sold\": { \"%s\": 1 } }", id, item);
+        ClientResponse response = post("/sold_goods", json);
+        if (response.unautorized()){
+            if (!refreshToken()){
+                ClientResponse accessResponse = new ClientResponse(401);
+                promise.reject(accessResponse.get_response(), accessResponse.get_exception());
+                return;
+            };
+
+            response = post("/sold_goods", json);
+        }
+
         if (response.get_exception() == null){
             promise.resolve(response.get_response());
         } else{
@@ -132,11 +188,24 @@ public class ClientModule extends ReactContextBaseJavaModule {
     // Base uri to API server.
     private static String _baseUrl;
 
-    // Cookie manager. 
-    private static CookieManager _cookieManager;
+    // Save/load JWT service.
+    private static AccessService _accessService;
 
     // Logger name.
     private static String _loggerName;
+
+    /**
+     * @return Value is indicating that token updated
+     */
+    private boolean refreshToken(){
+        ClientResponse response = post("/update_token", null, true);
+        if (response.get_exception() == null){
+            _accessService.sustractAndSaveJWT(response.get_response());
+            return true;
+        };
+
+        return false;
+    }
 
     /**
      * Common post method.
@@ -145,6 +214,17 @@ public class ClientModule extends ReactContextBaseJavaModule {
      * @return Data with resposponse.
      */
     private ClientResponse post(String path, String json){
+        return post(path, json, false);
+    }
+
+    /**
+     * Common post method.
+     * @param path - subpath in url.
+     * @param json - json body.
+     * @param withCredentials - value is indicating that request should have credentials cookie.
+     * @return Data with resposponse.
+     */
+    private ClientResponse post(String path, String json, boolean withCredentials){
         String errorMessage;
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -161,35 +241,38 @@ public class ClientModule extends ReactContextBaseJavaModule {
 
         try {
             URL url = new URL(_baseUrl.concat(path));
-            HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Accept", "text/plain");
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setDoOutput(true);
-
-            try(OutputStream os = con.getOutputStream()) {
-                byte[] input = json.getBytes();
-                os.write(input, 0, input.length);
+            String jwt = _accessService.loadJWT();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Accept", "text/plain");
+            connection.setRequestProperty("Content-Type", "application/json");
+            if (!jwt.isEmpty()){
+                connection.setRequestProperty("Authorization", "Bearer " + jwt);
             }
 
-            Map<String, List<String>> headers = con.getHeaderFields();
-            if (!headers.keySet().contains(CookieKey)){
-                try {
-                    return new ClientResponse(EmptyJson);
-                } catch (IllegalViewOperationException exception) {
-                    logDebugException("IllegalViewOperationException", exception);
-                    return new ClientResponse(exception);
+            HttpCookie currentCookie = _accessService.loadCookie(url.toURI());
+            if (withCredentials & currentCookie != null){
+                connection.setRequestProperty(CookieKey, currentCookie.toString());
+            }
+            
+            connection.setDoOutput(true);
+
+            if (json != null){
+                try(OutputStream os = connection.getOutputStream()) {
+                    byte[] input = json.getBytes();
+                    os.write(input, 0, input.length);
                 }
             }
 
-            Iterable<String> allCookies = (Iterable<String>)headers.get(CookieKey);
-            for (String cookie : allCookies){
-                _cookieManager.getCookieStore().add(url.toURI(), HttpCookie.parse(cookie).get(0));
+            connection.getResponseCode();
+            Map<String, List<String>> headers = connection.getHeaderFields();
+            if (headers.keySet().contains(CookieKey)){
+                _accessService.saveCookie(url.toURI(), (Iterable<String>)headers.get(CookieKey));
             }
 
             // Read the response
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
             StringBuffer local_response = new StringBuffer();
             while ((inputLine = in.readLine()) != null) {
@@ -213,6 +296,9 @@ public class ClientModule extends ReactContextBaseJavaModule {
             return new ClientResponse(exception);
         } catch (URISyntaxException exception){
             logDebugException("URISyntaxException", exception);
+            return new ClientResponse(exception);
+        }catch (NullPointerException exception) {
+            logDebugException("NullPointerException", exception);
             return new ClientResponse(exception);
         } catch (IOException exception) {
             logDebugException("IOException", exception);

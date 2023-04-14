@@ -13,12 +13,15 @@ public class ClientResponse
      */
     public ClientResponse(Exception exception){
         _exception = exception;
+        _unautorized = false;
     }
 
     /**
      * @param responseCode - response error code.
      */
     public ClientResponse(int responseCode){
+        _unautorized = responseCode == 401;
+
         try {
             _response = String.format("{ \"ErrorCode\": %n }", responseCode);
         } catch (IllegalFormatException exception){
@@ -55,10 +58,20 @@ public class ClientResponse
     }
 
     /**
+     * @return value is indicating that response status code is 401;
+     */
+    public boolean unautorized(){
+        return _unautorized;
+    }
+
+    /**
      * Trown exception.
      */
     private Exception _exception;
 
     // Content from response body or error code.
     private String _response;
+
+    // Value is indicating that response status code is 401;
+    private boolean _unautorized;
 }
