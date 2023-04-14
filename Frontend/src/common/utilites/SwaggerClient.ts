@@ -1154,7 +1154,7 @@ export class UpdateClient {
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ = <AxiosRequestConfig>{
-            method: "GET",
+            method: "POST",
             url: url_,
             withCredentials: true,
             headers: {
@@ -1231,7 +1231,7 @@ export class UpdateClient {
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ = <AxiosRequestConfig>{
-            method: "POST",
+            method: "GET",
             url: url_,
             headers: {
                 "Authorization": authorization !== undefined && authorization !== null ? "" + authorization : "",
