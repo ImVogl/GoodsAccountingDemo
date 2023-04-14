@@ -11,16 +11,16 @@ import {
     Alert
 } from 'react-native';
 
-import ApiClientWrapper from '../../common/ApiClientWrapper';
+import ApiClient from '../../common/ApiClient';
 
 const image = require('../../../assets/background.png');
 const LoginScreen = () => {
-    const client = new ApiClientWrapper();
+    const client = new ApiClient();
     const [user, setUser] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
     const handleAsync = (login: string, password: string): Promise<void> => {
-        return client.logUser(login, password).then(success => {
+        return client.signin(login, password).then(success => {
             if (success) {
                 navigation.navigate("Selling" as never, {} as never);
             }
