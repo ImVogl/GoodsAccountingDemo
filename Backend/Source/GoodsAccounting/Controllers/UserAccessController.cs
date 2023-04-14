@@ -119,7 +119,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="200">Returns value is indicated that user is drinker.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
-        [HttpGet("~/update_token")]
+        [HttpPost("~/update_token")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
@@ -157,7 +157,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="200">Returns value is indicated that user is drinker.</response>
         /// <response code="400">Returns if requested data is invalid.</response>
         /// <response code="401">Returns if user didn't find.</response>
-        [HttpPost("~/update_user")]
+        [HttpGet("~/update_user")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
