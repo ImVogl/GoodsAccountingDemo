@@ -8,13 +8,11 @@ const BAD_REQUEST: number = 400;
 const TIMEOUT: number = 10000;
 
 class ApiClient{
-    private readonly _baseUrl: string;
     private readonly _client: any;
 
     constructor(){
-        this._baseUrl = getBaseUrl();
         this._client = NativeModules["ApiClientModule"];
-        this._client.init(getBaseUrl(), "I:\Visual Studio 2017\DemostrationProjects\GoodsAccountingDemo\Certificate\server.crt", "I:\Visual Studio 2017\DemostrationProjects\GoodsAccountingDemo\Certificate\server.key");
+        this._client.init(getBaseUrl(), "I:\\Visual Studio 2017\\DemostrationProjects\\GoodsAccountingDemo\\Certificate\\server.crt", "I:\\Visual Studio 2017\\DemostrationProjects\\GoodsAccountingDemo\\Certificate\\server.key");
     }
 
     // Siging in user

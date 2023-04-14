@@ -120,15 +120,13 @@ public class ClientModule extends ReactContextBaseJavaModule {
 
             con.setRequestMethod("POST");
             con.setRequestProperty("Accept", "text/plain");
-            con.setRequestProperty("e_platform", "mobile");
-            con.setRequestProperty("Content-Type", "application/json-patch+json");
-            con.setRequestProperty("Authorization", null);
+            con.setRequestProperty("Content-Type", "application/json");
             con.setDoOutput(true);
 
             String json = String.format("{\"login\": \"%s\", \"password\": \"%s\"}", login, password);
             try(OutputStream os = con.getOutputStream()) {
-                byte[] input = json.getBytes("utf-8");
-                os.write(input, 0, input.length);			
+                byte[] input = json.getBytes();
+                os.write(input, 0, input.length);
             }
 
             Map<String, List<String>> headers = con.getHeaderFields();
@@ -255,10 +253,10 @@ public class ClientModule extends ReactContextBaseJavaModule {
      * @return Converted call stack.
      */
     private String convertException(String exceptionName, Exception exception)
-     {
+    {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         exception.printStackTrace(pw);
         return String.format("Name: %s;\n StackTrace: %s", exceptionName, sw.toString());
-     }
+    }
 }
