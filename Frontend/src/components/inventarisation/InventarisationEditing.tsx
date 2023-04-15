@@ -13,9 +13,9 @@ import { badRequestProcessor } from '../../common/utilites/Common';
 export interface INewItem{
     item: string;
     category: string;
-    storage: number;
-    whole: number;
-    retail: number;
+    storage: number | undefined;
+    whole: number | undefined;
+    retail: number | undefined;
 }
 
 async function removeAsync(client: ApiClientWrapper, identifier: number, itemIdentifier: string):Promise<void>{
@@ -49,7 +49,7 @@ const InventarisationEditing: FC = () =>{
 
     const AddNewItemAsync = async (values: INewItem, actions: FormikHelpers<INewItem> ) => { 
         try{
-            await client.addNewGoodsItem(identifier, values.item, values.category, values.storage, values.whole, values.retail);
+            await client.addNewGoodsItem(identifier, values.item, values.category, values.storage ?? 0, values.whole ?? 0, values.retail ?? 0);
             setActive(false);
         }
         catch (exception){
@@ -62,7 +62,7 @@ const InventarisationEditing: FC = () =>{
         }
       }
     
-    const initialValues: INewItem = { item: "Новый товар", category: "Категория", storage: 0, whole: 0, retail: 0 };
+    const initialValues: INewItem = { item: "", category: "", storage: undefined, whole: undefined, retail: undefined };
     const { values, errors, touched, isSubmitting, handleBlur, handleChange, handleSubmit, } = useFormik(
         {
             initialValues: initialValues,
