@@ -1,8 +1,8 @@
-package Services;
+package com.goods_account_service.services;
 
-import Services.Models.SoldItem;
-import Services.Models.TokenResponse;
-import Services.Models.UserInfo;
+import com.goods_account_service.services.models.SoldItem;
+import com.goods_account_service.services.models.TokenResponse;
+import com.goods_account_service.services.models.UserInfo;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -89,7 +89,7 @@ public class ApiClient
      * @param password - user's password.
      * @return response body or error.
      */
-    public String signin(String login, String password)
+    public ClientResponse signin(String login, String password)
     {
         _accessService.removeJWT();
         String json = String.format("{\"login\": \"%s\", \"password\": \"%s\"}", login, password);
@@ -98,9 +98,9 @@ public class ApiClient
             UserInfo info = _gson.fromJson(response.get_response(), UserInfo.class);
             _accessService.saveJWT(info);
             info.Token = "";
-            return _gson.toJson(info);
+            return new ClientResponse(_gson.toJson(info));
         } else{
-            return response.get_response();
+            return response;
         }
     }
 
@@ -108,46 +108,53 @@ public class ApiClient
      * Signing out of user.
      * @param id - user identifier.
      */
-    public boolean signout(int id)
+    public ClientResponse signout(int id)
     {
         String path = String.format("/signout/%s", id);
         ClientResponse response = post(path, null, true);
+        if (response.unautorized()){
+            if (!refreshToken()){
+                return new ClientResponse(401);
+            };
+
+            response = post(path, null, true);
+        }
+
         if (response.get_exception() == null){
             _accessService.removeJWT();
-            return true;
-        } else{
-            return false;
         }
+
+        return response;
     }
     /**
      * Selling item.
      * @param id - user identifier.
      * @param item - item identifier.
      */
-    public boolean sell(int id, String item)
+    public ClientResponse sell(int id, String item)
     {
         SoldItem soldItem = new SoldItem();
         soldItem.Id = id;
-        soldItem.Sold = HashMap.newHashMap(0);
+        soldItem.Sold = new HashMap<String, Integer>(0);
         soldItem.Sold.put(item, 1);
 
         String json = _gson.toJson(soldItem);
         ClientResponse response = post("/sold_goods", json);
         if (response.unautorized()){
             if (!refreshToken()){
-                return false;
+                return new ClientResponse(401);
             };
 
             response = post("/sold_goods", json);
         }
 
-        return response.get_exception() == null;
+        return response;
     }
 
     /**
      * @return Value is indicating that token updated
      */
-    public boolean refreshToken(){
+    private boolean refreshToken(){
         ClientResponse response = post("/update_token", null, true);
         if (response.get_exception() == null){
             TokenResponse tokenResponse = new TokenResponse();

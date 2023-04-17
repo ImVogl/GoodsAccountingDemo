@@ -1,14 +1,17 @@
-package com.goods_account_service;
+package com.goods_account_service.services;
+
+import com.goods_account_service.services.NativeClientRequestException;
 
 import java.lang.IllegalArgumentException;
 import java.util.IllegalFormatException;
 
-import com.goods_account_service.NativeClientRequestException;
-
+/**
+ * Response information.
+ */
 public class ClientResponse
 {
     /**
-     * Constructor.
+     * Initializing of new Instance.
      * @param exception - thrown exception.
      */
     public ClientResponse(Exception exception){
@@ -17,6 +20,7 @@ public class ClientResponse
     }
 
     /**
+     * Initializing of new instance.
      * @param responseCode - response error code.
      */
     public ClientResponse(int responseCode){

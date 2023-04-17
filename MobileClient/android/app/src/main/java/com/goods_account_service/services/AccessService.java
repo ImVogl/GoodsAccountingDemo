@@ -1,46 +1,69 @@
-package com.goods_account_service;
+package com.goods_account_service.services;
+
+import com.goods_account_service.services.models.TokenResponse;
 
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.URI;
 
 import java.lang.NullPointerException;
-import java.util.List;
 
-// This servise works with access data.
-public class AccessService{
-    
+/**
+ * This service works with access data.
+ */
+public final class AccessService
+{
     /**
-     * Singleton constructor.
+     * Instance of singleton.
      */
-    protected AccessService(){
+    private static AccessService _instance;
+
+    /**
+     * Cookie manager.
+     */
+    private CookieManager _cookieManager;
+
+    /**
+     * Current token.
+     */
+    private String _token;
+
+    /**
+     * Constructor.
+     */
+    private AccessService(){
         _cookieManager = new java.net.CookieManager();
     }
 
     public static AccessService getInstance(){
+        if (_instance == null){
+            _instance = new AccessService();
+        }
+
         return _instance;
     }
 
     /**
-     * Substraction JWT from response body and save into local storage.
-     * @param response
+     * Save JWT from response body into local storage.
+     * @param response response with token.
      * @return Modified response.
      */
-    public String sustractAndSaveJWT(String response){
-        return "";
+    public void saveJWT(TokenResponse response){
+        _token = response.Token;
     }
 
     /**
      * @return JWT from storage or empty string.
      */
     public String loadJWT(){
-        return "";
+        return _token;
     }
 
     /**
-     * Removing JWT fron storage.
+     * Removing JWT from storage.
      */
     public void removeJWT(){
+        _token = "";
     }
 
     /**
@@ -54,7 +77,7 @@ public class AccessService{
         if (oldCookie != null){
             _cookieManager.getCookieStore().remove(uri, loadCookie(uri));
         }
-        
+
         for (String cookies : allCookies){
             for (HttpCookie cookie : (Iterable<HttpCookie>)HttpCookie.parse(cookies)){
                 if (cookie.isHttpOnly()){
@@ -82,9 +105,23 @@ public class AccessService{
         return null;
     }
 
-    // Instance of this class.
-    private final static AccessService _instance = new AccessService();
-    
-    // Cookie manager. 
-    private static CookieManager _cookieManager;
+    /**
+     * Converting HttpCookie object to String object.
+     * @param cookie - cookie for conversion.
+     * @return Cookie as string.
+     */
+    public String convertCookie(HttpCookie cookie)
+    {
+        String stringCookie = cookie.toString();
+        stringCookie += "; path=" + cookie.getPath();
+        if (cookie.getSecure()){
+            stringCookie += "; secure";
+        }
+
+        if (cookie.isHttpOnly()){
+            stringCookie += "; httponly";
+        }
+
+        return stringCookie;
+    }
 }
