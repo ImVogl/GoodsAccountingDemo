@@ -161,7 +161,7 @@ public class ApiClient
     /**
      * @return Value is indicating that token updated
      */
-    private boolean refreshToken(){
+    public boolean refreshToken(){
         ClientResponse response = post("/update_token", null, true);
         if (response.get_exception() == null){
             TokenResponse tokenResponse = new TokenResponse();

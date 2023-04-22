@@ -5,26 +5,12 @@ import com.goods_account.api.models.exceptions.ApiClientException;
 import com.goods_account.api.models.UserInfo;
 import com.goods_account.api.models.exceptions.ApiUnauthorizeException;
 import com.goods_account.data.model.LoggedInUser;
+import com.goods_account.data.model.Settings;
 
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
 public class LoginDataSource {
-
-    /**
-     * Path to certificate file.
-     */
-    private static final String _certificatePath = "I:\\Visual Studio 2017\\DemostrationProjects\\GoodsAccountingDemo\\Certificate\\server.crt";
-
-    /**
-     * Path to secret key.
-     */
-    private static final String _secretKeyPath = "I:\\Visual Studio 2017\\DemostrationProjects\\GoodsAccountingDemo\\Certificate\\server.key";
-
-    /**
-     * URL to API.
-     */
-    private static final String _apiServiceBaseUrl = "https://localhost:7192";
 
     /**
      * Client for REST API instance.
@@ -36,7 +22,8 @@ public class LoginDataSource {
      * Initializing new instance of data source.
      */
     public LoginDataSource(){
-        _client = new ApiClient(_apiServiceBaseUrl, _certificatePath, _secretKeyPath);
+        Settings settings = Settings.getInstance();
+        _client = new ApiClient(settings.getApiServiceUrl(), settings.getPathToCertificate(), settings.getPathToSecretKey());
     }
 
     /**
