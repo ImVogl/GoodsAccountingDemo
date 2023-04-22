@@ -33,8 +33,8 @@ public class LoginRepository {
     }
 
     public void logout() {
+        dataSource.logout(user.get_userId());
         user = null;
-        dataSource.logout();
     }
 
     private void setLoggedInUser(LoggedInUser user) {
@@ -49,6 +49,7 @@ public class LoginRepository {
         if (result instanceof Result.Success) {
             setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
         }
+
         return result;
     }
 }
