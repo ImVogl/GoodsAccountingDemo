@@ -9,7 +9,7 @@ import com.goods_account.api.models.SellType;
 import com.goods_account.data.model.Settings;
 
 import static android.view.View.VISIBLE;
-import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 
 /**
  * View model for "sell screen".
@@ -29,7 +29,7 @@ public class SellViewModel extends ViewModel {
     /**
      * Scanning buttons visible state.
      */
-    public ObservableInt realise_scan_visible = new ObservableInt(GONE);
+    public ObservableInt realise_scan_visible = new ObservableInt(INVISIBLE);
 
     /**
      * This field is indicating that scanning buttons is enabled.
@@ -39,7 +39,7 @@ public class SellViewModel extends ViewModel {
     /**
      * Scanning buttons visible state.
      */
-    public ObservableInt selling_visible = new ObservableInt(GONE);
+    public ObservableInt selling_visible = new ObservableInt(INVISIBLE);
 
     /**
      * This field is indicating that scanning buttons is enabled.
@@ -81,12 +81,12 @@ public class SellViewModel extends ViewModel {
      * Set view start scanning state.
      */
     public void startScanning(){
-        start_scan_visible.set(GONE);
+        start_scan_visible.set(INVISIBLE);
         enabled_start_scan.set(false);
 
         realise_scan_visible.set(VISIBLE);
         enabled_realise_scan.set(true);
-        selling_visible.set(GONE);
+        selling_visible.set(INVISIBLE);
         selling_scan.set(false);
         _updateScanner.get();
     }
@@ -97,9 +97,9 @@ public class SellViewModel extends ViewModel {
     public void stopScanning(){
         start_scan_visible.set(VISIBLE);
         enabled_start_scan.set(true);
-        realise_scan_visible.set(GONE);
+        realise_scan_visible.set(INVISIBLE);
         enabled_realise_scan.set(false);
-        selling_visible.set(GONE);
+        selling_visible.set(INVISIBLE);
         selling_scan.set(false);
     }
 
@@ -110,6 +110,7 @@ public class SellViewModel extends ViewModel {
     public void setScanned(String data){
         selling_visible.set(VISIBLE);
         selling_scan.set(true);
+        enabled_realise_scan.set(false);
         _data = data;
     }
 

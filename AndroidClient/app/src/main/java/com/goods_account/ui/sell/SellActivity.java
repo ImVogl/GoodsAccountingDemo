@@ -3,8 +3,6 @@ package com.goods_account.ui.sell;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import com.budiyev.android.codescanner.AutoFocusMode;
 import com.budiyev.android.codescanner.CodeScanner;
@@ -47,6 +45,7 @@ public class SellActivity extends AppCompatActivity  {
         setContentView(_binding.getRoot());
         _viewModel = new ViewModelProvider(this, new ViewModelFactory()).get(SellViewModel.class);
         initializeCamera();
+        _binding.setViewmodel(_viewModel);
     }
 
     /**
@@ -72,7 +71,19 @@ public class SellActivity extends AppCompatActivity  {
         _codeScanner.setAutoFocusEnabled(true);             // Whether to enable auto focus or not
         _codeScanner.setFlashEnabled(false);                // Whether to enable flash or not
 
-        _codeScanner.setDecodeCallback(result -> _viewModel.setScanned(result.getText()));    // _viewModel.setScanned()
+        _codeScanner.setDecodeCallback(result -> _viewModel.setScanned(result.getText()));
         _codeScanner.setErrorCallback(result -> Toast.makeText(this, "Camera initialization error: ${it.message}", Toast.LENGTH_LONG).show());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        _codeScanner.startPreview();
+    }
+
+    @Override
+    protected void onPause() {
+        _codeScanner.releaseResources();
+        super.onPause();
     }
 }
