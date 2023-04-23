@@ -45,8 +45,8 @@ public class SellActivity extends AppCompatActivity  {
 
         _binding = ActivitySellBinding.inflate(getLayoutInflater());
         setContentView(_binding.getRoot());
-        initializeCamera();
         _viewModel = new ViewModelProvider(this, new ViewModelFactory()).get(SellViewModel.class);
+        initializeCamera();
     }
 
     /**
