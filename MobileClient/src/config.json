@@ -1,5 +1,0 @@
-{
-    "use_tls": true,
-    "server_url": "http://localhost:5184",
-    "server_url_ssl" : "https://localhost:7192"
-}
