@@ -1,6 +1,7 @@
 package com.goods_account.api;
 
 import android.os.StrictMode;
+import com.goods_account.api.models.SellType;
 import com.goods_account.api.models.exceptions.ApiClientException;
 import com.goods_account.api.models.SoldItem;
 import com.goods_account.api.models.TokenResponse;
@@ -138,7 +139,7 @@ public class ApiClient
      * @param id - user identifier.
      * @param item - item identifier.
      */
-    public ClientResponse sell(int id, String item)
+    public ClientResponse sell(int id, String item, SellType type)
     {
         SoldItem soldItem = new SoldItem();
         soldItem.Id = id;

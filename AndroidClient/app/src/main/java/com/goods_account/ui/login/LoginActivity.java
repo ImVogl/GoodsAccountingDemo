@@ -19,9 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.goods_account.R;
-import com.goods_account.ui.login.LoginViewModel;
-import com.goods_account.ui.login.LoginViewModelFactory;
 import com.goods_account.databinding.ActivityLoginBinding;
+import com.goods_account.ui.ViewModelFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,8 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory())
-                .get(LoginViewModel.class);
+        loginViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(LoginViewModel.class);
 
         final EditText usernameEditText = binding.username;
         final EditText passwordEditText = binding.password;
