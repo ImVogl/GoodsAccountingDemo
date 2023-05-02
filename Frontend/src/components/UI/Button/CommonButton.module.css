@@ -1,0 +1,27 @@
+.commonButton {
+    width: 220px;
+    height: 45px;
+    background-color: #FFFFFF;
+    border: 1px solid gray;
+    font-size: 14px;
+}
+
+.commonButton:hover {
+    background-color: #dbdbdb;
+}
+
+@media (max-width: 1024px) {
+    .commonButton {
+        width: 220px;
+        height: 45px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 512px) {
+    .commonButton {
+        width: 110px;
+        height: 20px;
+        font-size: 10px;
+    }
+}
