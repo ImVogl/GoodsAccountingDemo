@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">GoodsAccounts</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Введите email</string>
+    <string name="prompt_password">Введите пароль</string>
+    <string name="view_authorization">Авторизация</string>
+    <string name="action_sign_in">Подтвердить</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Не удалось авторизоваться"</string>
+
+    <!-- Sell screen strings -->
+    <string name="finish_scanning">Завершить</string>
+    <string name="cash_scanning">Наличные</string>
+    <string name="credit_scanning">Безналичные</string>
+    <string name="whole_price_scanning">По себестоимости</string>
+</resources>
