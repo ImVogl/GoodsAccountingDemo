@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+                name="viewmodel"
+                type="com.goods_account.ui.sell.SellViewModel"/>
+    </data>
+
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/main_background">
+
+        <ImageButton
+                android:id="@+id/sign_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:visibility="visible"
+                android:enabled="@{viewmodel.enabled_start_scan}"
+                app:srcCompat="@drawable/signout_btn"
+        />
+
+        <com.budiyev.android.codescanner.CodeScannerView
+                android:id="@+id/scanner"
+                android:layout_width="fill_parent"
+                android:layout_height="300dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="100dp"
+        />
+
+        <ImageButton
+                android:id="@+id/enable_qr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/scanner"
+                android:visibility="@{viewmodel.start_scan_visible}"
+                android:enabled="@{viewmodel.enabled_start_scan}"
+                android:onClick="@{() -> viewmodel.startScanning()}"
+                app:srcCompat="@drawable/bar_code_btn"
+        />
+
+        <Button
+                android:id="@+id/finish_scanning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/scanner"
+                android:text="@string/finish_scanning"
+                android:background="@drawable/common_button"
+                android:textAppearance="@style/common_button"
+                android:visibility="@{viewmodel.realise_scan_visible}"
+                android:enabled="@{viewmodel.enabled_realise_scan}"
+                android:onClick="@{() -> viewmodel.stopScanning()}"
+        />
+
+        <Button
+                android:id="@+id/cash_scanning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/finish_scanning"
+                android:text="@string/cash_scanning"
+                android:background="@drawable/common_button"
+                android:textAppearance="@style/common_button"
+                android:visibility="@{viewmodel.selling_visible}"
+                android:enabled="@{viewmodel.selling_scan}"
+                android:onClick="@{() -> viewmodel.sellCash()}"
+        />
+
+        <Button
+                android:id="@+id/credit_scanning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/cash_scanning"
+                android:text="@string/credit_scanning"
+                android:background="@drawable/common_button"
+                android:textAppearance="@style/common_button"
+                android:visibility="@{viewmodel.selling_visible}"
+                android:enabled="@{viewmodel.selling_scan}"
+                android:onClick="@{() -> viewmodel.sellCreditCard()}"
+        />
+
+        <Button
+                android:id="@+id/whole_price_scanning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/credit_scanning"
+                android:text="@string/whole_price_scanning"
+                android:background="@drawable/common_button"
+                android:textAppearance="@style/common_button"
+                android:visibility="@{viewmodel.selling_visible}"
+                android:enabled="@{viewmodel.selling_scan}"
+                android:onClick="@{() -> viewmodel.sellWholePrice()}"
+        />
+
+    </RelativeLayout>
+</layout>

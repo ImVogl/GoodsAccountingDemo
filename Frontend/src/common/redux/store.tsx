@@ -9,7 +9,7 @@ function saveToLocalStorage(state:RootState){
       console.error(error);
   }
 }
-
+cleanStore()
 function loadFromLocalStorage()
 {
   try {
