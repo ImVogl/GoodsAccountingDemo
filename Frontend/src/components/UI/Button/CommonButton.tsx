@@ -1,17 +1,18 @@
 import classes from './CommonButton.module.css'
 import { FC, ReactElement } from 'react';
-import Button, { ButtonProps } from 'react-bootstrap/Button';
+import Button from 'react-bootstrap/Button';
 
-export interface IButtonProps{
-    children: ReactElement[];
-    props: ButtonProps
+export interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>{
+    title: string;
+    variant: string;
+    href?: string;
 }
 
 /// Компонента с общестпользуемой кнопкой.
-export const CommonButton: FC<IButtonProps> = (props: IButtonProps): ReactElement => {
+export const CommonButton: FC<IButtonProps> = ({ title, variant, href, ...props }): ReactElement => {
     return (
-    <Button {...props.props} className={classes.commonButton}>
-        {props.children}
+    <Button {...props} variant={variant} href={href} className={classes.commonButton}>
+        {title}
     </Button>
     );
 }

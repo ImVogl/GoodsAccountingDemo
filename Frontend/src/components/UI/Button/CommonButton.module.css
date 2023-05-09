@@ -1,9 +1,20 @@
 .commonButton {
-    width: 220px;
-    height: 45px;
-    background-color: #FFFFFF;
+    width: 160px;
+    height: 32px;
+    background-color: #AAB7C6;
+    color: black;
     border: 1px solid gray;
-    font-size: 14px;
+    flex-wrap: wrap;
+    border-radius: 10px;
+    font-size: 18px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin: 10px;
+    display:flex;
+    justify-content: center;
+    align-content: center;
 }
 
 .commonButton:hover {
@@ -12,16 +23,16 @@
 
 @media (max-width: 1024px) {
     .commonButton {
-        width: 220px;
-        height: 45px;
+        width: 120px;
+        height: 24px;
         font-size: 14px;
     }
 }
 
-@media (max-width: 512px) {
+@media (max-width: 256px) {
     .commonButton {
-        width: 110px;
-        height: 20px;
+        width: 80px;
+        height: 16px;
         font-size: 10px;
     }
 }
