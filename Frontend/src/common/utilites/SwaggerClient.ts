@@ -1358,7 +1358,6 @@ export class AllClient {
                     result200!.push(UserLoginDto.fromJS(item));
             }
 
-            debugger;
             return result200;
         } else if (status === 400) {
             const _responseText = response.data;
