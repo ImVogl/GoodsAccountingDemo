@@ -1,6 +1,6 @@
 import './Account.css'
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
-import { selectUserName, selectUserIsAdmin, selectUserIdentifier } from '../../common/redux/UserSlice';
+import { selectUserName, selectUserIsAdmin } from '../../common/redux/UserSlice';
 import { FC, useState, useEffect } from 'react';
 import { Form, Container, Button } from 'react-bootstrap';
 import WorkingArea from '../base/working/WorkingArea';
@@ -8,6 +8,7 @@ import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
 import Schema from './validator'
 import { ValidationError } from 'yup';
 import { badRequestProcessor } from '../../common/utilites/Common';
+import AddUser from './ManagerPanel/Add/AddUser';
 
 interface IUser{
     id: number;
@@ -28,38 +29,6 @@ export interface IChangePasswordForm{
 const PASSWORD_ID: string = 'password-group-form';
 const NEW_PASSWORD_ID: string = 'new-password-group-form';
 const CONFIRM_ID: string = 'confirm-password-group-form';
-const SURNAME_ID: string = 'surname-password-group-form';
-const NAME_ID: string = 'name-password-group-form'
-
-const handleCreateNewUser = (identifier: number, client: ApiClientWrapper, form: HTMLFormElement, date: Date): Promise<string> => {
-    let name:string = "";
-    let surname: string = "";
-    for (let i = 0; i < form.length; i++){
-        if (form[i].localName !== "input"){
-            continue;
-        }
-
-        let element = (form[i] as HTMLInputElement);
-        if (element.id === NAME_ID){
-            name = element.value;
-        }
-
-        if (element.id === SURNAME_ID){
-            surname = element.value;
-        }
-    };
-
-    return client.addNewUser(identifier, name, surname, date)
-        .then(response => `Login: ${response.login}; Password: ${response.password}`)
-        .catch(exception => {
-            if (badRequestProcessor(exception)){
-                return "";
-            }
-    
-            console.error(exception);
-            return "";
-        });
-};
 
 const handleChangePassword = async (client: ApiClientWrapper, form: HTMLFormElement, setErrors: Function): Promise<void> => {
     const values:IChangePasswordForm = { password: "", newPassword: "", confirmPassword: "" };
@@ -136,73 +105,6 @@ const handleRemoveUser = async (client: ApiClientWrapper, id:number): Promise<vo
             alert("Не удалось удалить пользователя");
         }
     };
-}
-
-const AddUser: FC = () => {
-    const [date, setDate] = useState(new Date());
-    const [submitting, setSubmitting] = useState(false);
-    const [message, setMessage] = useState("");
-    useEffect(() => {
-        if (message !== ""){
-            navigator.clipboard.writeText(message)
-                .then(() => {
-                    alert("Логин и пароль были скопированы в буфер обмена");
-                    window.location.reload();
-                })
-                .catch(() => {
-                    alert(message);
-                    window.location.reload();
-                });
-            
-        }
-    }, [message]);
-    const client = new ApiClientWrapper(useAppDispatch());
-    const identifier = useAppSelector(selectUserIdentifier);
-    return(
-        <Form 
-            className='main-account-container'
-            onSubmit={event => {
-                event.preventDefault();
-                setSubmitting(true);
-                let form = event.target as HTMLFormElement;
-                handleCreateNewUser(identifier, client, form, date)
-                    .then(message => { 
-                        setMessage(message);
-                        form.reset();
-                        setSubmitting(false);
-                        })
-                    .catch(error => {
-                        console.error(error);
-                        form.reset();
-                        setSubmitting(false);
-                    });
-                    }
-                }
-            >
-            <Form.Group className='main-account-container'>
-                <Form.Label className='main-account-sublabel'>Добавить продавца</Form.Label>
-                <Container className='main-account-row'>
-                    <Form.Group className='main-account-col'>
-                        <Form.Label className='main-account-control'>Фамилия</Form.Label>
-                        <Form.Control className='main-account-control' type="text" id = {SURNAME_ID} />
-                    </Form.Group>
-                    <Form.Group className='main-account-col'>
-                        <Form.Label className='main-account-control'>Имя</Form.Label>
-                        <Form.Control className='main-account-control' type="text" id = {NAME_ID} />
-                    </Form.Group>
-                    <Form.Group className='main-account-col'>
-                        <Form.Label className='main-account-control'>Дата рождения</Form.Label>
-                        <Form.Control
-                            className='main-account-control'
-                            type="date"
-                            value={date.toLocaleDateString("sv")}
-                            onChange={event => setDate(new Date(event.target.value))}
-                            max={(new Date()).toLocaleDateString("sv")} />
-                    </Form.Group>
-                    <Button className='main-account-col main-account-button' type='submit' disabled={submitting}>Добавить</Button>
-                </Container>
-            </Form.Group>
-        </Form>);
 }
 
 const RemoveUser: FC = () => {

@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 
 export interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>{
     title: string;
-    variant: string;
+    variant?: string;
     href?: string;
 }
 

@@ -11,6 +11,7 @@ import Modal from '../modal/Modal';
 import ApiClientWrapper from '../../../common/utilites/ApiClientWrapper';
 import TokenService from '../../../common/utilites/TokenService';
 import { badRequestProcessor } from '../../../common/utilites/Common';
+import { CommonButton } from '../../UI/Button/CommonButton';
 
 interface Children { }
 const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<Children>): ReactElement => {
@@ -102,10 +103,10 @@ const WorkingArea: FC<PropsWithChildren<Children>> = (props: PropsWithChildren<C
                     <div className='working-area-control-block'>
                         <Container className='working-area-container'>
                             <Row className='working-area-row'>
-                                <Button className='working-area-button' variant="outline-dark" type="submit" disabled={loading} onClick={!loading ? () => setLoading(true) : () => {}}>{shiftButton}</Button>
+                                <CommonButton title={shiftButton} variant="outline-dark" type="submit" disabled={loading} onClick={!loading ? () => setLoading(true) : () => {}} />
                             </Row>
                             <Row className='working-area-row'>
-                                <Button className='working-area-button' variant="outline-dark" href={ACCOUNT}>{displayedName}</Button></Row>
+                                <CommonButton title={displayedName} variant="outline-dark" href={ACCOUNT} /></Row>
                             <Row />
                         </Container>
                     </div>
