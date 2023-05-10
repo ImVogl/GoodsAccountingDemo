@@ -42,3 +42,14 @@
     border-radius: 5px;
     background: rgba(170, 183, 198, 0.3);
 }
+
+.listOption{
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 24px;
+
+    color: rgba(255, 255, 255, 0.7);
+    background: #2A2C2F;
+}

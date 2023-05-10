@@ -103,7 +103,7 @@ const AddUser: FC = () => {
                             onChange={event => setDate(new Date(event.target.value))}
                             max={(new Date()).toLocaleDateString("sv")} />
                     </Form.Group>
-                    <CommonButton title='Добавить' className={classes.column} type='submit' disabled={submitting} />
+                    <CommonButton title='Сохранить' className={classes.column} type='submit' disabled={submitting} />
                 </Row>
             </Form.Group>
         </Form>);

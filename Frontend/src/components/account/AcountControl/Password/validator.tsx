@@ -1,4 +1,4 @@
-import { IChangePasswordForm } from '../../AccountPage';
+import { IChangePasswordForm } from './PasswordChangeControl';
 import { ObjectSchema, object, string, ref } from 'yup'
 import { MIN_PASSWORD_LENGTH, checkAllSymbols } from '../../../../common/utilites/PasswordValidation';
 

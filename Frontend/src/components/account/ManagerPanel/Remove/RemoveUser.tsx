@@ -74,13 +74,16 @@ const RemoveUser: FC = () => {
                             as='select'
                             className={classes.control}
                             value={user.login}
-                            onChange={event => {
-                                let tmpUser = users.find(item => item.login === event.target.value);
-                                if (tmpUser !== undefined){
-                                    setUser(tmpUser);
+                            onChange={
+                                event => 
+                                {
+                                    let tmpUser = users.find(item => item.login === event.target.value);
+                                    if (tmpUser !== undefined){
+                                        setUser(tmpUser);
+                                    }
                                 }
-                                }}>
-                            {users.map((locUser) => <option value={locUser.login} key={locUser.id}>{locUser.login}</option>)}
+                            }>
+                            {users.map((locUser) => <option value={locUser.login} key={locUser.id} className={classes.listOption}>{locUser.login}</option>)}
                         </Form.Control>
                     </Form.Group>
                     <CommonButton title={"Удалить"} className={classes.column} type='submit' disabled={submitting} />
