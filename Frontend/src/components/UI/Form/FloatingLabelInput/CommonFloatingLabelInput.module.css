@@ -12,6 +12,21 @@
     background: rgba(170, 183, 198, 0.3);
 }
 
+.error{
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 24px;
+
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 15px;
+    width: 75%;
+    border-radius: 5px;
+    background: rgba(170, 183, 198, 0.3);
+    border: red 1.5px;
+}
+
 .commonLabel{
     font-family: 'Inter';
     font-style: normal;
