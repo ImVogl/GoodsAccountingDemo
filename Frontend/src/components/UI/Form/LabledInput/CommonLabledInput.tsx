@@ -10,7 +10,7 @@ export const CommonLabledInput: FC<IInputProps> = ({ label, ...props }): ReactEl
     return (
         <div>
             <label className={classes.commonLabel}>{label}</label>
-            <input {...props} className={classes.commonInput} />
+            <input  className={classes.commonInput} {...props} />
         </div>
     );
 }

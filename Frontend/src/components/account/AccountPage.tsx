@@ -1,7 +1,7 @@
 import './Account.css'
 import { useAppSelector, useAppDispatch } from '../../common/redux/hooks';
 import { selectUserName, selectUserIsAdmin } from '../../common/redux/UserSlice';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { Form, Container, Button } from 'react-bootstrap';
 import WorkingArea from '../base/working/WorkingArea';
 import ApiClientWrapper from '../../common/utilites/ApiClientWrapper';
@@ -9,16 +9,7 @@ import Schema from './validator'
 import { ValidationError } from 'yup';
 import { badRequestProcessor } from '../../common/utilites/Common';
 import AddUser from './ManagerPanel/Add/AddUser';
-
-interface IUser{
-    id: number;
-    login: string;
-}
-
-class User implements IUser{
-    id!: number;
-    login!: string; 
-}
+import RemoveUser from './ManagerPanel/Remove/RemoveUser';
 
 export interface IChangePasswordForm{
     password: string;
@@ -94,75 +85,6 @@ const handleChangePassword = async (client: ApiClientWrapper, form: HTMLFormElem
         }
     }
 };
-
-const handleRemoveUser = async (client: ApiClientWrapper, id:number): Promise<void> =>{
-    try{
-        await client.removeUser(id);
-    }
-    catch (exception){
-        if (!badRequestProcessor(exception)){
-            console.error(exception);
-            alert("Не удалось удалить пользователя");
-        }
-    };
-}
-
-const RemoveUser: FC = () => {
-    const initUsers: IUser[] = [];
-    const initUser = new User();
-    const client = new ApiClientWrapper(useAppDispatch());
-    const [user, setUser] = useState(initUser);
-    const [users, setUsers] = useState(initUsers);
-    const [submitting, setSubmitting] = useState(false);
-    useEffect(() => {
-        const fetchusers = async () => {
-            return await client.getAllUsers();
-        };
-
-        fetchusers().then(users => {
-            setUsers(users);
-            let existUser = users.find(item => item.id === user.id);
-            if (existUser !== undefined){
-                return;
-            }
-
-            let locUser = new User();
-            locUser.id = users.length > 0 ? users[0].id :-1;
-            locUser.login = users.length > 0 ? users[0].login : "";
-            setUser(locUser);
-        }).catch(exception => badRequestProcessor(exception))
-    }, [user.login, user.id]);
-
-    return(
-        <Form
-            className='main-account-container'
-            onSubmit={async () => {
-                setSubmitting(true);
-                await handleRemoveUser(client, user.id);
-                setSubmitting(false);}}
-            >
-            <Form.Group className='main-account-container'>
-                <Form.Label className='main-account-sublabel'>Удалить продавца</Form.Label>
-                <Container className='main-account-row main-account-row-remove'>
-                    <Form.Group className='main-account-col'>
-                        <Form.Control
-                            as='select'
-                            className='main-account-control'
-                            value={user.login}
-                            onChange={event => {
-                                let tmpUser = users.find(item => item.login === event.target.value);
-                                if (tmpUser !== undefined){
-                                    setUser(tmpUser);
-                                }
-                                }}>
-                            {users.map((locUser) => <option value={locUser.login} key={locUser.id}>{locUser.login}</option>)}
-                        </Form.Control>
-                    </Form.Group>
-                    <Button className='main-account-col main-account-button' type='submit' disabled={submitting}>Удалить</Button>
-                </Container>
-            </Form.Group>
-        </Form>);
-}
 
 const AccountPage: FC = () => {
     const initialValues: IChangePasswordForm = { password: "", newPassword: "", confirmPassword: "" };
