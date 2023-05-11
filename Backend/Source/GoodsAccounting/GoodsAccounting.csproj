@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="MapperProfiles\" />
+    <Folder Include="Services\Email\" />
     <Folder Include="Services\SnapshotConverter\" />
     <Folder Include="Services\Password\" />
   </ItemGroup>

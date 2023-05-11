@@ -10,7 +10,6 @@ using GoodsAccounting.Services;
 using GoodsAccounting.Services.SecurityKey;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using GoodsAccounting.Services.TextConverter;
 using GoodsAccounting.Services.Password;
 using GoodsAccounting.Services.BodyBuilder;
 using GoodsAccounting.MapperProfiles;
@@ -20,6 +19,7 @@ using GoodsAccounting.HeaderFilters;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using System.Reflection;
+using GoodsAccounting.Services.Email;
 
 namespace GoodsAccounting
 {
@@ -243,7 +243,21 @@ namespace GoodsAccounting
             });
 
             serviceCollection.AddScoped<DisplayNamesUpdater>();
-            serviceCollection.AddScoped<ITextConverter, TextConverter>();
+            serviceCollection.AddScoped<IEmailService>(provider =>
+            {
+                var section = provider.GetService<IOptions<StmpSection>>()?.Value;
+                if (string.IsNullOrWhiteSpace(section?.Server))
+                    throw new ArgumentNullException(nameof(section.Server));
+
+                if (string.IsNullOrWhiteSpace(section.AccountLogin))
+                    throw new ArgumentNullException(nameof(section.AccountLogin));
+
+                if (string.IsNullOrWhiteSpace(section.AccountPassword))
+                    throw new ArgumentNullException(nameof(section.AccountPassword));
+
+                return new EmailService(section.Server, section.Port, section.AccountLogin, section.AccountPassword);
+            });
+
             serviceCollection.AddScoped<ISnapshotConverter>(provider =>
                 new HistorySnapshotConverter(provider.GetRequiredService<IMapper>(),
                     provider.GetRequiredService<DisplayNamesUpdater>()));

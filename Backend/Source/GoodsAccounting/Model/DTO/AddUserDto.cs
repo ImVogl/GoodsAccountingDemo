@@ -13,7 +13,21 @@ public class AddUserDto
     [JsonRequired]
     [JsonProperty("id")]
     public int SenderId { get; set; }
-    
+
+    /// <summary>
+    /// Get or set new user email.
+    /// </summary>
+    [JsonRequired]
+    [JsonProperty("email")]
+    public string Email { get; set; } = null!;
+
+    /// <summary>
+    /// Get or set user's telegram login.
+    /// </summary>
+    [JsonRequired]
+    [JsonProperty("telegram")]
+    public string Telegram { get; set; } = null!;
+
     /// <summary>
     /// Get or set new user's name.
     /// </summary>

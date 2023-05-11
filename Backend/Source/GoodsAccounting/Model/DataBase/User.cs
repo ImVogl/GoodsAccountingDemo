@@ -26,7 +26,7 @@ public class User
     /// <summary>
     /// Get or set user login.
     /// </summary>
-    [Column("login", TypeName = "text")]
+    [Column("email", TypeName = "text")]
     public string UserLogin { get; set; } = null!;
 
     /// <summary>

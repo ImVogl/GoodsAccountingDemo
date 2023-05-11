@@ -19,10 +19,9 @@ using GoodsAccounting.Model.DataBase;
 using Microsoft.AspNetCore.Authorization;
 using GoodsAccounting.Model.Exceptions;
 using GoodsAccounting.Services;
-using GoodsAccounting.Services.TextConverter;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using GoodsAccounting.Services.Email;
 
 namespace GoodsAccounting.Controllers
 {
@@ -64,15 +63,15 @@ namespace GoodsAccounting.Controllers
         private readonly IResponseBodyBuilder _bodyBuilder;
 
         /// <summary>
+        /// Instance of <see cref="IEmailService"/>.
+        /// </summary>
+        private readonly IEmailService _emailService;
+
+        /// <summary>
         /// Instance of <see cref="ISecurityKeyExtractor"/>.
         /// </summary>
         private readonly ISecurityKeyExtractor _keyExtractor;
-
-        /// <summary>
-        /// Instance of <see cref="ITextConverter"/>.
-        /// </summary>
-        private readonly ITextConverter _textConverter;
-
+        
         /// <summary>
         /// Valid audience for token validation.
         /// </summary>
@@ -90,24 +89,24 @@ namespace GoodsAccounting.Controllers
         /// <param name="passwordService">Instance of <see cref="IPassword"/>.</param>
         /// <param name="validator">Instance of <see cref="IDtoValidator"/>.</param>
         /// <param name="bodyBuilder">Instance of <see cref="IResponseBodyBuilder"/>.</param>
+        /// <param name="emailService">Instance of <see cref="IEmailService"/>.</param>
         /// <param name="keyExtractor">Instance of <see cref="ISecurityKeyExtractor"/>.</param>
-        /// <param name="textConverter">Instance of <see cref="ITextConverter"/>.</param>
         /// <param name="jwtOption">Option for <see cref="BearerSection"/>.</param>
         public UserAccessController(
             IUsersContext db,
             IPassword passwordService,
             IDtoValidator validator,
             IResponseBodyBuilder bodyBuilder,
+            IEmailService emailService,
             ISecurityKeyExtractor keyExtractor,
-            ITextConverter textConverter,
             IOptions<BearerSection> jwtOption)
         {
             _db = db;
             _passwordService = passwordService;
             _validator = validator;
             _bodyBuilder = bodyBuilder;
+            _emailService = emailService;
             _keyExtractor = keyExtractor;
-            _textConverter = textConverter;
             _validAudience = jwtOption.Value.ValidAudience ?? throw new NullReferenceException(nameof(jwtOption.Value.ValidAudience));
             _validIssuer = jwtOption.Value.ValidIssuer ?? throw new NullReferenceException(nameof(jwtOption.Value.ValidIssuer));
         }
@@ -237,7 +236,7 @@ namespace GoodsAccounting.Controllers
         /// <response code="401">Returns if user didn't find or password is invalid.</response>
         [Authorize(Roles = UserRole.Administrator)]
         [HttpPost("~/add_user")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NewUserDto))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Dictionary<string, string>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(Dictionary<string, string>))]
         public async Task<IActionResult> AddUserAsync([FromBody] AddUserDto dto)
@@ -249,10 +248,9 @@ namespace GoodsAccounting.Controllers
                     Log.Warn("User's identifier is incorrect.");
                     return BadRequest(_bodyBuilder.InvalidDtoBuild());
                 }
-
-                var login = $"{_textConverter.Convert(dto.Surname)}_{_textConverter.Convert(dto.Name)}";
+                
                 var birthDay = DateOnly.FromDateTime(dto.BirthDay);
-                if (await _db.DoesUserExistsAsync(login, dto.Name, dto.Surname, birthDay).ConfigureAwait(false))
+                if (await _db.DoesUserExistsAsync(dto.Email, dto.Name, dto.Surname, birthDay).ConfigureAwait(false))
                     return BadRequest(_bodyBuilder.EntityExistsBuild());
 
                 const int expiredMinutes = 15;
@@ -261,7 +259,7 @@ namespace GoodsAccounting.Controllers
                 var (salt, hash) = _passwordService.Hash(password);
                 var newUser = new User
                 {
-                    UserLogin = login,
+                    UserLogin = dto.Email,
                     Name = dto.Name,
                     BirthDate = birthDay,
                     Surname = dto.Surname, PasswordExpired = expiredTime, Hash = hash, Salt = salt,
@@ -269,13 +267,8 @@ namespace GoodsAccounting.Controllers
                 };
 
                 await _db.AddUserAsync(newUser).ConfigureAwait(false);
-                var newUserDto = new NewUserDto
-                {
-                    Login = login,
-                    Password = password
-                };
-
-                return Ok(newUserDto);
+                await _emailService.SendPassword(dto.Email, password);
+                return Ok();
             }
             catch (BadPasswordException) {
                 return Unauthorized();
@@ -469,7 +462,6 @@ namespace GoodsAccounting.Controllers
         /// <param name="user"><see cref="User"/>.</param>
         /// <param name="minutes">Expired time.</param>
         /// <returns>Access token.</returns>
-        [NotNull]
         private string ProcessToken(User user, int minutes)
         {
             var credentials = new SigningCredentials(_keyExtractor.Extract(), SecurityAlgorithms.HmacSha256);

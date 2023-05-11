@@ -7,7 +7,10 @@ namespace GoodsAccounting.Services;
 /// <summary>
 /// Configuration setup proxy.
 /// </summary>
-public class ConfigurationOptionSetup : IConfigureOptions<BearerSection>, IConfigureOptions<DataBaseConfig>
+public class ConfigurationOptionSetup : 
+    IConfigureOptions<BearerSection>,
+    IConfigureOptions<DataBaseConfig>,
+    IConfigureOptions<StmpSection>
 {
     /// <summary>
     /// Instance of <see cref="IConfiguration"/>.
@@ -34,5 +37,11 @@ public class ConfigurationOptionSetup : IConfigureOptions<BearerSection>, IConfi
     {
         options.ConnectionString = _configuration.GetConnectionString("MainDataBase");
         _configuration.GetSection("DatabaseOption").Bind(options);
+    }
+
+    /// <inheritdoc />
+    public void Configure(StmpSection options)
+    {
+        _configuration.GetSection("Smtp");
     }
 }
